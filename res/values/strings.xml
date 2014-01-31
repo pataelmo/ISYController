@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ISYController</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="titleString">ISYController</string>
+    <string name="connectButton">Connect</string>
+    <string name="configureButton">Configure</string>
+    <string name="quitButton">Quit</string>
+    <string name="title_activity_config">ConfigActivity</string>
+    <string name="queryButton">Query</string>
+    <string name="onButton">Turn On</string>
+    <string name="offButton">Turn Off</string>
+    <string name="pref_server">Server Settings</string>
+	<string name="pref_server_name">ISY REST Path</string>
+	<string name="pref_server_name_hint">http://isy994-ems/rest</string>
+	<string name="pref_server_name_summary">Enter the FQDN of the Server</string>
+	<string name="pref_use_https">Use HTTPS</string>
+	<string name="pref_use_https_summary">Should SSL sockets be used for connection</string>
+	<string name="pref_login">Login</string>
+	<string name="pref_user_name">Username</string>
+	<string name="pref_user_name_summary">The username for the ISY</string>
+	<string name="pref_password">Password</string>
+	<string name="pref_password_summary">The password for the ISY</string>
+</resources>

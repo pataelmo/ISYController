@@ -1,0 +1,17 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!--
+         A 'parent' preference, which enables/disables child preferences (below)
+         when checked/unchecked.
+    -->
+    <EditTextPreference
+        android:inputType="text"
+        android:key="prefServerURL"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_server_name" 
+        android:summary="@string/pref_server_name_summary"
+        android:hint="@string/pref_server_name_hint"/>
+
+</PreferenceScreen>

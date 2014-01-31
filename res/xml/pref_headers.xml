@@ -1,0 +1,15 @@
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- These settings headers are only used on tablets. -->
+
+    <header
+        android:fragment="com.pataelmo.isycontroller.SettingsActivity$GeneralPreferenceFragment"
+        android:title="@string/pref_login" />
+    <header
+        android:fragment="com.pataelmo.isycontroller.SettingsActivity$NotificationPreferenceFragment"
+        android:title="@string/pref_server" />
+    <header
+        android:fragment="com.pataelmo.isycontroller.SettingsActivity$DataSyncPreferenceFragment"
+        android:title="@string/pref_header_data_sync" />
+
+</preference-headers>

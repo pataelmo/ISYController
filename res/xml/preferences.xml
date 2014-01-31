@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/pref_server" >
+        <EditTextPreference
+                android:title="@string/pref_server_name"
+                android:summary="@string/pref_server_name_summary"
+                android:key="prefServer"/>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="prefUseHttps"
+            android:summary="@string/pref_use_https_summary"
+            android:title="@string/pref_use_https" >
+        </CheckBoxPreference>
+    </PreferenceCategory>
+     
+    <PreferenceCategory android:title="@string/pref_login" >
+        <EditTextPreference
+                android:title="@string/pref_user_name"
+                android:summary="@string/pref_user_name_summary"
+                android:key="prefUser"/>
+        <EditTextPreference
+                android:title="@string/pref_password"
+                android:summary="@string/pref_password_summary"
+                android:key="prefPassword"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>
