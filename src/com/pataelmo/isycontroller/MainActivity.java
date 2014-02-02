@@ -37,6 +37,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 public class MainActivity extends Activity {
@@ -92,15 +93,51 @@ public class MainActivity extends Activity {
     	setActionBarTitle(title);
     	
     	// For the cursor adapter, specify which columns go into which views
-        String[] fromColumns = {DatabaseHelper.KEY_NAME};
-        int[] toViews = {android.R.id.text1}; // The TextView in simple_list_item_1
+        String[] fromColumns = {DatabaseHelper.KEY_TYPE, DatabaseHelper.KEY_NAME,DatabaseHelper.KEY_TYPE,DatabaseHelper.KEY_VALUE};
+        int[] toViews = {R.id.icon,R.id.name,R.id.type,R.id.value}; // The TextView in simple_list_item_1
 
         
         // Create an empty adapter we will use to display the loaded data.
         // We pass null for the cursor, then update it in onLoadFinished()
         mAdapter = new SimpleCursorAdapter(this, 
-                android.R.layout.simple_list_item_1, cursor,
-                fromColumns, toViews, 0);
+                R.layout.listview_row, cursor,
+                fromColumns, toViews, 0) {
+        	public void setViewImage(ImageView v, String value) {
+        		if (value.equalsIgnoreCase("Folder")) {
+        			v.setImageResource(R.drawable.folder);
+        		} else if (value.equalsIgnoreCase("Scene")) {
+        			v.setImageResource(R.drawable.scene);
+        		} else {
+        			v.setImageResource(R.drawable.bulb);
+        		}
+        	}
+        	
+        };
+        
+//        mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+//            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {         
+//               // int viewId = view.getId();
+//                int categoryIndex = cursor.getColumnIndexOrThrow(DatabaseHelper.KEY_TYPE);
+//
+//                if(columnIndex == categoryIndex)        
+//                {  
+//                    String categoryIdentifier = cursor.getString(columnIndex);
+//                    //switch categoryIdentifier
+//                   if(categoryIdentifier.equalsIgnoreCase("Supplier")){
+//                       displayImage = (ImageView) view;
+//                       displayImage.setImageResource(R.drawable.supplier);
+//                   }
+//                   if(categoryIdentifier.equalsIgnoreCase("Other")){
+//                       displayImage = (ImageView) view;
+//                       displayImage.setImageResource(R.drawable.other);
+//                   }    
+//                    Log.v("TEST COMPARISON", "columnIndex=" + columnIndex + "  categoryIdentifier = " + categoryIdentifier);  
+//
+//                  return true;          
+//              } 
+//              return false;      
+//              } 
+//            });
         listview.setAdapter(mAdapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
         	@Override 

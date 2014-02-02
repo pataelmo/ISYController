@@ -24,4 +24,5 @@
 	<string name="pref_user_name_summary">The username for the ISY</string>
 	<string name="pref_password">Password</string>
 	<string name="pref_password_summary">The password for the ISY</string>
+	<string name="iconDescription">Type Logo</string>
 </resources>
