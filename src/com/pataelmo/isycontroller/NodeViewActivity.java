@@ -152,7 +152,7 @@ public class NodeViewActivity extends Activity {
     	// Request Node Update
     	
     	// Dummy code to see action
-    	mStatusText.setText("Node value Queried");
+    	//mStatusText.setText("Node value Queried");
 
     	new NodeCommander().execute("ST");
     }
@@ -164,7 +164,7 @@ public class NodeViewActivity extends Activity {
     	//mValueText.setText("On");
     	//mRawValueText.setText("255");
     	mStatusText.setText("");
-    	new NodeCommander().execute("cmd/DON");
+    	new NodeCommander().execute("cmd/DON","ST");
     	//Toast.makeText(this, mName + "turned on.", Toast.LENGTH_LONG).show();
     	
     }
@@ -176,10 +176,17 @@ public class NodeViewActivity extends Activity {
     	//mValueText.setText("Off");
     	//mRawValueText.setText("0");
     	mStatusText.setText("");
-    	new NodeCommander().execute("cmd/DOF");
+    	new NodeCommander().execute("cmd/DOF","ST");
 //    	Toast.makeText(this, mName + "turned off.", Toast.LENGTH_LONG).show();
     }
 
+    public void updateValues(String value, String rawValue) {
+    	// Update display
+    	mValueText.setText(value);
+    	mRawValueText.setText(rawValue);
+    	// Update database
+    	dbh.updateNodeValue(mId, value, rawValue);
+    }
     
 
     public class NodeCommander extends AsyncTask<String, Integer, Integer> {
@@ -187,17 +194,19 @@ public class NodeViewActivity extends Activity {
     	private String mCommand;
 	    private ProgressDialog pDialog;
     	private InputStream mInputStream;
+    	private int mCount;
+    	private String mResults;
     	@Override
     	protected void onPreExecute() {
 			super.onPreExecute();
 			// set up progress indicator
 			
-	        pDialog = new ProgressDialog(NodeViewActivity.this);
-	        pDialog.setMessage("Issuing command, Please wait...");
-	        pDialog.setIndeterminate(false);
-	        pDialog.setCancelable(true);
-	        
-	        pDialog.show();
+//	        pDialog = new ProgressDialog(NodeViewActivity.this);
+//	        pDialog.setMessage("Issuing command, Please wait...");
+//	        pDialog.setIndeterminate(false);
+//	        pDialog.setCancelable(true);
+//	        
+//	        pDialog.show();
 	        
 	        // Setup authenticator for login
 	        Authenticator.setDefault(new Authenticator() {
@@ -212,33 +221,31 @@ public class NodeViewActivity extends Activity {
     	protected void onProgressUpdate(Integer... progress) {
 			super.onProgressUpdate(progress);
 			// advance progress indicator
+			 String results = "";
+ 	        if (mCommandSuccess) {
+ 	        	if (mCommand.equals("ST")) {
+ 	        		updateValues(mValue,mRawValue);
+ 	        	}
+ 	        } else {
+ 	        	results = "Failed to figure out cmd="+mCommand;
+ 	        	if (mCommand.equals("DON")) {
+ 	        		results = mType + " On failed...";
+ 	        	} else if (mCommand.equals("DOF")) {
+ 	        		results = mType + " Off failed...";
+ 	        	} else if (mCommand.equals("ST")) {
+ 	        		results = "Query Failed...";
+ 	        	}
+	 	       	Toast.makeText(getBaseContext(), results, Toast.LENGTH_LONG).show();
+ 	        }
     	}
 	   
     	@Override
     	protected void onPostExecute( Integer result ) {
 			//TODO remove progress indicator
-	        pDialog.hide();
-	        pDialog.dismiss();
+//	        pDialog.hide();
+//	        pDialog.dismiss();
 			// Update display values
-	        String results = "";
-	        String success = "";
-	        if (mCommandSuccess) {
-	        	success = "successfully.";
-	        } else {
-	        	success = "failed.";
-	        }
-	        if (mCommand.length() > 0) {
-	        	results = "Failed to figure out cmd="+mCommand;
-	        	if (mCommand.equals("DON")) {
-	        		results = mType + " commanded on " + success;
-	        	} else if (mCommand.equals("DOF")) {
-	        		results = mType + " commanded off " + success;
-	        	} else if (mCommand.equals("ST")) {
-	        		mValueText.setText(mValue);
-	        		mRawValueText.setText(mRawValue);
-	        	}
-	        	Toast.makeText(getBaseContext(), results, Toast.LENGTH_LONG).show();
-	        }
+	       
     	}   ///  end ---   onPostExecute(..)
 
 		@Override
@@ -249,53 +256,75 @@ public class NodeViewActivity extends Activity {
 	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 	        if (networkInfo != null && networkInfo.isConnected())
 	        {
-	        	try {
-	        		String cmd = params[0];
-	        		if (cmd.length()>6) {
-	        			mCommand = cmd.substring(4,7);
-	        		} else if (cmd.length()>0) {
-	        			mCommand = cmd;
-	        		}
-	        		
-	        		URL url = new URL(baseUrl+cmd);
-	        		URI uri = null;
-	        		try {
-	        			uri = new URI(url.getProtocol(),url.getUserInfo(),url.getHost(),url.getPort(),url.getPath(),url.getQuery(),url.getRef());
-	        		} catch (URISyntaxException e) {
-	        			Log.e("URI Parsing Error",e.toString());
-	        		}
-	        		//String safeURL = new Uri.Builder().path(baseUrl+cmd).build().toString();
-	        		url = uri.toURL();
-	        		mInputStream = url.openConnection().getInputStream();
-	        	} catch (IOException i) {
-	        		Log.e("URL Download failed",i.toString());
+	        	int count = params.length;
+	        	mCount = count;
+	        	for (int i = 0; i < count; i++) {
+		        	// DO URL GET
+		        	try {
+		        		String cmd = params[i];
+
+		        		if (cmd.length()>6) {
+		        			mCommand = cmd.substring(4,7);
+		        		} else if (cmd.length()>0) {
+		        			mCommand = cmd;
+		        		}
+			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
+		        		
+		        		URL url = new URL(baseUrl+cmd);
+		        		URI uri = null;
+		        		try {
+		        			uri = new URI(url.getProtocol(),url.getUserInfo(),url.getHost(),url.getPort(),url.getPath(),url.getQuery(),url.getRef());
+		        		} catch (URISyntaxException e) {
+		        			Log.e("URI Parsing Error",e.toString());
+		        		}
+		        		//String safeURL = new Uri.Builder().path(baseUrl+cmd).build().toString();
+		        		url = uri.toURL();
+		        		mInputStream = url.openConnection().getInputStream();
+		        	} catch (IOException ie) {
+		        		Log.e("URL Download failed",ie.toString());
+		        	}
+		        	// PARSE URL RESPONSE
+		        	try {
+		    			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
+		    			Element root = dom.getDocumentElement();
+		    			String rootName = root.getNodeName();
+		    			mCommandSuccess = false;
+		    			if (rootName.equalsIgnoreCase("RestResponse")) {
+		    				// Get success or fail
+		    				if (root.getAttribute("succeeded").equalsIgnoreCase("true")) {
+		    					mCommandSuccess = true;
+		    				} else {
+		    					mCommandSuccess = false;
+		    				}
+		    			} else if (rootName.equalsIgnoreCase("nodeInfo")) {
+		    				// Parse data out to update display
+		    			} else if (rootName.equalsIgnoreCase("properties")){
+		    				NamedNodeMap props = root.getFirstChild().getAttributes();
+		    				mRawValue = props.getNamedItem("value").getNodeValue();
+		    				mValue = props.getNamedItem("formatted").getNodeValue();
+		    				mCommandSuccess = true;
+		    			}
+		    			
+		    			
+		    		} catch (Exception e) {
+		    			Log.e("Parsing Node List Failed",e.toString());
+		    		}
+		        	
+		        	// Update Display with errors or new values
+		        	publishProgress(i);
+		        	Log.i("ASYNC TASK","Completed "+i+" out of "+count+"commands");
+		        	try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		 	        if (isCancelled()) {
+		 	        	break;
+		 	        }
 	        	}
-	        	
-	        	try {
-	    			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
-	    			Element root = dom.getDocumentElement();
-	    			String rootName = root.getNodeName();
-	    			mCommandSuccess = false;
-	    			if (rootName.equalsIgnoreCase("RestResponse")) {
-	    				// Get success or fail
-	    				if (root.getAttribute("succeeded").equalsIgnoreCase("true")) {
-	    					mCommandSuccess = true;
-	    				} else {
-	    					mCommandSuccess = false;
-	    				}
-	    			} else if (rootName.equalsIgnoreCase("nodeInfo")) {
-	    				// Parse data out to update display
-	    			} else if (rootName.equalsIgnoreCase("properties")){
-	    				NamedNodeMap props = root.getFirstChild().getAttributes();
-	    				mRawValue = props.getNamedItem("value").getNodeValue();
-	    				mValue = props.getNamedItem("formatted").getNodeValue();
-	    			}
-	    			
-	    			
-	    		} catch (Exception e) {
-	    			Log.e("Parsing Node List Failed",e.toString());
-	    		}
 	        }
+
 			return 0;
 		} // End method doInBackground
     } // End Class NodeListUpdater

@@ -109,7 +109,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		while(i.hasNext()) {
 			c = i.next();
 			db.insert(NODES_TABLE_NAME, null, c);
-			Log.i("DATABASE INSERT:", c.toString());
+			Log.v("DATABASE INSERT:", c.toString());
 		}
 	}
 	
@@ -208,5 +208,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		String result = lookup.getString(lookup.getColumnIndex(KEY_RAW_VALUE));
 		lookup.close();
 		return result;
+	}
+
+
+	public void updateNodeValue(String id, String value, String rawValue) {
+		// TODO Auto-generated method stub
+		SQLiteDatabase db = getDatabase();
+		ContentValues values = new ContentValues();
+		values.put(KEY_VALUE, value);
+		values.put(KEY_RAW_VALUE, rawValue);
+		db.update(NODES_TABLE_NAME, values, "_id = ?", new String[]{id});
 	}
 }

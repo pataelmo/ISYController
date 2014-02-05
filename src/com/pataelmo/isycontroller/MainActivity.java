@@ -49,6 +49,7 @@ public class MainActivity extends Activity {
 	String loginUser;
 	String loginPass;
 	String parent_id;
+	int mListPosition = 0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +77,8 @@ public class MainActivity extends Activity {
        //Cursor cursor = dbh.getCursorAllData();
         Cursor cursor = dbh.getCursorListData(parent_id);
 
-        Log.i("List Cursor","Parent ID = "+parent_id);
-        Log.i("List Cursor","Count = "+cursor.getCount());
+        Log.d("List Cursor","Parent ID = "+parent_id);
+        Log.d("List Cursor","Count = "+cursor.getCount());
         String title;
         if (parent_id == null) {
         	title = "Root";
@@ -161,9 +162,37 @@ public class MainActivity extends Activity {
              }
 
          });
-
+        Log.i("MainActivity","Created:"+this);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Log.v("MainActivity","Paused:"+this);
+		mListPosition = mList.getFirstVisiblePosition();
 	}
 
+	@Override
+	protected void onStop() {
+		super.onStop();
+		Log.v("MainActivity","Stopped:"+this);
+	}
+	
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		//refreshListData();
+		Log.v("MainActivity","Restarted:"+this);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		refreshListData();
+		mList.setSelectionFromTop(mListPosition,0);
+		Log.v("MainActivity","Resumed:"+this);
+	}
+	
 	private void relaunchSelf(String parent_id) {
 		Intent i = new Intent(this,MainActivity.class);
 		i.putExtra("parent_id", parent_id);
@@ -174,6 +203,11 @@ public class MainActivity extends Activity {
 		Intent i = new Intent(this,NodeViewActivity.class);
 		i.putExtra("id", id);
 		startActivity(i);
+	}
+
+	public void refreshListData() {
+        mAdapter.swapCursor(dbh.getCursorListData(parent_id));
+        mList.setAdapter(mAdapter);
 	}
 	/**
 	 * Set up the {@link android.app.ActionBar}, if the API is available.
@@ -267,8 +301,7 @@ public class MainActivity extends Activity {
 	        // Reload cursor
 	        //mAdapter.notifyDataSetChanged();
 	        //mList.invalidateViews();
-	        mAdapter.swapCursor(dbh.getCursorListData(parent_id));
-	        mList.setAdapter(mAdapter);
+	        refreshListData();
     	}   ///  end ---   onPostExecute(..)
 
 		@Override
@@ -366,4 +399,6 @@ public class MainActivity extends Activity {
 			return 0;
 		} // End method doInBackground
     } // End Class NodeListUpdater
+
+
 } // End Class MainActivity
