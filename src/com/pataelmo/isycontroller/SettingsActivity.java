@@ -43,6 +43,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_USERNAME = "prefUsername";
 	public static final String KEY_PREF_PASSWORD = "prefPassword";
 	public static final String KEY_PREF_SERVER_URL = "prefServerURL";
+	public static final String KEY_PREF_DUMPDB = "prefResetDatabase";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +93,7 @@ public class SettingsActivity extends PreferenceActivity {
 	 * device configuration dictates that a simplified, single-pane UI should be
 	 * shown.
 	 */
+	@SuppressWarnings("deprecation")
 	private void setupSimplePreferencesScreen() {
 		if (!isSimplePreferences(this)) {
 			return;
@@ -134,6 +136,7 @@ public class SettingsActivity extends PreferenceActivity {
 	 * Helper method to determine if the device has an extra-large screen. For
 	 * example, 10" tablets are extra-large.
 	 */
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
 	private static boolean isXLargeTablet(Context context) {
 		return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
 	}

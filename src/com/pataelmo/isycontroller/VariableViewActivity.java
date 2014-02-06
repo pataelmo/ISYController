@@ -12,7 +12,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
+
+import com.pataelmo.isycontroller.ProgramViewActivity.NodeCommander;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -33,15 +34,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class NodeViewActivity extends Activity {
-
+public class VariableViewActivity extends Activity {
 	DatabaseHelper dbh = null;
 	String mId;
-	String mName;
-	String mType;
-	String mAddress;
-	String mValue;
-	String mRawValue;
 	
 	TextView mNameText;
 	TextView mAddressText;
@@ -52,12 +47,13 @@ public class NodeViewActivity extends Activity {
 	String baseUrl;
 	String loginUser;
 	String loginPass;
+	private VariableData mVarData;
 	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
-	    setContentView(R.layout.activity_node_view);
+	    setContentView(R.layout.activity_variable_view);
 	    
 		dbh = new DatabaseHelper(getBaseContext());
 	    
@@ -71,22 +67,12 @@ public class NodeViewActivity extends Activity {
 		
 	    Intent intent = getIntent();
         mId = intent.getStringExtra("id");
-        mName = dbh.getNameFromId(mId);
-        mType = dbh.getTypeFromId(mId);
-        mAddress = dbh.getAddressFromId(mId);
-        mValue = dbh.getValueFromId(mId);
-        mRawValue = dbh.getRawValueFromId(mId);
+        mVarData = dbh.getVarData(mId);
         
-    	baseUrl = urlBase + "/nodes/" + mAddress + "/" ;
+    	baseUrl = urlBase + "/vars/" + mVarData.mType + "/" + mVarData.mAddress + "/" ;
         
-        if (mValue==null) {
-        	mValue = "N/A";
-        }
-        if (mRawValue==null) {
-        	mRawValue = "N/A";
-        }
         
-        setActionBarTitle(mName);
+        setActionBarTitle(mVarData.mName);
         
 	    mNameText = (TextView) findViewById(R.id.nameText);
 	    mAddressText = (TextView) findViewById(R.id.addressText);
@@ -94,10 +80,10 @@ public class NodeViewActivity extends Activity {
 	    mRawValueText = (TextView) findViewById(R.id.rawValueText);
 	    mStatusText = (TextView) findViewById(R.id.statusText);
 	    
-	    mNameText.setText(mName);
-	    mAddressText.setText(mAddress);
-	    mValueText.setText(mValue);
-	    mRawValueText.setText(mRawValue);
+	    mNameText.setText(mVarData.mName);
+	    mAddressText.setText(mVarData.mAddress);
+	    mValueText.setText(mVarData.getValueStr());
+//	    mRawValueText.setText(mRawValue);
 	}
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -223,16 +209,16 @@ public class NodeViewActivity extends Activity {
 			 String results = "";
  	        if (mCommandSuccess) {
  	        	if (mCommand.equals("ST")) {
- 	        		updateValues(mValue,mRawValue);
+ 	        		//updateValues(mValue,mRawValue);
  	        	}
  	        } else {
  	        	results = "Failed to figure out cmd="+mCommand;
  	        	if (mCommand.equals("DON")) {
- 	        		results = mType + " On failed...";
+ 	        		//results = mType + " On failed...";
  	        	} else if (mCommand.equals("DOF")) {
- 	        		results = mType + " Off failed...";
+ 	        		//results = mType + " Off failed...";
  	        	} else if (mCommand.equals("ST")) {
- 	        		results = "Query Failed...";
+ 	        		//results = "Query Failed...";
  	        	}
 	 	       	Toast.makeText(getBaseContext(), results, Toast.LENGTH_LONG).show();
  	        }
@@ -298,9 +284,9 @@ public class NodeViewActivity extends Activity {
 		    			} else if (rootName.equalsIgnoreCase("nodeInfo")) {
 		    				// Parse data out to update display
 		    			} else if (rootName.equalsIgnoreCase("properties")){
-		    				NamedNodeMap props = root.getFirstChild().getAttributes();
-		    				mRawValue = props.getNamedItem("value").getNodeValue();
-		    				mValue = props.getNamedItem("formatted").getNodeValue();
+		    				//NamedNodeMap props = root.getFirstChild().getAttributes();
+		    				//mRawValue = props.getNamedItem("value").getNodeValue();
+		    				//mValue = props.getNamedItem("formatted").getNodeValue();
 		    				mCommandSuccess = true;
 		    			}
 		    			
@@ -327,4 +313,5 @@ public class NodeViewActivity extends Activity {
 			return 0;
 		} // End method doInBackground
     } // End Class NodeListUpdater
+
 }

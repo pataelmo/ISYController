@@ -25,4 +25,6 @@
 	<string name="pref_password">Password</string>
 	<string name="pref_password_summary">The password for the ISY</string>
 	<string name="iconDescription">Type Logo</string>
+	<string name="pref_reset_db">Reset DB on Start</string>
+	<string name="pref_reset_db_summary">This will dump the database values when the application is loaded.</string>
 </resources>

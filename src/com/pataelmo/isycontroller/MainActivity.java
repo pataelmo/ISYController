@@ -48,8 +48,9 @@ public class MainActivity extends Activity {
 	String baseUrl;
 	String loginUser;
 	String loginPass;
-	String parent_id;
+	String mParentId;
 	int mListPosition = 0;
+	String mParentType;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,14 +74,22 @@ public class MainActivity extends Activity {
 		
         // Check for intent data
         Intent intent = getIntent();
-        parent_id = intent.getStringExtra("parent_id");
+        mParentId = intent.getStringExtra("parent_id");
+        mParentType = intent.getStringExtra("parent_type");
        //Cursor cursor = dbh.getCursorAllData();
-        Cursor cursor = dbh.getCursorListData(parent_id);
+        Cursor cursor;
+        if (mParentType != null) {
+        	if (mParentType.equals("System-Vars")) {
+        		// Load 
+        		
+        	}
+        }
+        cursor = dbh.getCursorListData(mParentId);
 
-        Log.d("List Cursor","Parent ID = "+parent_id);
+        Log.d("List Cursor","Parent ID = "+mParentId);
         Log.d("List Cursor","Count = "+cursor.getCount());
         String title;
-        if (parent_id == null) {
+        if (mParentId == null) {
         	title = "Root";
         	// Reload database nodes
         	try {
@@ -89,7 +98,7 @@ public class MainActivity extends Activity {
         		Log.e("MainActivity invalid URL: ", baseUrl);
         	}
         } else {
-        	title = dbh.getNameFromId(parent_id);
+        	title = dbh.getNameFromId(mParentId);
         }
     	setActionBarTitle(title);
     	
@@ -108,6 +117,8 @@ public class MainActivity extends Activity {
         			v.setImageResource(R.drawable.folder);
         		} else if (value.equalsIgnoreCase("Scene")) {
         			v.setImageResource(R.drawable.scene);
+        		} else if (value.equalsIgnoreCase("System")) {
+        			v.setImageResource(R.drawable.icon);
         		} else {
         			v.setImageResource(R.drawable.bulb);
         		}
@@ -115,56 +126,33 @@ public class MainActivity extends Activity {
         	
         };
         
-//        mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-//            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {         
-//               // int viewId = view.getId();
-//                int categoryIndex = cursor.getColumnIndexOrThrow(DatabaseHelper.KEY_TYPE);
-//
-//                if(columnIndex == categoryIndex)        
-//                {  
-//                    String categoryIdentifier = cursor.getString(columnIndex);
-//                    //switch categoryIdentifier
-//                   if(categoryIdentifier.equalsIgnoreCase("Supplier")){
-//                       displayImage = (ImageView) view;
-//                       displayImage.setImageResource(R.drawable.supplier);
-//                   }
-//                   if(categoryIdentifier.equalsIgnoreCase("Other")){
-//                       displayImage = (ImageView) view;
-//                       displayImage.setImageResource(R.drawable.other);
-//                   }    
-//                    Log.v("TEST COMPARISON", "columnIndex=" + columnIndex + "  categoryIdentifier = " + categoryIdentifier);  
-//
-//                  return true;          
-//              } 
-//              return false;      
-//              } 
-//            });
         listview.setAdapter(mAdapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
         	@Override 
             public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
         		String my_id = Long.toString(id);
         		Log.i("ListItem Clicked:","position="+Integer.toString(position)+"|id="+Long.toString(id));
-        		if (dbh.isFolder(my_id)) {
+        		String my_type = dbh.getTypeFromId(my_id);
+        		if (my_type.equals("Folder")) {
         			relaunchSelf(my_id);
+        		} else if (my_type.equals("System")) {
+        			String subType = dbh.getAddressFromId(my_id);
+        			launchSystemView(my_id,subType);	// Should be either System-Vars or System-Programs
         		} else {
         			loadNode(my_id);
         		}
-        		//final String item = (String) parent.getItemAtPosition(position);
-                //view.animate().setDuration(2000).alpha(0).withEndAction(new Runnable() {
-                //      @Override
-                //      public void run() {
-                //        //list.remove(item);
-                //        //adapter.notifyDataSetChanged();
-                //        //view.setAlpha(1);
-                //      }
-                //    });
              }
 
          });
         Log.i("MainActivity","Created:"+this);
 	}
 	
+	protected void launchSystemView(String my_id, String subType) {
+		Intent i = new Intent(this,SystemViewActivity.class);
+		i.putExtra("parent_type", subType);
+		startActivity(i);
+	}
+
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -206,7 +194,7 @@ public class MainActivity extends Activity {
 	}
 
 	public void refreshListData() {
-        mAdapter.swapCursor(dbh.getCursorListData(parent_id));
+        mAdapter.swapCursor(dbh.getCursorListData(mParentId));
         mList.setAdapter(mAdapter);
 	}
 	/**
