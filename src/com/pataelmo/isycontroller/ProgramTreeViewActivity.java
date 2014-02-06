@@ -44,7 +44,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class SystemViewActivity extends Activity {
+public class ProgramTreeViewActivity extends Activity {
 	DatabaseHelper dbh = null;
 	SimpleCursorAdapter mAdapter;
 	ListView mList;
@@ -239,7 +239,7 @@ public class SystemViewActivity extends Activity {
 	}
 	
 	private void relaunchSelf(String parent_id) {
-		Intent i = new Intent(this,SystemViewActivity.class);
+		Intent i = new Intent(this,ProgramTreeViewActivity.class);
 		i.putExtra("parent_id", parent_id);
 		i.putExtra("parent_type", mParentType);
 		startActivity(i);
@@ -325,7 +325,7 @@ public class SystemViewActivity extends Activity {
 			super.onPreExecute();
 			// set up progress indicator
 
-	        pDialog = new ProgressDialog(SystemViewActivity.this);
+	        pDialog = new ProgressDialog(ProgramTreeViewActivity.this);
 	        pDialog.setMessage("Updating "+mParentType+" List, Please wait...");
 	        pDialog.setIndeterminate(false);
 	        pDialog.setCancelable(true);

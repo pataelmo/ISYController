@@ -148,7 +148,7 @@ public class MainActivity extends Activity {
 	}
 	
 	protected void launchSystemView(String my_id, String subType) {
-		Intent i = new Intent(this,SystemViewActivity.class);
+		Intent i = new Intent(this,ProgramTreeViewActivity.class);
 		i.putExtra("parent_type", subType);
 		startActivity(i);
 	}
