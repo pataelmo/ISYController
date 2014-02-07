@@ -53,7 +53,6 @@ public class ProgramTreeViewActivity extends Activity {
 	String loginPass;
 	String mParentId;
 	int mListPosition = 0;
-	String mParentType;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,112 +74,58 @@ public class ProgramTreeViewActivity extends Activity {
         // Check for intent data
         Intent intent = getIntent();
         mParentId = intent.getStringExtra("parent_id");
-        mParentType = intent.getStringExtra("parent_type");
         
-        if (mParentType.equals("Vars")) {
-    		baseUrl = urlBase + "/vars";
-        } else if (mParentType.equals("Programs")) {
-    		baseUrl = urlBase + "/programs";
-        } else {
-        	baseUrl = urlBase + "/";
-        }
-		
+        baseUrl = urlBase + "/programs";
 		
        //Cursor cursor = dbh.getCursorAllData();
-        Cursor cursor = null;
-        if (mParentType != null) {
-        	if (mParentType.equals("Vars")) {
-        		// Load 
-        		cursor = dbh.getVarList();
-        	} else if (mParentType.equals("Programs")) {
-        		cursor = dbh.getProgramsList(mParentId);
-        	}
-        }
+        Cursor cursor = dbh.getProgramsList(mParentId);
 
         Log.d("List Cursor","Parent ID = "+mParentId);
         Log.d("List Cursor","Count = "+cursor.getCount());
         String title = "Unknown";
-        if (mParentType.equals("Programs")) {
-	        if (mParentId == null) {
-	        	title = "Programs";
-	        	// Reload database nodes
-	        	try {
-	        		new NodeListUpdater().execute(new URL(baseUrl+"?subfolders=true"));
-	        	} catch (MalformedURLException e) {
-	        		Log.e("SystemViewActivity invalid URL: ", baseUrl);
-	        	}
-	        } else {
-	        	title = dbh.getProgramNameFromId(mParentId);
-	        }
-        } else if (mParentType.equals("Vars")) {
-	        if (mParentId == null) {
-	        	title = "Variables";
-	        	// Reload database nodes
-	        	try {
-	        		new NodeListUpdater().execute(new URL(baseUrl+"?subfolders=true"));
-	        	} catch (MalformedURLException e) {
-	        		Log.e("SystemViewActivity invalid URL: ", baseUrl);
-	        	}
-	        } else {
-	        	title = dbh.getVarNameFromId(mParentId);
-	        }
+        if (mParentId == null) {
+        	title = "Programs";
+        	// Reload database nodes
+        	try {
+        		new NodeListUpdater().execute(new URL(baseUrl+"?subfolders=true"));
+        	} catch (MalformedURLException e) {
+        		Log.e("SystemViewActivity invalid URL: ", baseUrl);
+        	}
+        } else {
+        	title = dbh.getProgramNameFromId(mParentId);
         }
     	setActionBarTitle(title);
     	
     	
     	
     	// For the cursor adapter, specify which columns go into which views
-    	if (mParentType.equals("Programs")) {
-    		String[] fromColumns = {DatabaseHelper.KEY_ISFOLDER, DatabaseHelper.KEY_NAME,DatabaseHelper.KEY_STATUS,DatabaseHelper.KEY_RUNNING};
-    		int [] toViews = {R.id.icon,R.id.name,R.id.type,R.id.value}; // The TextView in simple_list_item_1
-    		 mAdapter = new SimpleCursorAdapter(this, 
-    	                R.layout.listview_row, cursor,
-    	                fromColumns, toViews, 0) {
-    	        	public void setViewImage(ImageView v, String value) {
-    	        		if (value.equalsIgnoreCase("1")) {
-    	        			v.setImageResource(R.drawable.folder);
-    	        		} else {
-    	        			v.setImageResource(R.drawable.icon);
-    	        		}
-    	        	}
-    	        	public void setViewText(TextView v, String value) {
-    	        		if (v.getId() == R.id.type) {
-    	        			if (value.equals("0")) {
-    	        				v.setText("False");
-    	        			} else if (value.equals("1")) {
-    	        				v.setText("True");
-    	        			} else {
-    	        				v.setText("Unknown");
-    	        			}
-    	        		} else {
-    	        			super.setViewText(v, value);
-    	        		}
-    	        	}
-    	        };
-    	} else {
-    		String[] fromColumns = {DatabaseHelper.KEY_ROWID, DatabaseHelper.KEY_NAME,DatabaseHelper.KEY_TYPE,DatabaseHelper.KEY_VALUE};
-    		int [] toViews = {R.id.icon,R.id.name,R.id.type,R.id.value}; // The TextView in simple_list_item_1
-    		mAdapter = new SimpleCursorAdapter(this, 
-    	                R.layout.listview_row, cursor,
-    	                fromColumns, toViews, 0) {
-    	        	public void setViewImage(ImageView v, String value) {
+		String[] fromColumns = {DatabaseHelper.KEY_ISFOLDER, DatabaseHelper.KEY_NAME,DatabaseHelper.KEY_STATUS,DatabaseHelper.KEY_RUNNING};
+		int [] toViews = {R.id.icon,R.id.name,R.id.type,R.id.value}; // The TextView in simple_list_item_1
+		 mAdapter = new SimpleCursorAdapter(this, 
+	                R.layout.listview_row, cursor,
+	                fromColumns, toViews, 0) {
+	        	public void setViewImage(ImageView v, String value) {
+	        		if (value.equalsIgnoreCase("1")) {
+	        			v.setImageResource(R.drawable.folder);
+	        		} else {
 	        			v.setImageResource(R.drawable.icon);
-    	        	}
-    	        	public void setViewText(TextView v, String value) {
-    	        		if (v.getId() == R.id.type) {
-    	        			if (value.equals("1")) {
-    	        				v.setText("Integer Variable");
-    	        			} else if (value.equals("2")) {
-    	        				v.setText("State Variable");
-    	        			} else {
-    	        				v.setText("Unknown Var");
-    	        			}
-    	        		} else {
-    	        			super.setViewText(v, value);
-    	        		}
-    	        	}
-    	        };
-    	}
+	        		}
+	        	}
+	        	public void setViewText(TextView v, String value) {
+	        		if (v.getId() == R.id.type) {
+	        			if (value.equals("0")) {
+	        				v.setText("False");
+	        			} else if (value.equals("1")) {
+	        				v.setText("True");
+	        			} else {
+	        				v.setText("Unknown");
+	        			}
+	        		} else {
+	        			super.setViewText(v, value);
+	        		}
+	        	}
+	        };
+    	
         
 
         
@@ -194,11 +139,7 @@ public class ProgramTreeViewActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
         		String my_id = Long.toString(id);
         		Log.i("ListItem Clicked:","position="+Integer.toString(position)+"|id="+Long.toString(id));
-        		boolean folder = false;
-        		if (mParentType.equals("Programs")) {
-        			folder =dbh.isProgramIdFolder(my_id);
-        		}
-        		if (folder) {
+        		if (dbh.isProgramIdFolder(my_id)) {
         			relaunchSelf(my_id);
         		}  else {
         			loadNode(my_id);
@@ -241,28 +182,17 @@ public class ProgramTreeViewActivity extends Activity {
 	private void relaunchSelf(String parent_id) {
 		Intent i = new Intent(this,ProgramTreeViewActivity.class);
 		i.putExtra("parent_id", parent_id);
-		i.putExtra("parent_type", mParentType);
 		startActivity(i);
 	}
 	
 	private void loadNode(String id) {
-		if (mParentType.equals("Vars")) {
-			Intent i = new Intent(this,VariableViewActivity.class);
-			i.putExtra("id", id);
-			startActivity(i);
-		} else if (mParentType.equals("Programs")) {
-			Intent i = new Intent(this,ProgramViewActivity.class);
-			i.putExtra("id", id);
-			startActivity(i);
-		}
+		Intent i = new Intent(this,ProgramViewActivity.class);
+		i.putExtra("id", id);
+		startActivity(i);
 	}
 
 	public void refreshListData() {
-		if (mParentType.equals("Vars")) {
-			mAdapter.swapCursor(dbh.getVarList());
-		} else if (mParentType.equals("Programs")) {
-			mAdapter.swapCursor(dbh.getProgramsList(mParentId));
-		}
+		mAdapter.swapCursor(dbh.getProgramsList(mParentId));
         mList.setAdapter(mAdapter);
 	}
 	/**
@@ -326,7 +256,7 @@ public class ProgramTreeViewActivity extends Activity {
 			// set up progress indicator
 
 	        pDialog = new ProgressDialog(ProgramTreeViewActivity.this);
-	        pDialog.setMessage("Updating "+mParentType+" List, Please wait...");
+	        pDialog.setMessage("Updating Program List, Please wait...");
 	        pDialog.setIndeterminate(false);
 	        pDialog.setCancelable(true);
 	        
@@ -353,13 +283,7 @@ public class ProgramTreeViewActivity extends Activity {
 	        pDialog.hide();
 	        pDialog.dismiss();
 			// Updated current database values
-	        if (mParentType.equals("Programs")) {
-		        dbh.updateProgramsTable(dbEntries);
-	        	
-	        } else if (mParentType.equals("Vars")) {
-		        dbh.updateVarsTable(dbEntries);
-	        	
-	        }
+	        dbh.updateProgramsTable(dbEntries);
 	        // Reload cursor
 	        //mAdapter.notifyDataSetChanged();
 	        //mList.invalidateViews();

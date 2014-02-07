@@ -6,7 +6,10 @@ import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -39,9 +42,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
-public class MainActivity extends Activity {
-	
+public class VariableTreeViewActivity extends Activity {
 	DatabaseHelper dbh = null;
 	SimpleCursorAdapter mAdapter;
 	ListView mList;
@@ -50,7 +53,6 @@ public class MainActivity extends Activity {
 	String loginPass;
 	String mParentId;
 	int mListPosition = 0;
-	String mParentType;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,63 +70,65 @@ public class MainActivity extends Activity {
 		loginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
 		String urlBase = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
 
-		baseUrl = urlBase + "/nodes/";
-		
-		
-		
+
         // Check for intent data
         Intent intent = getIntent();
         mParentId = intent.getStringExtra("parent_id");
-        mParentType = intent.getStringExtra("parent_type");
+        
+        baseUrl = urlBase + "/vars";
+		
+		
        //Cursor cursor = dbh.getCursorAllData();
-        Cursor cursor;
-        if (mParentType != null) {
-        	if (mParentType.equals("System-Vars")) {
-        		// Load 
-        		
-        	}
-        }
-        cursor = dbh.getCursorListData(mParentId);
+        Cursor cursor = dbh.getVarList();
 
         Log.d("List Cursor","Parent ID = "+mParentId);
         Log.d("List Cursor","Count = "+cursor.getCount());
-        String title;
+        String title = "Unknown";
         if (mParentId == null) {
-        	title = "Root";
+        	title = "Variables";
         	// Reload database nodes
         	try {
-        		new NodeListUpdater().execute(new URL(baseUrl));
+        		// Update to request an update to all variables
+        		new NodeListUpdater().execute(new URL(baseUrl+"/definitions/1"));
         	} catch (MalformedURLException e) {
-        		Log.e("MainActivity invalid URL: ", baseUrl);
+        		Log.e("SystemViewActivity invalid URL: ", baseUrl);
         	}
         } else {
-        	title = dbh.getNameFromId(mParentId);
+        	title = dbh.getVarNameFromId(mParentId);
         }
     	setActionBarTitle(title);
     	
-    	// For the cursor adapter, specify which columns go into which views
-        String[] fromColumns = {DatabaseHelper.KEY_TYPE, DatabaseHelper.KEY_NAME,DatabaseHelper.KEY_TYPE,DatabaseHelper.KEY_VALUE};
-        int[] toViews = {R.id.icon,R.id.name,R.id.type,R.id.value}; // The TextView in simple_list_item_1
+    	
+    	
+    	
+		String[] fromColumns = {DatabaseHelper.KEY_ROWID, DatabaseHelper.KEY_NAME,DatabaseHelper.KEY_TYPE,DatabaseHelper.KEY_VALUE};
+		int [] toViews = {R.id.icon,R.id.name,R.id.type,R.id.value}; // The TextView in simple_list_item_1
+		mAdapter = new SimpleCursorAdapter(this, 
+	                R.layout.listview_row, cursor,
+	                fromColumns, toViews, 0) {
+	        	public void setViewImage(ImageView v, String value) {
+        			v.setImageResource(R.drawable.icon);
+	        	}
+	        	public void setViewText(TextView v, String value) {
+	        		if (v.getId() == R.id.type) {
+	        			if (value.equals("1")) {
+	        				v.setText("Integer Variable");
+	        			} else if (value.equals("2")) {
+	        				v.setText("State Variable");
+	        			} else {
+	        				v.setText("Unknown Var");
+	        			}
+	        		} else {
+	        			super.setViewText(v, value);
+	        		}
+	        	}
+	        };
+        
 
         
         // Create an empty adapter we will use to display the loaded data.
         // We pass null for the cursor, then update it in onLoadFinished()
-        mAdapter = new SimpleCursorAdapter(this, 
-                R.layout.listview_row, cursor,
-                fromColumns, toViews, 0) {
-        	public void setViewImage(ImageView v, String value) {
-        		if (value.equalsIgnoreCase("Folder")) {
-        			v.setImageResource(R.drawable.folder);
-        		} else if (value.equalsIgnoreCase("Scene")) {
-        			v.setImageResource(R.drawable.scene);
-        		} else if (value.equalsIgnoreCase("System")) {
-        			v.setImageResource(R.drawable.icon);
-        		} else {
-        			v.setImageResource(R.drawable.bulb);
-        		}
-        	}
-        	
-        };
+       
         
         listview.setAdapter(mAdapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -132,53 +136,32 @@ public class MainActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
         		String my_id = Long.toString(id);
         		Log.i("ListItem Clicked:","position="+Integer.toString(position)+"|id="+Long.toString(id));
-        		String my_type = dbh.getTypeFromId(my_id);
-        		if (my_type.equals("Folder")) {
-        			relaunchSelf(my_id);
-        		} else if (my_type.equals("System")) {
-        			String subType = dbh.getAddressFromId(my_id);
-        			if (subType.equals("Vars")) {
-        				launchVariableView();
-        			} else if (subType.equals("Programs")) {
-        				launchProgramView();
-        			}
-        		} else {
-        			loadNode(my_id);
-        		}
+    			loadNode(my_id);
              }
 
          });
-        Log.i("MainActivity","Created:"+this);
+        Log.i("SystemViewActivity","Created:"+this);
 	}
 	
-	protected void launchProgramView() {
-		Intent i = new Intent(this,ProgramTreeViewActivity.class);
-		startActivity(i);
-	}
 
-	protected void launchVariableView() {
-		Intent i = new Intent(this,VariableTreeViewActivity.class);
-		startActivity(i);
-	}
-	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		Log.v("MainActivity","Paused:"+this);
+		Log.v("SystemViewActivity","Paused:"+this);
 		mListPosition = mList.getFirstVisiblePosition();
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		Log.v("MainActivity","Stopped:"+this);
+		Log.v("SystemViewActivity","Stopped:"+this);
 	}
 	
 	@Override
 	protected void onRestart() {
 		super.onRestart();
 		//refreshListData();
-		Log.v("MainActivity","Restarted:"+this);
+		Log.v("SystemViewActivity","Restarted:"+this);
 	}
 	
 	@Override
@@ -186,23 +169,23 @@ public class MainActivity extends Activity {
 		super.onResume();
 		refreshListData();
 		mList.setSelectionFromTop(mListPosition,0);
-		Log.v("MainActivity","Resumed:"+this);
+		Log.v("SystemViewActivity","Resumed:"+this);
 	}
 	
-	private void relaunchSelf(String parent_id) {
-		Intent i = new Intent(this,MainActivity.class);
-		i.putExtra("parent_id", parent_id);
-		startActivity(i);
-	}
+//	private void relaunchSelf(String parent_id) {
+//		Intent i = new Intent(this,ProgramTreeViewActivity.class);
+//		i.putExtra("parent_id", parent_id);
+//		startActivity(i);
+//	}
 	
 	private void loadNode(String id) {
-		Intent i = new Intent(this,NodeViewActivity.class);
+		Intent i = new Intent(this,VariableViewActivity.class);
 		i.putExtra("id", id);
 		startActivity(i);
 	}
 
 	public void refreshListData() {
-        mAdapter.swapCursor(dbh.getCursorListData(mParentId));
+		mAdapter.swapCursor(dbh.getVarList());
         mList.setAdapter(mAdapter);
 	}
 	/**
@@ -259,13 +242,14 @@ public class MainActivity extends Activity {
     	private ArrayList<ContentValues> dbEntries;
 	    private ProgressDialog pDialog;
     	private InputStream mInputStream;
+		private String mVarType;
     	@Override
     	protected void onPreExecute() {
 			super.onPreExecute();
 			// set up progress indicator
 
-	        pDialog = new ProgressDialog(MainActivity.this);
-	        pDialog.setMessage("Updating Node List, Please wait...");
+	        pDialog = new ProgressDialog(VariableTreeViewActivity.this);
+	        pDialog.setMessage("Updating Variables List, Please wait...");
 	        pDialog.setIndeterminate(false);
 	        pDialog.setCancelable(true);
 	        
@@ -278,7 +262,6 @@ public class MainActivity extends Activity {
 	    	     }
 	    	});
 	        dbEntries = new ArrayList<ContentValues>();
-	        
     	}
 
     	@Override
@@ -293,7 +276,7 @@ public class MainActivity extends Activity {
 	        pDialog.hide();
 	        pDialog.dismiss();
 			// Updated current database values
-	        dbh.updateNodeTable(dbEntries);
+		    dbh.updateVarsTable(dbEntries);
 	        // Reload cursor
 	        //mAdapter.notifyDataSetChanged();
 	        //mList.invalidateViews();
@@ -309,6 +292,8 @@ public class MainActivity extends Activity {
 	        if (networkInfo != null && networkInfo.isConnected())
 	        {
 	        	try {
+	        		// Figure out what mVarType should be set to from command
+	        		mVarType = "0";
 	        		mInputStream = params[0].openConnection().getInputStream();
 	        	} catch (IOException i) {
 	        		Log.e("URL Download failed",i.toString());
@@ -317,75 +302,95 @@ public class MainActivity extends Activity {
 	        	try {
 	    			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
 	    			Element root = dom.getDocumentElement();
-	    			NodeList folders = root.getElementsByTagName("folder");
-	    			NodeList nodes = root.getElementsByTagName("node");
-	    			NodeList groups = root.getElementsByTagName("group");
+	    			Log.i("XML PARSE","ROOT Element = "+root.getNodeName());
 	    			
-	    			// Parse Folder Data
-	    			for (int i=0;i<folders.getLength();i++) {
-	    				Node folder = folders.item(i);
-	    				NodeList properties = folder.getChildNodes();
-	    				ContentValues content = new ContentValues();
-	    				content.put(DatabaseHelper.KEY_TYPE, "Folder");
-	    				for (int j=0;j<properties.getLength();j++){
-	    					Node property = properties.item(j);
-	    					String name = property.getNodeName();
-	    					if (name.equalsIgnoreCase("address")) {
-	    						content.put(DatabaseHelper.KEY_ADDRESS, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("name")) {
-	    						content.put(DatabaseHelper.KEY_NAME, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("parent")) {
-	    						content.put(DatabaseHelper.KEY_PARENT, property.getFirstChild().getNodeValue());
-	    					}
+	    			if (root.getNodeName().equals("programs")) {
+	    				// Parse program list
+	    				NodeList programs = root.getElementsByTagName("program");
+
+		    			// Parse Program Data
+		    			for (int i=0;i<programs.getLength();i++) {
+		    				Node program = programs.item(i);
+		    				ContentValues content = new ContentValues();
+		    				NamedNodeMap attributes = program.getAttributes();
+    						content.put(DatabaseHelper.KEY_ADDRESS, attributes.getNamedItem("id").getNodeValue());
+    						if (attributes.getNamedItem("status").getNodeValue().equals("true")) {
+    							content.put(DatabaseHelper.KEY_STATUS, 1);
+    						} else {
+    							content.put(DatabaseHelper.KEY_STATUS, 0);
+    						}
+    						boolean folder;
+    						if (attributes.getNamedItem("folder").getNodeValue().equals("true")) {
+    							content.put(DatabaseHelper.KEY_ISFOLDER, 1);
+    							folder = true;
+    						} else {
+    							content.put(DatabaseHelper.KEY_ISFOLDER, 0);
+    							folder = false;
+    						}
+    						
+    						Node parent = attributes.getNamedItem("parentId");
+    						if (parent != null) {
+    							content.put(DatabaseHelper.KEY_PARENT, attributes.getNamedItem("parentId").getNodeValue());
+    						}
+    						if (!folder) {
+	    						if (attributes.getNamedItem("enabled").getNodeValue().equals("true")) {
+	    							content.put(DatabaseHelper.KEY_ENABLED, 1);
+	    						} else {
+	    							content.put(DatabaseHelper.KEY_ENABLED, 0);
+	    						}
+	    						if (attributes.getNamedItem("runAtStartup").getNodeValue().equals("true")) {
+	    							content.put(DatabaseHelper.KEY_RUNATSTARTUP, 1);
+	    						} else {
+	    							content.put(DatabaseHelper.KEY_RUNATSTARTUP, 0);
+	    						}
+	    						content.put(DatabaseHelper.KEY_RUNNING,attributes.getNamedItem("running").getNodeValue());
+    						}
+
+		    				NodeList properties = program.getChildNodes();
+		    				for (int j=0;j<properties.getLength();j++){
+		    					Node property = properties.item(j);
+		    					String name = property.getNodeName();
+		    					if (name.equalsIgnoreCase("name")) {
+		    						content.put(DatabaseHelper.KEY_NAME, property.getFirstChild().getNodeValue());
+		    					} else if (name.equalsIgnoreCase("lastRunTime")) {
+		    						if (property.getFirstChild() != null) {
+		    							String time = property.getFirstChild().getNodeValue();
+		    							SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd K:mm:ss a", Locale.US);	// example value 2014/02/05 9:52:22 PM
+		    							Date date = dateFormatter.parse(time);
+			    						content.put(DatabaseHelper.KEY_LASTRUNTIME, date.getTime());
+		    						}
+		    					} else if (name.equalsIgnoreCase("lastFinishTime")) {
+		    						if (property.getFirstChild() != null) {
+		    							String time = property.getFirstChild().getNodeValue();
+		    							SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd K:mm:ss a", Locale.US);	// example value 2014/02/05 9:52:22 PM
+		    							Date date = dateFormatter.parse(time);
+			    						content.put(DatabaseHelper.KEY_LASTENDTIME, date.getTime());
+		    						}
+		    					}
+		    				}
+		    				// Store entry in database
+		    				dbEntries.add(content);
+		    				Log.v("XML PARSE","New Progam Data = "+content);
+		    			}
+		    			dbh.updateProgramsTable(dbEntries);
+		    		// End if (root.getNodeName().equals("programs"))
+	    			} else if (root.getNodeName().equals("vars")) {
+	    				// Parse values of variables
+	    				
+	    			} else if (root.getNodeName().equals("CList")) {
+	    				// Parse definitions of variables
+	    				NodeList variables = root.getElementsByTagName("e");
+	    				for (int i=0;i<variables.getLength();i++) {
+		    				ContentValues content = new ContentValues();
+	    					Node variable = variables.item(i);
+	    					NamedNodeMap attributes = variable.getAttributes();
+	    					content.put(DatabaseHelper.KEY_TYPE,mVarType);
+	    					content.put(DatabaseHelper.KEY_ADDRESS,attributes.getNamedItem("id").getNodeValue());
+	    					content.put(DatabaseHelper.KEY_NAME,attributes.getNamedItem("name").getNodeValue());
+	    					dbEntries.add(content);
 	    				}
-	    				// Store entry in database
-	    				dbEntries.add(content);
-	    			}
-	    			
-	    			// Parse Node Data
-	    			for (int i=0;i<nodes.getLength();i++) {
-	    				Node node = nodes.item(i);
-	    				NodeList properties = node.getChildNodes();
-	    				ContentValues content = new ContentValues();
-	    				content.put(DatabaseHelper.KEY_TYPE, "Node");
-	    				for (int j=0;j<properties.getLength();j++){
-	    					Node property = properties.item(j);
-	    					String name = property.getNodeName();
-	    					if (name.equalsIgnoreCase("address")) {
-	    						content.put(DatabaseHelper.KEY_ADDRESS, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("name")) {
-	    						content.put(DatabaseHelper.KEY_NAME, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("parent")) {
-	    						content.put(DatabaseHelper.KEY_PARENT, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("property")) {
-	    						NamedNodeMap attributes = property.getAttributes();
-	    						content.put(DatabaseHelper.KEY_VALUE, attributes.getNamedItem("formatted").getNodeValue());
-	    						content.put(DatabaseHelper.KEY_RAW_VALUE, attributes.getNamedItem("value").getNodeValue());
-	    					}
-	    				}
-	    				// Store entry in database
-	    				dbEntries.add(content);
-	    			}
-	    			
-	    			// Parse Group Data
-	    			for (int i=0;i<groups.getLength();i++) {
-	    				Node group = groups.item(i);
-	    				NodeList properties = group.getChildNodes();
-	    				ContentValues content = new ContentValues();
-	    				content.put(DatabaseHelper.KEY_TYPE, "Scene");
-	    				for (int j=0;j<properties.getLength();j++){
-	    					Node property = properties.item(j);
-	    					String name = property.getNodeName();
-	    					if (name.equalsIgnoreCase("address")) {
-	    						content.put(DatabaseHelper.KEY_ADDRESS, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("name")) {
-	    						content.put(DatabaseHelper.KEY_NAME, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("parent")) {
-	    						content.put(DatabaseHelper.KEY_PARENT, property.getFirstChild().getNodeValue());
-	    					}
-	    				}
-	    				// Store entry in database
-	    				dbEntries.add(content);
+	    			} else if (root.getNodeName().equals("RestResponse")) {
+	    				// Parse command response (success/failure)
 	    			}
 	    			
 	    		} catch (Exception e) {
@@ -397,4 +402,4 @@ public class MainActivity extends Activity {
     } // End Class NodeListUpdater
 
 
-} // End Class MainActivity
+}

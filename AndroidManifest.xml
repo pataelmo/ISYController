@@ -57,6 +57,14 @@
                 android:value="com.pataelmo.isycontroller.MainActivity"/>
         </activity>
         <activity
+            android:name="com.pataelmo.isycontroller.VariableTreeViewActivity"
+            android:label="@string/title_activity_main"
+            android:parentActivityName="com.pataelmo.isycontroller.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.pataelmo.isycontroller.MainActivity" />
+        </activity>
+        <activity
             android:name="com.pataelmo.isycontroller.ProgramTreeViewActivity"
             android:label="@string/title_activity_main"
             android:parentActivityName="com.pataelmo.isycontroller.MainActivity" >
@@ -75,7 +83,7 @@
         <activity
             android:name="com.pataelmo.isycontroller.VariableViewActivity"
             android:label="@string/title_activity_main"
-            android:parentActivityName="com.pataelmo.isycontroller.ProgramTreeViewActivity" >
+            android:parentActivityName="com.pataelmo.isycontroller.VariableTreeViewActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.pataelmo.isycontroller.SystemViewActivity" />

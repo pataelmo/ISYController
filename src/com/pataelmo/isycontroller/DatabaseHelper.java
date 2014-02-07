@@ -365,8 +365,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	public Cursor getVarList() {
 		SQLiteDatabase db = getDatabase();
-		
-		String parent = null;
 		Cursor cursor = null;
 		
 		try {
