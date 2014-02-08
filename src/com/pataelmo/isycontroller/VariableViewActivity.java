@@ -260,7 +260,7 @@ public class VariableViewActivity extends Activity {
 		        	}
 		        	// PARSE URL RESPONSE
 		        	ISYRESTParser parser = new ISYRESTParser(mInputStream);
-		        	
+		        	parser.getDatabaseValues();
 		        	
 		        	// Update Display with errors or new values
 		        	publishProgress(0);

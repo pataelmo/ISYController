@@ -224,12 +224,12 @@ public class ISYRESTParser {
 		// TODO Auto-generated method stub
 		NodeList properties = root.getChildNodes();
 		for (int i=0;i<properties.getLength();i++) {
-			Node property = properties.item(i);
-			NamedNodeMap props = property.getAttributes();
-			String id = props.getNamedItem("id").getNodeValue();
-			String value = props.getNamedItem("value").getNodeValue();
-			String formatted = props.getNamedItem("formatted").getNodeValue();
-			String uom = props.getNamedItem("uom").getNodeValue();
+//			Node property = properties.item(i);
+//			NamedNodeMap props = property.getAttributes();
+//			String id = props.getNamedItem("id").getNodeValue();
+//			String value = props.getNamedItem("value").getNodeValue();
+//			String formatted = props.getNamedItem("formatted").getNodeValue();
+//			String uom = props.getNamedItem("uom").getNodeValue();
 			// Post results somehow
 		}
 	}
