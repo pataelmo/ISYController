@@ -3,26 +3,17 @@ package com.pataelmo.isycontroller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
-import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -87,12 +78,7 @@ public class VariableTreeViewActivity extends Activity {
         if (mParentId == null) {
         	title = "Variables";
         	// Reload database nodes
-        	try {
-        		// Update to request an update to all variables
-        		new NodeListUpdater().execute(new URL(baseUrl+"/definitions/1"));
-        	} catch (MalformedURLException e) {
-        		Log.e("SystemViewActivity invalid URL: ", baseUrl);
-        	}
+        	new VarListUpdater().execute("");
         } else {
         	title = dbh.getVarNameFromId(mParentId);
         }
@@ -237,23 +223,26 @@ public class VariableTreeViewActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
-
-    public class NodeListUpdater extends AsyncTask<URL, Integer, Integer> {
-    	private ArrayList<ContentValues> dbEntries;
-	    private ProgressDialog pDialog;
+	public class VarListUpdater extends AsyncTask<String, Integer, Integer> {
+//    	private boolean mCommandSuccess;
+//    	private String mCommand;
+	    //private ProgressDialog pDialog;
     	private InputStream mInputStream;
-		private String mVarType;
+		private HashMap<String,String> mNameMap;
+		private ArrayList<ContentValues> mDbEntries;
+    	//private int mCount;
+    	//private String mResults;
     	@Override
     	protected void onPreExecute() {
 			super.onPreExecute();
 			// set up progress indicator
-
-	        pDialog = new ProgressDialog(VariableTreeViewActivity.this);
-	        pDialog.setMessage("Updating Variables List, Please wait...");
-	        pDialog.setIndeterminate(false);
-	        pDialog.setCancelable(true);
-	        
-	        pDialog.show();
+			
+//	        pDialog = new ProgressDialog(NodeViewActivity.this);
+//	        pDialog.setMessage("Issuing command, Please wait...");
+//	        pDialog.setIndeterminate(false);
+//	        pDialog.setCancelable(true);
+//	        
+//	        pDialog.show();
 	        
 	        // Setup authenticator for login
 	        Authenticator.setDefault(new Authenticator() {
@@ -261,145 +250,126 @@ public class VariableTreeViewActivity extends Activity {
 	    	       return new PasswordAuthentication(loginUser, loginPass.toCharArray());
 	    	     }
 	    	});
-	        dbEntries = new ArrayList<ContentValues>();
+	        
     	}
 
     	@Override
     	protected void onProgressUpdate(Integer... progress) {
 			super.onProgressUpdate(progress);
 			// advance progress indicator
+			loadDbValues(mDbEntries);
+//			 String results = "";
+// 	        if (mCommandSuccess) {
+// 	        	if (mCommand.equals("ST")) {
+// 	        		//updateValues(mValue,mRawValue);
+// 	        	}
+// 	        } else {
+// 	        	results = "Failed to figure out cmd="+mCommand;
+// 	        	if (mCommand.equals("DON")) {
+// 	        		//results = mType + " On failed...";
+// 	        	} else if (mCommand.equals("DOF")) {
+// 	        		//results = mType + " Off failed...";
+// 	        	} else if (mCommand.equals("ST")) {
+// 	        		//results = "Query Failed...";
+// 	        	}
+//	 	       	Toast.makeText(getBaseContext(), results, Toast.LENGTH_LONG).show();
+// 	        }
     	}
 	   
     	@Override
     	protected void onPostExecute( Integer result ) {
-			//TODO remove progress indicator
-	        pDialog.hide();
-	        pDialog.dismiss();
-			// Updated current database values
-		    dbh.updateVarsTable(dbEntries);
-	        // Reload cursor
-	        //mAdapter.notifyDataSetChanged();
-	        //mList.invalidateViews();
-	        refreshListData();
+//	        pDialog.hide();
+//	        pDialog.dismiss();
+			// Update display values
+    		refreshListData();
     	}   ///  end ---   onPostExecute(..)
 
 		@Override
-		protected Integer doInBackground(URL... params) {
-			// TODO Auto-generated method stub
+		protected Integer doInBackground(String... params) {
 	        ConnectivityManager connMgr = (ConnectivityManager) 
 	                getSystemService(Context.CONNECTIVITY_SERVICE);
 	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 	        if (networkInfo != null && networkInfo.isConnected())
 	        {
-	        	try {
-	        		// Figure out what mVarType should be set to from command
-	        		mVarType = "0";
-	        		mInputStream = params[0].openConnection().getInputStream();
-	        	} catch (IOException i) {
-	        		Log.e("URL Download failed",i.toString());
+	        	String[] cmds = new String[]{"/definitions/1","/get/1","/definitions/2","/get/2"};
+//	        	mCount = count;
+	        	for (int i = 0; i < cmds.length; i++) {
+	        		String type = null;
+	        		String mode = null;
+	        		switch(i) {
+	        			case 0:
+	        				type = "1";
+	        				mode = "definitions";
+	        				break;
+	        			case 1:
+	        				type = "1";
+	        				mode = "get";
+	        				break;
+	        			case 2:
+	        				type = "2";
+	        				mode = "definitions";
+	        				break;
+	        			case 3:
+	        				type = "2";
+	        				mode = "get";
+	        				break;
+	        				
+	        		}
+		        	// DO URL GET
+		        	try {
+		        		String cmd = cmds[i];
+//
+//		        		if (cmd.length()>6) {
+//		        			mCommand = cmd.substring(4,7);
+//		        		} else if (cmd.length()>0) {
+//		        			mCommand = cmd;
+//		        		}
+//			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
+//		        		
+		        		URL url = new URL(baseUrl+cmd);
+		        		URI uri = null;
+		        		try {
+		        			uri = new URI(url.getProtocol(),url.getUserInfo(),url.getHost(),url.getPort(),url.getPath(),url.getQuery(),url.getRef());
+		        		} catch (URISyntaxException e) {
+		        			Log.e("URI Parsing Error",e.toString());
+		        		}
+		        		//String safeURL = new Uri.Builder().path(baseUrl+cmd).build().toString();
+		        		url = uri.toURL();
+		        		mInputStream = url.openConnection().getInputStream();
+		        		Log.v("VariableTreeViewXML","url="+url.toString());
+		        	} catch (IOException ie) {
+		        		Log.e("URL Download failed",ie.toString());
+		        	}
+		        	// PARSE URL RESPONSE
+		        	ISYRESTParser parser = new ISYRESTParser(mInputStream);
+		        	if (mode.equals("get")) {
+		        		mDbEntries = parser.getDatabaseValues();
+		        		Iterator<ContentValues> iterator = mDbEntries.iterator();
+		        		ContentValues c;
+		        		while(iterator.hasNext()) {
+		        			c = iterator.next();
+		        			String id = c.getAsString(DatabaseHelper.KEY_ADDRESS);
+		        			String name = mNameMap.get(id);
+		        			c.put(DatabaseHelper.KEY_NAME, name);
+		        			c.put(DatabaseHelper.KEY_TYPE, type);
+		        		}
+		        		// Publish results
+			        	publishProgress(i);
+		        	} else if (mode.equals("definitions")) {
+		        		mNameMap = parser.getVarNameMap();
+		        	}
 	        	}
-	        	
-	        	try {
-	    			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
-	    			Element root = dom.getDocumentElement();
-	    			Log.i("XML PARSE","ROOT Element = "+root.getNodeName());
-	    			
-	    			if (root.getNodeName().equals("programs")) {
-	    				// Parse program list
-	    				NodeList programs = root.getElementsByTagName("program");
-
-		    			// Parse Program Data
-		    			for (int i=0;i<programs.getLength();i++) {
-		    				Node program = programs.item(i);
-		    				ContentValues content = new ContentValues();
-		    				NamedNodeMap attributes = program.getAttributes();
-    						content.put(DatabaseHelper.KEY_ADDRESS, attributes.getNamedItem("id").getNodeValue());
-    						if (attributes.getNamedItem("status").getNodeValue().equals("true")) {
-    							content.put(DatabaseHelper.KEY_STATUS, 1);
-    						} else {
-    							content.put(DatabaseHelper.KEY_STATUS, 0);
-    						}
-    						boolean folder;
-    						if (attributes.getNamedItem("folder").getNodeValue().equals("true")) {
-    							content.put(DatabaseHelper.KEY_ISFOLDER, 1);
-    							folder = true;
-    						} else {
-    							content.put(DatabaseHelper.KEY_ISFOLDER, 0);
-    							folder = false;
-    						}
-    						
-    						Node parent = attributes.getNamedItem("parentId");
-    						if (parent != null) {
-    							content.put(DatabaseHelper.KEY_PARENT, attributes.getNamedItem("parentId").getNodeValue());
-    						}
-    						if (!folder) {
-	    						if (attributes.getNamedItem("enabled").getNodeValue().equals("true")) {
-	    							content.put(DatabaseHelper.KEY_ENABLED, 1);
-	    						} else {
-	    							content.put(DatabaseHelper.KEY_ENABLED, 0);
-	    						}
-	    						if (attributes.getNamedItem("runAtStartup").getNodeValue().equals("true")) {
-	    							content.put(DatabaseHelper.KEY_RUNATSTARTUP, 1);
-	    						} else {
-	    							content.put(DatabaseHelper.KEY_RUNATSTARTUP, 0);
-	    						}
-	    						content.put(DatabaseHelper.KEY_RUNNING,attributes.getNamedItem("running").getNodeValue());
-    						}
-
-		    				NodeList properties = program.getChildNodes();
-		    				for (int j=0;j<properties.getLength();j++){
-		    					Node property = properties.item(j);
-		    					String name = property.getNodeName();
-		    					if (name.equalsIgnoreCase("name")) {
-		    						content.put(DatabaseHelper.KEY_NAME, property.getFirstChild().getNodeValue());
-		    					} else if (name.equalsIgnoreCase("lastRunTime")) {
-		    						if (property.getFirstChild() != null) {
-		    							String time = property.getFirstChild().getNodeValue();
-		    							SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd K:mm:ss a", Locale.US);	// example value 2014/02/05 9:52:22 PM
-		    							Date date = dateFormatter.parse(time);
-			    						content.put(DatabaseHelper.KEY_LASTRUNTIME, date.getTime());
-		    						}
-		    					} else if (name.equalsIgnoreCase("lastFinishTime")) {
-		    						if (property.getFirstChild() != null) {
-		    							String time = property.getFirstChild().getNodeValue();
-		    							SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd K:mm:ss a", Locale.US);	// example value 2014/02/05 9:52:22 PM
-		    							Date date = dateFormatter.parse(time);
-			    						content.put(DatabaseHelper.KEY_LASTENDTIME, date.getTime());
-		    						}
-		    					}
-		    				}
-		    				// Store entry in database
-		    				dbEntries.add(content);
-		    				Log.v("XML PARSE","New Progam Data = "+content);
-		    			}
-		    			dbh.updateProgramsTable(dbEntries);
-		    		// End if (root.getNodeName().equals("programs"))
-	    			} else if (root.getNodeName().equals("vars")) {
-	    				// Parse values of variables
-	    				
-	    			} else if (root.getNodeName().equals("CList")) {
-	    				// Parse definitions of variables
-	    				NodeList variables = root.getElementsByTagName("e");
-	    				for (int i=0;i<variables.getLength();i++) {
-		    				ContentValues content = new ContentValues();
-	    					Node variable = variables.item(i);
-	    					NamedNodeMap attributes = variable.getAttributes();
-	    					content.put(DatabaseHelper.KEY_TYPE,mVarType);
-	    					content.put(DatabaseHelper.KEY_ADDRESS,attributes.getNamedItem("id").getNodeValue());
-	    					content.put(DatabaseHelper.KEY_NAME,attributes.getNamedItem("name").getNodeValue());
-	    					dbEntries.add(content);
-	    				}
-	    			} else if (root.getNodeName().equals("RestResponse")) {
-	    				// Parse command response (success/failure)
-	    			}
-	    			
-	    		} catch (Exception e) {
-	    			Log.e("Parsing Node List Failed",e.toString());
-	    		}
 	        }
+
 			return 0;
 		} // End method doInBackground
     } // End Class NodeListUpdater
+
+	
+    public void loadDbValues(ArrayList<ContentValues> dbEntries) {
+		Log.v("VariableTreeView.loadDbValues",dbEntries.toString());
+    	dbh.updateVarsTable(dbEntries);
+	}
 
 
 }

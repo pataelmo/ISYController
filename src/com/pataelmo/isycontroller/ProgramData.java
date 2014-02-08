@@ -10,14 +10,14 @@ public class ProgramData {
 	public boolean mEnabled = false;
 	public boolean mRunAtStartup = false;
 	public String mRunning = null;
-	public int mLastRunTime = -1;
-	public int mLastEndTime = -1;
+	public Long mLastRunTime = (long) 0;
+	public Long mLastEndTime = (long) 0;
 	
 	public ProgramData() {
 		// Boring constructor
 	}
 	
-	public ProgramData(int id, String name, String address, int isFolder, String status, String parent, int enabled, int runAtStartup, String running, int lastRunTime, int lastEndTime) {
+	public ProgramData(int id, String name, String address, int isFolder, String status, String parent, int enabled, int runAtStartup, String running, Long lastRunTime, Long lastEndTime) {
 		mId = id;
 		mName = name;          
 		mAddress = address; 

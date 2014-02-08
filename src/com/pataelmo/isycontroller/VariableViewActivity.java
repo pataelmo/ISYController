@@ -8,11 +8,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -239,20 +234,17 @@ public class VariableViewActivity extends Activity {
 	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 	        if (networkInfo != null && networkInfo.isConnected())
 	        {
-	        	int count = params.length;
-//	        	mCount = count;
-	        	for (int i = 0; i < count; i++) {
 		        	// DO URL GET
 		        	try {
-		        		String cmd = params[i];
-
-		        		if (cmd.length()>6) {
-		        			mCommand = cmd.substring(4,7);
-		        		} else if (cmd.length()>0) {
-		        			mCommand = cmd;
-		        		}
-			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
-		        		
+		        		String cmd = params[0];
+//
+//		        		if (cmd.length()>6) {
+//		        			mCommand = cmd.substring(4,7);
+//		        		} else if (cmd.length()>0) {
+//		        			mCommand = cmd;
+//		        		}
+//			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
+//		        		
 		        		URL url = new URL(baseUrl+cmd);
 		        		URI uri = null;
 		        		try {
@@ -267,46 +259,22 @@ public class VariableViewActivity extends Activity {
 		        		Log.e("URL Download failed",ie.toString());
 		        	}
 		        	// PARSE URL RESPONSE
-		        	try {
-		    			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
-		    			Element root = dom.getDocumentElement();
-		    			String rootName = root.getNodeName();
-		    			mCommandSuccess = false;
-		    			if (rootName.equalsIgnoreCase("RestResponse")) {
-		    				// Get success or fail
-		    				if (root.getAttribute("succeeded").equalsIgnoreCase("true")) {
-		    					mCommandSuccess = true;
-		    				} else {
-		    					mCommandSuccess = false;
-		    				}
-		    			} else if (rootName.equalsIgnoreCase("nodeInfo")) {
-		    				// Parse data out to update display
-		    			} else if (rootName.equalsIgnoreCase("properties")){
-		    				//NamedNodeMap props = root.getFirstChild().getAttributes();
-		    				//mRawValue = props.getNamedItem("value").getNodeValue();
-		    				//mValue = props.getNamedItem("formatted").getNodeValue();
-		    				mCommandSuccess = true;
-		    			}
-		    			
-		    			
-		    		} catch (Exception e) {
-		    			Log.e("Parsing Node List Failed",e.toString());
-		    		}
+		        	ISYRESTParser parser = new ISYRESTParser(mInputStream);
+		        	
 		        	
 		        	// Update Display with errors or new values
-		        	publishProgress(i);
-		        	Log.i("ASYNC TASK","Completed "+i+" out of "+count+"commands");
+		        	publishProgress(0);
 		        	try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-		 	        if (isCancelled()) {
-		 	        	break;
-		 	        }
+//		 	        if (isCancelled()) {
+//		 	        	//break;
+//		 	        }
 	        	}
-	        }
+	        
 
 			return 0;
 		} // End method doInBackground

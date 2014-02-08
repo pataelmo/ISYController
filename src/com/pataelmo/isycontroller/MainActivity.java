@@ -8,14 +8,6 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -277,7 +269,7 @@ public class MainActivity extends Activity {
 	    	       return new PasswordAuthentication(loginUser, loginPass.toCharArray());
 	    	     }
 	    	});
-	        dbEntries = new ArrayList<ContentValues>();
+	        //dbEntries = new ArrayList<ContentValues>();
 	        
     	}
 
@@ -314,83 +306,8 @@ public class MainActivity extends Activity {
 	        		Log.e("URL Download failed",i.toString());
 	        	}
 	        	
-	        	try {
-	    			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
-	    			Element root = dom.getDocumentElement();
-	    			NodeList folders = root.getElementsByTagName("folder");
-	    			NodeList nodes = root.getElementsByTagName("node");
-	    			NodeList groups = root.getElementsByTagName("group");
-	    			
-	    			// Parse Folder Data
-	    			for (int i=0;i<folders.getLength();i++) {
-	    				Node folder = folders.item(i);
-	    				NodeList properties = folder.getChildNodes();
-	    				ContentValues content = new ContentValues();
-	    				content.put(DatabaseHelper.KEY_TYPE, "Folder");
-	    				for (int j=0;j<properties.getLength();j++){
-	    					Node property = properties.item(j);
-	    					String name = property.getNodeName();
-	    					if (name.equalsIgnoreCase("address")) {
-	    						content.put(DatabaseHelper.KEY_ADDRESS, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("name")) {
-	    						content.put(DatabaseHelper.KEY_NAME, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("parent")) {
-	    						content.put(DatabaseHelper.KEY_PARENT, property.getFirstChild().getNodeValue());
-	    					}
-	    				}
-	    				// Store entry in database
-	    				dbEntries.add(content);
-	    			}
-	    			
-	    			// Parse Node Data
-	    			for (int i=0;i<nodes.getLength();i++) {
-	    				Node node = nodes.item(i);
-	    				NodeList properties = node.getChildNodes();
-	    				ContentValues content = new ContentValues();
-	    				content.put(DatabaseHelper.KEY_TYPE, "Node");
-	    				for (int j=0;j<properties.getLength();j++){
-	    					Node property = properties.item(j);
-	    					String name = property.getNodeName();
-	    					if (name.equalsIgnoreCase("address")) {
-	    						content.put(DatabaseHelper.KEY_ADDRESS, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("name")) {
-	    						content.put(DatabaseHelper.KEY_NAME, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("parent")) {
-	    						content.put(DatabaseHelper.KEY_PARENT, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("property")) {
-	    						NamedNodeMap attributes = property.getAttributes();
-	    						content.put(DatabaseHelper.KEY_VALUE, attributes.getNamedItem("formatted").getNodeValue());
-	    						content.put(DatabaseHelper.KEY_RAW_VALUE, attributes.getNamedItem("value").getNodeValue());
-	    					}
-	    				}
-	    				// Store entry in database
-	    				dbEntries.add(content);
-	    			}
-	    			
-	    			// Parse Group Data
-	    			for (int i=0;i<groups.getLength();i++) {
-	    				Node group = groups.item(i);
-	    				NodeList properties = group.getChildNodes();
-	    				ContentValues content = new ContentValues();
-	    				content.put(DatabaseHelper.KEY_TYPE, "Scene");
-	    				for (int j=0;j<properties.getLength();j++){
-	    					Node property = properties.item(j);
-	    					String name = property.getNodeName();
-	    					if (name.equalsIgnoreCase("address")) {
-	    						content.put(DatabaseHelper.KEY_ADDRESS, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("name")) {
-	    						content.put(DatabaseHelper.KEY_NAME, property.getFirstChild().getNodeValue());
-	    					} else if (name.equalsIgnoreCase("parent")) {
-	    						content.put(DatabaseHelper.KEY_PARENT, property.getFirstChild().getNodeValue());
-	    					}
-	    				}
-	    				// Store entry in database
-	    				dbEntries.add(content);
-	    			}
-	    			
-	    		} catch (Exception e) {
-	    			Log.e("Parsing Node List Failed",e.toString());
-	    		}
+	        	ISYRESTParser isyParser = new ISYRESTParser(mInputStream);
+	        	dbEntries = isyParser.getDatabaseValues();
 	        }
 			return 0;
 		} // End method doInBackground

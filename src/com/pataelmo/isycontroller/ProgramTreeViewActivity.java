@@ -6,18 +6,7 @@ import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -249,7 +238,6 @@ public class ProgramTreeViewActivity extends Activity {
     	private ArrayList<ContentValues> dbEntries;
 	    private ProgressDialog pDialog;
     	private InputStream mInputStream;
-		private String mVarType;
     	@Override
     	protected void onPreExecute() {
 			super.onPreExecute();
@@ -299,110 +287,13 @@ public class ProgramTreeViewActivity extends Activity {
 	        if (networkInfo != null && networkInfo.isConnected())
 	        {
 	        	try {
-	        		// Figure out what mVarType should be set to from command
-	        		mVarType = "0";
 	        		mInputStream = params[0].openConnection().getInputStream();
 	        	} catch (IOException i) {
 	        		Log.e("URL Download failed",i.toString());
 	        	}
-	        	
-	        	try {
-	    			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
-	    			Element root = dom.getDocumentElement();
-	    			Log.i("XML PARSE","ROOT Element = "+root.getNodeName());
-	    			
-	    			if (root.getNodeName().equals("programs")) {
-	    				// Parse program list
-	    				NodeList programs = root.getElementsByTagName("program");
 
-		    			// Parse Program Data
-		    			for (int i=0;i<programs.getLength();i++) {
-		    				Node program = programs.item(i);
-		    				ContentValues content = new ContentValues();
-		    				NamedNodeMap attributes = program.getAttributes();
-    						content.put(DatabaseHelper.KEY_ADDRESS, attributes.getNamedItem("id").getNodeValue());
-    						if (attributes.getNamedItem("status").getNodeValue().equals("true")) {
-    							content.put(DatabaseHelper.KEY_STATUS, 1);
-    						} else {
-    							content.put(DatabaseHelper.KEY_STATUS, 0);
-    						}
-    						boolean folder;
-    						if (attributes.getNamedItem("folder").getNodeValue().equals("true")) {
-    							content.put(DatabaseHelper.KEY_ISFOLDER, 1);
-    							folder = true;
-    						} else {
-    							content.put(DatabaseHelper.KEY_ISFOLDER, 0);
-    							folder = false;
-    						}
-    						
-    						Node parent = attributes.getNamedItem("parentId");
-    						if (parent != null) {
-    							content.put(DatabaseHelper.KEY_PARENT, attributes.getNamedItem("parentId").getNodeValue());
-    						}
-    						if (!folder) {
-	    						if (attributes.getNamedItem("enabled").getNodeValue().equals("true")) {
-	    							content.put(DatabaseHelper.KEY_ENABLED, 1);
-	    						} else {
-	    							content.put(DatabaseHelper.KEY_ENABLED, 0);
-	    						}
-	    						if (attributes.getNamedItem("runAtStartup").getNodeValue().equals("true")) {
-	    							content.put(DatabaseHelper.KEY_RUNATSTARTUP, 1);
-	    						} else {
-	    							content.put(DatabaseHelper.KEY_RUNATSTARTUP, 0);
-	    						}
-	    						content.put(DatabaseHelper.KEY_RUNNING,attributes.getNamedItem("running").getNodeValue());
-    						}
-
-		    				NodeList properties = program.getChildNodes();
-		    				for (int j=0;j<properties.getLength();j++){
-		    					Node property = properties.item(j);
-		    					String name = property.getNodeName();
-		    					if (name.equalsIgnoreCase("name")) {
-		    						content.put(DatabaseHelper.KEY_NAME, property.getFirstChild().getNodeValue());
-		    					} else if (name.equalsIgnoreCase("lastRunTime")) {
-		    						if (property.getFirstChild() != null) {
-		    							String time = property.getFirstChild().getNodeValue();
-		    							SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd K:mm:ss a", Locale.US);	// example value 2014/02/05 9:52:22 PM
-		    							Date date = dateFormatter.parse(time);
-			    						content.put(DatabaseHelper.KEY_LASTRUNTIME, date.getTime());
-		    						}
-		    					} else if (name.equalsIgnoreCase("lastFinishTime")) {
-		    						if (property.getFirstChild() != null) {
-		    							String time = property.getFirstChild().getNodeValue();
-		    							SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd K:mm:ss a", Locale.US);	// example value 2014/02/05 9:52:22 PM
-		    							Date date = dateFormatter.parse(time);
-			    						content.put(DatabaseHelper.KEY_LASTENDTIME, date.getTime());
-		    						}
-		    					}
-		    				}
-		    				// Store entry in database
-		    				dbEntries.add(content);
-		    				Log.v("XML PARSE","New Progam Data = "+content);
-		    			}
-		    			dbh.updateProgramsTable(dbEntries);
-		    		// End if (root.getNodeName().equals("programs"))
-	    			} else if (root.getNodeName().equals("vars")) {
-	    				// Parse values of variables
-	    				
-	    			} else if (root.getNodeName().equals("CList")) {
-	    				// Parse definitions of variables
-	    				NodeList variables = root.getElementsByTagName("e");
-	    				for (int i=0;i<variables.getLength();i++) {
-		    				ContentValues content = new ContentValues();
-	    					Node variable = variables.item(i);
-	    					NamedNodeMap attributes = variable.getAttributes();
-	    					content.put(DatabaseHelper.KEY_TYPE,mVarType);
-	    					content.put(DatabaseHelper.KEY_ADDRESS,attributes.getNamedItem("id").getNodeValue());
-	    					content.put(DatabaseHelper.KEY_NAME,attributes.getNamedItem("name").getNodeValue());
-	    					dbEntries.add(content);
-	    				}
-	    			} else if (root.getNodeName().equals("RestResponse")) {
-	    				// Parse command response (success/failure)
-	    			}
-	    			
-	    		} catch (Exception e) {
-	    			Log.e("Parsing Node List Failed",e.toString());
-	    		}
+	        	ISYRESTParser isyParser = new ISYRESTParser(mInputStream);
+	        	dbEntries = isyParser.getDatabaseValues();
 	        }
 			return 0;
 		} // End method doInBackground

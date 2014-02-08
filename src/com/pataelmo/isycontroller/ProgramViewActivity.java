@@ -7,6 +7,7 @@ import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Date;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -39,9 +40,12 @@ public class ProgramViewActivity extends Activity {
 	
 	TextView mNameText;
 	TextView mAddressText;
-	TextView mValueText;
-	TextView mRawValueText;
 	TextView mStatusText;
+	TextView mEnabledText;
+	TextView mRunAtStartupText;
+	TextView mRunningText;
+	TextView mLastRunTimeText;
+	TextView mLastEndTimeText;
 
 	String baseUrl;
 	String loginUser;
@@ -72,17 +76,42 @@ public class ProgramViewActivity extends Activity {
         
         
         setActionBarTitle(mProgramData.mName);
-        
+           
 	    mNameText = (TextView) findViewById(R.id.nameText);
 	    mAddressText = (TextView) findViewById(R.id.addressText);
-	    mValueText = (TextView) findViewById(R.id.valueText);
-	    mRawValueText = (TextView) findViewById(R.id.rawValueText);
 	    mStatusText = (TextView) findViewById(R.id.statusText);
+	    mEnabledText = (TextView) findViewById(R.id.enabledText);
+	    mRunAtStartupText = (TextView) findViewById(R.id.runAtStartupText);
+	    mRunningText = (TextView) findViewById(R.id.runningText);
+	    mLastRunTimeText = (TextView) findViewById(R.id.lastRunTimeText);
+	    mLastEndTimeText = (TextView) findViewById(R.id.lastEndTimeText);
 	    
-	    mNameText.setText(mProgramData.mName);
-	    mAddressText.setText(mProgramData.mAddress);
+	    refreshDataValues();
 //	    mValueText.setText(mValue);
 //	    mRawValueText.setText(mRawValue);
+	}
+	
+	public void refreshDataValues() {
+
+	    mNameText.setText(mProgramData.mName);
+	    mAddressText.setText(mProgramData.mAddress);
+	    mStatusText.setText(mProgramData.mStatus);
+	    if (mProgramData.mEnabled) {
+	    	mEnabledText.setText("True");
+	    } else {
+	    	mEnabledText.setText("False");
+	    }
+	    if (mProgramData.mRunAtStartup) {
+	    	mRunAtStartupText.setText("True");
+	    } else {
+	    	mRunAtStartupText.setText("False");
+	    }
+	    mRunningText.setText(mProgramData.mRunning);
+	    Log.v("ProgramViewActivity","Got Raw Timestamp for "+mProgramData.mId+" = "+mProgramData.mLastRunTime);
+	    String formattedTime = new Date(mProgramData.mLastRunTime).toString();
+	    mLastRunTimeText.setText(formattedTime);
+	    formattedTime = new Date(mProgramData.mLastEndTime).toString();
+	    mLastEndTimeText.setText(formattedTime);
 	}
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -132,46 +161,54 @@ public class ProgramViewActivity extends Activity {
 
 	// Button Handlers
     
-    public void queryNode(View view) {
+    public void refreshData(View view) {
     	// Request Node Update
     	
     	// Dummy code to see action
     	//mStatusText.setText("Node value Queried");
 
-    	new NodeCommander().execute("ST");
+    	//new NodeCommander().execute("ST");
     }
     
-    public void cmdNodeOn(View view) {
+    public void runProgram(View view) {
     	// Send Command to ISY
+    	
+    }
+    
+    public void stopProgram(View view) {
+    	// Send Command to ISY
+    	
+    }
+    
+    public void runIfProgram(View view) {
+    	// Send Command to ISY
+    	
+    }
+    
+    public void runElseProgram(View view) {
+    	// Send Command to ISY
+    	
+    }
 
-    	// Dummy code to see action
-    	//mValueText.setText("On");
-    	//mRawValueText.setText("255");
-    	mStatusText.setText("");
-    	new NodeCommander().execute("cmd/DON","ST");
-    	//Toast.makeText(this, mName + "turned on.", Toast.LENGTH_LONG).show();
+    public void enableProgram(View view) {
+    	// Send Command to ISY
     	
     }
     
-    public void cmdNodeOff(View view) {
+    public void disableProgram(View view) {
     	// Send Command to ISY
     	
-    	// Dummy code to see action
-    	//mValueText.setText("Off");
-    	//mRawValueText.setText("0");
-    	mStatusText.setText("");
-    	new NodeCommander().execute("cmd/DOF","ST");
-//    	Toast.makeText(this, mName + "turned off.", Toast.LENGTH_LONG).show();
     }
 
-    public void updateValues(String value, String rawValue) {
-    	// Update display
-    	mValueText.setText(value);
-    	mRawValueText.setText(rawValue);
-    	// Update database
-    	dbh.updateNodeValue(mId, value, rawValue);
+    public void enableRunAtStartProgram(View view) {
+    	// Send Command to ISY
+    	
     }
     
+    public void disableRunAtStartProgram(View view) {
+    	// Send Command to ISY
+    	
+    }
 
     public class NodeCommander extends AsyncTask<String, Integer, Integer> {
     	private boolean mCommandSuccess;

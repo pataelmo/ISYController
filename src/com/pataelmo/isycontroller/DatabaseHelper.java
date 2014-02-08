@@ -136,20 +136,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_PROGRAMS_TABLE);
 		db.execSQL(CREATE_VARS_TABLE);
 		// DEBUG 
-		db.execSQL(ADD_NODES_TESTDATA_0);
-		db.execSQL(ADD_NODES_TESTDATA_1);
-		db.execSQL(ADD_NODES_TESTDATA_2);
-		db.execSQL(ADD_NODES_TESTDATA_3);
-		db.execSQL(ADD_NODES_TESTDATA_4);
-		db.execSQL(ADD_PROGRAMS_TESTDATA_0);
-		db.execSQL(ADD_PROGRAMS_TESTDATA_1);
-		db.execSQL(ADD_PROGRAMS_TESTDATA_2);
-		db.execSQL(ADD_PROGRAMS_TESTDATA_3);
-		db.execSQL(ADD_PROGRAMS_TESTDATA_4);
-		db.execSQL(ADD_VARS_TESTDATA_0);
-		db.execSQL(ADD_VARS_TESTDATA_1);
-		db.execSQL(ADD_VARS_TESTDATA_2);
-		db.execSQL(ADD_VARS_TESTDATA_3);
+//		db.execSQL(ADD_NODES_TESTDATA_0);
+//		db.execSQL(ADD_NODES_TESTDATA_1);
+//		db.execSQL(ADD_NODES_TESTDATA_2);
+//		db.execSQL(ADD_NODES_TESTDATA_3);
+//		db.execSQL(ADD_NODES_TESTDATA_4);
+//		db.execSQL(ADD_PROGRAMS_TESTDATA_0);
+//		db.execSQL(ADD_PROGRAMS_TESTDATA_1);
+//		db.execSQL(ADD_PROGRAMS_TESTDATA_2);
+//		db.execSQL(ADD_PROGRAMS_TESTDATA_3);
+//		db.execSQL(ADD_PROGRAMS_TESTDATA_4);
+//		db.execSQL(ADD_VARS_TESTDATA_0);
+//		db.execSQL(ADD_VARS_TESTDATA_1);
+//		db.execSQL(ADD_VARS_TESTDATA_2);
+//		db.execSQL(ADD_VARS_TESTDATA_3);
 		// END DEBUG
 	}
 
@@ -179,25 +179,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void updateNodeTable(ArrayList<ContentValues> valuesList) {
 		SQLiteDatabase db = getDatabase();
 		// Drop existing data
-		db.delete(NODES_TABLE_NAME, null, null);
+		//db.delete(NODES_TABLE_NAME, null, null);
 		// Add all new data
 		Iterator<ContentValues> i = valuesList.iterator();
 		ContentValues c;
 		while(i.hasNext()) {
 			c = i.next();
-			db.insert(NODES_TABLE_NAME, null, c);
-			Log.v("DATABASE INSERT:", c.toString());
+			Cursor cursor = db.query(NODES_TABLE_NAME, null,KEY_ADDRESS+" = ?", new String[]{c.getAsString(KEY_ADDRESS)}, null, null, null, "1");
+			if(cursor.getCount() > 0) {
+				cursor.moveToFirst();
+				Log.v("DATABASE UPDATE","Row = "+cursor.getString(cursor.getColumnIndex(KEY_ROWID)));
+				db.update(NODES_TABLE_NAME, c, KEY_ROWID+" = ?", new String[]{cursor.getString(cursor.getColumnIndex(KEY_ROWID))});
+			} else {
+				db.insert(NODES_TABLE_NAME, null, c);
+				Log.v("DATABASE INSERT:", c.toString());
+			}
+
 		}
-		ContentValues extras = new ContentValues();
-		extras.put(KEY_NAME,"Programs");
-		extras.put(KEY_TYPE,"System");
-		extras.put(KEY_ADDRESS,"Programs");
-		db.insert(NODES_TABLE_NAME, null, extras);
-		extras.clear();
-		extras.put(KEY_NAME,"Variables");
-		extras.put(KEY_TYPE,"System");
-		extras.put(KEY_ADDRESS,"Vars");
-		db.insert(NODES_TABLE_NAME, null, extras);
+		Cursor cursor = db.query(NODES_TABLE_NAME, new String[]{"COUNT(_id)"}, KEY_TYPE+" = ?", new String[]{"System"}, null, null, null);
+		cursor.moveToFirst();
+		int count = cursor.getInt(0);
+		if (count < 2) {
+			ContentValues extras = new ContentValues();
+			extras.put(KEY_NAME,"Programs");
+			extras.put(KEY_TYPE,"System");
+			extras.put(KEY_ADDRESS,"Programs");
+			db.insert(NODES_TABLE_NAME, null, extras);
+			extras.clear();
+			extras.put(KEY_NAME,"Variables");
+			extras.put(KEY_TYPE,"System");
+			extras.put(KEY_ADDRESS,"Vars");
+			db.insert(NODES_TABLE_NAME, null, extras);
+		}
 	}
 	
 	public Cursor getCursorAllData() {
@@ -334,8 +347,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				c.getInt(c.getColumnIndex(KEY_ENABLED)),
 				c.getInt(c.getColumnIndex(KEY_RUNATSTARTUP)),
 				c.getString(c.getColumnIndex(KEY_RUNNING)),
-				c.getInt(c.getColumnIndex(KEY_LASTRUNTIME)),
-				c.getInt(c.getColumnIndex(KEY_LASTENDTIME)));
+				c.getLong(c.getColumnIndex(KEY_LASTRUNTIME)),
+				c.getLong(c.getColumnIndex(KEY_LASTENDTIME)));
 		c.close();
 
 		return result;
@@ -429,21 +442,45 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void updateProgramsTable(ArrayList<ContentValues> valuesList) {
 		SQLiteDatabase db = getDatabase();
 		// Drop existing data
-		db.delete(PROGRAMS_TABLE_NAME, null, null);
+		//db.delete(PROGRAMS_TABLE_NAME, null, null);
 		// Add all new data
 		Iterator<ContentValues> i = valuesList.iterator();
 		ContentValues c;
 		while(i.hasNext()) {
 			c = i.next();
-			db.insert(PROGRAMS_TABLE_NAME, null, c);
-			Log.v("DATABASE INSERT:", c.toString());
+			Cursor cursor = db.query(PROGRAMS_TABLE_NAME, null,KEY_ADDRESS+" = ?", new String[]{c.getAsString(KEY_ADDRESS)}, null, null, null, "1");
+			if(cursor.getCount() > 0) {
+				cursor.moveToFirst();
+				Log.v("DATABASE UPDATE","Row = "+cursor.getString(cursor.getColumnIndex(KEY_ROWID)));
+				db.update(PROGRAMS_TABLE_NAME, c, KEY_ROWID+" = ?", new String[]{cursor.getString(cursor.getColumnIndex(KEY_ROWID))});
+			} else {
+				db.insert(PROGRAMS_TABLE_NAME, null, c);
+				Log.v("DATABASE INSERT:", c.toString());
+			}
 		}
 		
 	}
 
 
 	public void updateVarsTable(ArrayList<ContentValues> values) {
-		// TODO Auto-generated method stub
-		
+		SQLiteDatabase db = getDatabase();
+		// Drop existing data
+		//db.delete(VARS_TABLE_NAME, null, null);
+		// Add all new data
+		Iterator<ContentValues> i = values.iterator();
+		ContentValues c;
+		while(i.hasNext()) {
+			c = i.next();
+			Cursor cursor = db.query(VARS_TABLE_NAME, null,KEY_ADDRESS+" = ? AND "+KEY_TYPE+" = ?", new String[]{c.getAsString(KEY_ADDRESS),c.getAsString(KEY_TYPE)}, null, null, null, "1");
+			if(cursor.getCount() > 0) {
+				cursor.moveToFirst();
+				Log.v("DATABASE UPDATE","Row = "+cursor.getString(cursor.getColumnIndex(KEY_ROWID)));
+				db.update(VARS_TABLE_NAME, c, KEY_ROWID+" = ?", new String[]{cursor.getString(cursor.getColumnIndex(KEY_ROWID))});
+			} else {
+				db.insert(VARS_TABLE_NAME, null, c);
+			}
+			cursor.close();
+			Log.v("DATABASE INSERT:", c.toString());
+		}
 	}
 }

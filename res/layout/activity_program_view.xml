@@ -16,7 +16,7 @@
         android:gravity="center"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="40sp"
+        android:textSize="30sp"
         android:textStyle="bold" />
 
 	<View
@@ -35,89 +35,259 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="0dip"
 	    android:layout_weight="1"/>
-	<RelativeLayout 
+	<LinearLayout 
+	    android:baselineAligned="false"
 	    android:layout_width="match_parent"
-	    android:layout_height="0dip"
-	    android:layout_weight="2"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
 	    >
-
-	    <TextView
-	        android:id="@+id/currentStateLabel"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentLeft="true"
-	        android:gravity="center"
-	        android:text="Current State"
-	        android:textAppearance="?android:attr/textAppearanceMedium" />
+		<LinearLayout 
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="1"
+		    android:orientation="vertical"
+		    >
+		    <TextView
+		        android:id="@+id/statusLabel"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text="@string/statusLabel"
+		        android:textAppearance="?android:attr/textAppearanceMedium" />
+		    
+		    <TextView
+		        android:id="@+id/statusText"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text=""
+		        android:textAppearance="?android:attr/textAppearanceMedium"
+		        android:textSize="18sp"
+		        android:textStyle="bold" />
+		</LinearLayout>
+	    <LinearLayout 
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="1"
+		    android:orientation="vertical"
+		    >
+		    <TextView
+		        android:id="@+id/enabedLabel"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text="@string/enabledLabel"
+		        android:textAppearance="?android:attr/textAppearanceMedium" />
+		    
+		    <TextView
+		        android:id="@+id/enabledText"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text=""
+		        android:textAppearance="?android:attr/textAppearanceMedium"
+		        android:textSize="18sp"
+		        android:textStyle="bold" />
+			    
+		</LinearLayout>
+		<LinearLayout 
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="1"
+		    android:orientation="vertical"
+		    >
+		    <TextView
+		        android:id="@+id/runAtStartupLabel"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text="@string/runAtStartupLabel"
+		        android:textAppearance="?android:attr/textAppearanceMedium" />
 	    
-	    <TextView
-	        android:id="@+id/currentRawStateLabel"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentRight="true"
-	        android:gravity="center"
-	        android:text="Current Raw State"
-	        android:textAppearance="?android:attr/textAppearanceMedium" />
-	   	
-	    <TextView
-	        android:id="@+id/valueText"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentLeft="true"
-	        android:layout_below="@+id/currentStateLabel"
-	        android:gravity="center"
-	        android:text=""
-	        android:textAppearance="?android:attr/textAppearanceLarge"
-	        android:textSize="40sp"
-	        android:textStyle="bold" />
-	    
-	    <TextView
-	        android:id="@+id/rawValueText"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentRight="true"
-	        android:layout_below="@+id/currentRawStateLabel"
-	        android:gravity="center"
-	        android:text=""
-	        android:textAppearance="?android:attr/textAppearanceLarge"
-	        android:textSize="40sp"
-	        android:textStyle="bold" />
-
-	</RelativeLayout>
+		    <TextView
+		        android:id="@+id/runAtStartupText"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text=""
+		        android:textAppearance="?android:attr/textAppearanceMedium"
+		        android:textSize="18sp"
+		        android:textStyle="bold" />
+		</LinearLayout>
+		<LinearLayout 
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="1"
+		    android:orientation="vertical"
+		    >
+		    <TextView
+		        android:id="@+id/runningLabel"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text="@string/runningLabel"
+		        android:textAppearance="?android:attr/textAppearanceMedium" />
+		    
+		    <TextView
+		        android:id="@+id/runningText"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text=""
+		        android:textAppearance="?android:attr/textAppearanceMedium"
+		        android:textSize="18sp"
+		        android:textStyle="bold" />
+		    
+		</LinearLayout>
+	</LinearLayout>
+	<LinearLayout 
+	    android:baselineAligned="false"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:padding="10dp"
+	    >
+		<LinearLayout 
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="1"
+		    android:orientation="vertical"
+		    >
+		    <TextView
+		        android:id="@+id/lastRunTimeLabel"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text="@string/lastRunTimeLabel"
+		        android:textAppearance="?android:attr/textAppearanceMedium" />
+		    
+		    <TextView
+		        android:id="@+id/lastRunTimeText"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text=""
+		        android:textAppearance="?android:attr/textAppearanceMedium"
+		        android:textSize="18sp"
+		        android:textStyle="bold" />
+		</LinearLayout>
+	    <LinearLayout 
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="1"
+		    android:orientation="vertical"
+		    >
+		    <TextView
+		        android:id="@+id/lastEndTimeLabel"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text="@string/lastFinishTimeLabel"
+		        android:textAppearance="?android:attr/textAppearanceMedium" />
+		    
+		    <TextView
+		        android:id="@+id/lastEndTimeText"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text=""
+		        android:textAppearance="?android:attr/textAppearanceMedium"
+		        android:textSize="18sp"
+		        android:textStyle="bold" />
+			    
+		</LinearLayout>
+		
+	</LinearLayout>
 	<View
 	    android:layout_width="fill_parent"
 	    android:layout_height="0dip"
 	    android:layout_weight="1"/>
-	<TextView
-        android:id="@+id/statusText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:gravity="center"
-        android:textStyle=""
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-	<View
-	    android:layout_width="fill_parent"
-	    android:layout_height="0dip"
-	    android:layout_weight="3"/>
+	
     <Button
-        android:id="@+id/queryButton"
+        android:id="@+id/refreshButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/queryButton"
-        android:onClick="queryNode"/>
-    <Button
-        android:id="@+id/onButton"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/onButton"
-        android:onClick="cmdNodeOn"/>
-    <Button
-        android:id="@+id/offButton"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/offButton"
-        android:onClick="cmdNodeOff"/>
-    
+        android:text="@string/refreshButton"
+        android:onClick="refreshData"/>
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    >
+	    <Button
+	        android:id="@+id/runButton"
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:text="@string/runButton"
+	        android:onClick="runProgram"/>
+	    <Button
+	        android:id="@+id/stopButton"
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:text="@string/stopButton"
+	        android:onClick="stopProgram"/>	
+	</LinearLayout>
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    >
+	    <Button
+	        android:id="@+id/runIfButton"
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:text="@string/runIfButton"
+	        android:onClick="runIfProgram"/>
+	    <Button
+	        android:id="@+id/runElseButton"
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:text="@string/runElseButton"
+	        android:onClick="runElseProgram"/>	
+	</LinearLayout>
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    >
+	    <Button
+	        android:id="@+id/enableButton"
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:text="@string/enableButton"
+	        android:onClick="enableProgram"/>
+	    <Button
+	        android:id="@+id/disableButton"
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:text="@string/disableButton"
+	        android:onClick="disableProgram"/>	
+	</LinearLayout>
+	
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    >
+	    <Button
+	        android:id="@+id/enableRunAtStartButton"
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:text="@string/enableRunAtStartButton"
+	        android:onClick="enableRunAtStartProgram"/>
+	    <Button
+	        android:id="@+id/disableRunAtStartButton"
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:text="@string/disableRunAtStartButton"
+	        android:onClick="disableRunAtStartProgram"/>	
+	</LinearLayout>
 </LinearLayout>
