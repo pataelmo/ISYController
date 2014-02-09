@@ -235,12 +235,12 @@
 	    android:orientation="horizontal"
 	    >
 	    <Button
-	        android:id="@+id/runIfButton"
+	        android:id="@+id/runThenButton"
 	        android:layout_width="0dp"
 	        android:layout_weight="1"
 	        android:layout_height="wrap_content"
-	        android:text="@string/runIfButton"
-	        android:onClick="runIfProgram"/>
+	        android:text="@string/runThenButton"
+	        android:onClick="runThenProgram"/>
 	    <Button
 	        android:id="@+id/runElseButton"
 	        android:layout_width="0dp"

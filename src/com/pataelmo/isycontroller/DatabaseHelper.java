@@ -365,7 +365,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				c.getString(c.getColumnIndex(KEY_TYPE)),
 				c.getInt(c.getColumnIndex(KEY_INIT)),
 				c.getInt(c.getColumnIndex(KEY_VALUE)),
-				c.getInt(c.getColumnIndex(KEY_LASTCHANGED)));
+				c.getLong(c.getColumnIndex(KEY_LASTCHANGED)));
 		c.close();
 		return result;
 	}

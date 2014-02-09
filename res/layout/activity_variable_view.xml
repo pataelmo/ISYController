@@ -16,7 +16,7 @@
         android:gravity="center"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="40sp"
+        android:textSize="32sp"
         android:textStyle="bold" />
 
 	<View
@@ -31,32 +31,29 @@
         android:gravity="center"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceMedium" />
-	<View
-	    android:layout_width="fill_parent"
-	    android:layout_height="0dip"
-	    android:layout_weight="1"/>
 	<RelativeLayout 
 	    android:layout_width="match_parent"
 	    android:layout_height="0dip"
 	    android:layout_weight="2"
+	    android:padding="5dp"
 	    >
 
 	    <TextView
-	        android:id="@+id/currentStateLabel"
+	        android:id="@+id/currentValueLabel"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentLeft="true"
 	        android:gravity="center"
-	        android:text="Current State"
+	        android:text="@string/currentValue"
 	        android:textAppearance="?android:attr/textAppearanceMedium" />
 	    
 	    <TextView
-	        android:id="@+id/currentRawStateLabel"
+	        android:id="@+id/initValueLabel"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentRight="true"
 	        android:gravity="center"
-	        android:text="Current Raw State"
+	        android:text="@string/initValue"
 	        android:textAppearance="?android:attr/textAppearanceMedium" />
 	   	
 	    <TextView
@@ -64,7 +61,7 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentLeft="true"
-	        android:layout_below="@+id/currentStateLabel"
+	        android:layout_below="@+id/currentValueLabel"
 	        android:gravity="center"
 	        android:text=""
 	        android:textAppearance="?android:attr/textAppearanceLarge"
@@ -72,52 +69,54 @@
 	        android:textStyle="bold" />
 	    
 	    <TextView
-	        android:id="@+id/rawValueText"
+	        android:id="@+id/initValueText"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentRight="true"
-	        android:layout_below="@+id/currentRawStateLabel"
+	        android:layout_below="@+id/initValueLabel"
 	        android:gravity="center"
 	        android:text=""
 	        android:textAppearance="?android:attr/textAppearanceLarge"
 	        android:textSize="40sp"
 	        android:textStyle="bold" />
 
+	    <TextView
+	        android:id="@+id/lastChangedLabel"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_below="@+id/valueText"
+	        android:gravity="center"
+	        android:text="@string/lastChangedLabel"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	    
+	    <TextView
+	        android:id="@+id/lastChangedText"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_below="@+id/lastChangedLabel"
+	        android:gravity="center"
+	        android:text=""
+	        android:textAppearance="?android:attr/textAppearanceMedium"
+	        android:textSize="20sp"
+	        android:textStyle="bold" />
 	</RelativeLayout>
 	<View
 	    android:layout_width="fill_parent"
 	    android:layout_height="0dip"
 	    android:layout_weight="1"/>
-	<TextView
-        android:id="@+id/statusText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:gravity="center"
-        android:textStyle=""
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-	<View
-	    android:layout_width="fill_parent"
-	    android:layout_height="0dip"
-	    android:layout_weight="3"/>
     <Button
-        android:id="@+id/queryButton"
+        android:id="@+id/refreshButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/queryButton"
-        android:onClick="queryNode"/>
+        android:text="@string/refreshButton"
+        android:onClick="refreshButton"/>
     <Button
         android:id="@+id/onButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/onButton"
-        android:onClick="cmdNodeOn"/>
-    <Button
-        android:id="@+id/offButton"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/offButton"
-        android:onClick="cmdNodeOff"/>
+        android:text="@string/setNewValueButton"
+        android:onClick="setButton"/>
     
 </LinearLayout>

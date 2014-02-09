@@ -291,6 +291,7 @@ public class VariableTreeViewActivity extends Activity {
 	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 	        if (networkInfo != null && networkInfo.isConnected())
 	        {
+//	        	int count = params.length;
 	        	String[] cmds = new String[]{"/definitions/1","/get/1","/definitions/2","/get/2"};
 //	        	mCount = count;
 	        	for (int i = 0; i < cmds.length; i++) {

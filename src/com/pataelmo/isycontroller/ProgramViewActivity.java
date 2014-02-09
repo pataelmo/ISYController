@@ -9,11 +9,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -167,50 +162,53 @@ public class ProgramViewActivity extends Activity {
     	// Dummy code to see action
     	//mStatusText.setText("Node value Queried");
 
-    	//new NodeCommander().execute("ST");
+    	new ProgramCommander().execute("");
     }
     
     public void runProgram(View view) {
     	// Send Command to ISY
-    	
+
+    	new ProgramCommander().execute("run","");
     }
     
     public void stopProgram(View view) {
     	// Send Command to ISY
-    	
+
+    	new ProgramCommander().execute("stop","");
     }
     
-    public void runIfProgram(View view) {
+    public void runThenProgram(View view) {
     	// Send Command to ISY
-    	
+    	new ProgramCommander().execute("runThen","");
     }
     
     public void runElseProgram(View view) {
     	// Send Command to ISY
-    	
+    	new ProgramCommander().execute("runElse","");
     }
 
     public void enableProgram(View view) {
     	// Send Command to ISY
-    	
+    	new ProgramCommander().execute("enable","");
     }
     
     public void disableProgram(View view) {
     	// Send Command to ISY
-    	
+    	new ProgramCommander().execute("disable","");
     }
 
     public void enableRunAtStartProgram(View view) {
     	// Send Command to ISY
-    	
+    	new ProgramCommander().execute("enableRunAtStartup","");
     }
     
     public void disableRunAtStartProgram(View view) {
     	// Send Command to ISY
+    	new ProgramCommander().execute("disableRunAtStartup","");
     	
     }
 
-    public class NodeCommander extends AsyncTask<String, Integer, Integer> {
+    public class ProgramCommander extends AsyncTask<String, Integer, Integer> {
     	private boolean mCommandSuccess;
     	private String mCommand;
 	    //private ProgressDialog pDialog;
@@ -243,19 +241,15 @@ public class ProgramViewActivity extends Activity {
 			super.onProgressUpdate(progress);
 			// advance progress indicator
 			 String results = "";
- 	        if (mCommandSuccess) {
- 	        	if (mCommand.equals("ST")) {
- 	        		//updateValues(mValue,mRawValue);
- 	        	}
- 	        } else {
+ 	        if (mCommand.equals("")) {
+ 	        	refreshDataValues();
+ 	        } else if (!mCommandSuccess) {
  	        	results = "Failed to figure out cmd="+mCommand;
- 	        	if (mCommand.equals("DON")) {
- 	        		//results = mType + " On failed...";
- 	        	} else if (mCommand.equals("DOF")) {
- 	        		//results = mType + " Off failed...";
- 	        	} else if (mCommand.equals("ST")) {
- 	        		//results = "Query Failed...";
- 	        	}
+// 	        	if (mCommand.equals("DON")) {
+// 	        		results =  + " On failed...";
+// 	        	} else if (mCommand.equals("DOF")) {
+// 	        		results = mType + " Off failed...";
+// 	        	}
 	 	       	Toast.makeText(getBaseContext(), results, Toast.LENGTH_LONG).show();
  	        }
     	}
@@ -266,7 +260,6 @@ public class ProgramViewActivity extends Activity {
 //	        pDialog.hide();
 //	        pDialog.dismiss();
 			// Update display values
-	       
     	}   ///  end ---   onPostExecute(..)
 
 		@Override
@@ -283,12 +276,7 @@ public class ProgramViewActivity extends Activity {
 		        	// DO URL GET
 		        	try {
 		        		String cmd = params[i];
-
-		        		if (cmd.length()>6) {
-		        			mCommand = cmd.substring(4,7);
-		        		} else if (cmd.length()>0) {
-		        			mCommand = cmd;
-		        		}
+		        		mCommand = cmd;
 			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
 		        		
 		        		URL url = new URL(baseUrl+cmd);
@@ -306,25 +294,12 @@ public class ProgramViewActivity extends Activity {
 		        	}
 		        	// PARSE URL RESPONSE
 		        	try {
-		    			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
-		    			Element root = dom.getDocumentElement();
-		    			String rootName = root.getNodeName();
-		    			mCommandSuccess = false;
-		    			if (rootName.equalsIgnoreCase("RestResponse")) {
-		    				// Get success or fail
-		    				if (root.getAttribute("succeeded").equalsIgnoreCase("true")) {
-		    					mCommandSuccess = true;
-		    				} else {
-		    					mCommandSuccess = false;
-		    				}
-		    			} else if (rootName.equalsIgnoreCase("nodeInfo")) {
-		    				// Parse data out to update display
-		    			} else if (rootName.equalsIgnoreCase("properties")){
-		    				//NamedNodeMap props = root.getFirstChild().getAttributes();
-		    				//mRawValue = props.getNamedItem("value").getNodeValue();
-		    				//mValue = props.getNamedItem("formatted").getNodeValue();
-		    				mCommandSuccess = true;
-		    			}
+		        		ISYRESTParser parser = new ISYRESTParser(mInputStream);
+		        		if (parser.getRootName().equals("RestResponse")) {
+		        			mCommandSuccess = parser.getSuccess();
+		        		} else {
+		        			mProgramData = parser.getProgramData();
+		        		}
 		    			
 		    			
 		    		} catch (Exception e) {
@@ -335,7 +310,7 @@ public class ProgramViewActivity extends Activity {
 		        	publishProgress(i);
 		        	Log.i("ASYNC TASK","Completed "+i+" out of "+count+"commands");
 		        	try {
-						Thread.sleep(200);
+						Thread.sleep(50);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

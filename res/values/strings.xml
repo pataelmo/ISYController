@@ -34,7 +34,7 @@
 	<string name="refreshButton">Refresh Data</string>
 	<string name="runButton">Run</string>
 	<string name="runElseButton">Run Else</string>
-	<string name="runIfButton">Run If</string>
+	<string name="runThenButton">Run Then</string>
 	<string name="stopButton">Stop</string>
 	<string name="statusLabel">Status</string>
 	<string name="enabledLabel">Enabled</string>
@@ -42,4 +42,8 @@
 	<string name="runningLabel">Running</string>
 	<string name="lastRunTimeLabel">Last Run Time</string>
 	<string name="lastFinishTimeLabel">Last Finish Time</string>
+	<string name="currentValue">Current Value:</string>
+	<string name="initValue">Init Value:</string>
+	<string name="lastChangedLabel">Last Changed:</string>
+	<string name="setNewValueButton">Set New Value</string>
 </resources>

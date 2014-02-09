@@ -8,7 +8,7 @@ public class VariableData {
 	public String mType;
 	public int mInit;
 	public int mValue;
-	public int mLastChanged;
+	public Long mLastChanged;
 
 	public VariableData() {
 		// Boring constructor
@@ -18,11 +18,11 @@ public class VariableData {
 		mType = "";
 		mInit = 0;
 		mValue = 0;
-		mLastChanged = -1;
+		mLastChanged = 0L;
 	}
 
 	public VariableData(int id, String name, String address,
-			String type, int init, int value, int lastChanged) {
+			String type, int init, int value, Long lastChanged) {
 		mId = id;
 		mName = name;
 		mAddress = address;
@@ -34,6 +34,10 @@ public class VariableData {
 
 	public String getValueStr() {
 		return Integer.toString(mValue);
+	}
+
+	public String getInitValueStr() {
+		return Integer.toString(mInit);
 	}
 
 }

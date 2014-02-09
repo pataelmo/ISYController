@@ -7,11 +7,13 @@ import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Date;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -20,14 +22,19 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
+import android.text.InputFilter;
+import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class VariableViewActivity extends Activity {
+public class VariableViewActivity extends FragmentActivity {
 	DatabaseHelper dbh = null;
 	String mId;
 	
@@ -41,6 +48,8 @@ public class VariableViewActivity extends Activity {
 	String loginUser;
 	String loginPass;
 	private VariableData mVarData;
+	private TextView mInitValueText;
+	private TextView mLastChangedText;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -62,7 +71,7 @@ public class VariableViewActivity extends Activity {
         mId = intent.getStringExtra("id");
         mVarData = dbh.getVarData(mId);
         
-    	baseUrl = urlBase + "/vars/" + mVarData.mType + "/" + mVarData.mAddress + "/" ;
+    	baseUrl = urlBase + "/vars/";
         
         
         setActionBarTitle(mVarData.mName);
@@ -70,15 +79,21 @@ public class VariableViewActivity extends Activity {
 	    mNameText = (TextView) findViewById(R.id.nameText);
 	    mAddressText = (TextView) findViewById(R.id.addressText);
 	    mValueText = (TextView) findViewById(R.id.valueText);
-	    mRawValueText = (TextView) findViewById(R.id.rawValueText);
-	    mStatusText = (TextView) findViewById(R.id.statusText);
+	    mInitValueText = (TextView) findViewById(R.id.initValueText);
+	    mLastChangedText = (TextView) findViewById(R.id.lastChangedText);
 	    
+	    refreshDataValues();
+	}
+	
+	private void refreshDataValues() {
 	    mNameText.setText(mVarData.mName);
 	    mAddressText.setText(mVarData.mAddress);
 	    mValueText.setText(mVarData.getValueStr());
-//	    mRawValueText.setText(mRawValue);
+	    mInitValueText.setText(mVarData.getInitValueStr());
+	    Date lastChanged = new Date(mVarData.mLastChanged);
+	    mLastChangedText.setText(lastChanged.toString());
 	}
-	
+
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupActionBar() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -126,36 +141,58 @@ public class VariableViewActivity extends Activity {
 
 	// Button Handlers
     
-    public void queryNode(View view) {
+    public void refreshButton(View view) {
     	// Request Node Update
-    	
-    	// Dummy code to see action
-    	//mStatusText.setText("Node value Queried");
-
-    	new NodeCommander().execute("ST");
+    	new VariableCommander().execute("");
     }
     
-    public void cmdNodeOn(View view) {
-    	// Send Command to ISY
+    public void setButton(View view) {
+    	// Request Node Update
+//    	new VariableCommander().execute("");
+    	// 1. Instantiate an AlertDialog.Builder with its constructor
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-    	// Dummy code to see action
-    	//mValueText.setText("On");
-    	//mRawValueText.setText("255");
-    	mStatusText.setText("");
-    	new NodeCommander().execute("cmd/DON","ST");
-    	//Toast.makeText(this, mName + "turned on.", Toast.LENGTH_LONG).show();
+    	// 2. Chain together various setter methods to set the dialog characteristics
+    	builder.setTitle("Set New Value");
+    	final EditText input = new EditText(this);
+    	builder.setView(input);
+    	input.setText(Integer.toString(mVarData.mValue));
+    	input.setTextSize(40);
+    	input.selectAll();
+    	input.setFilters(new InputFilter[] {
+    			// Digits only.
+    		    DigitsKeyListener.getInstance(),  // Not strictly needed, IMHO.
+    	});
+    	input.setKeyListener(DigitsKeyListener.getInstance());
     	
-    }
-    
-    public void cmdNodeOff(View view) {
-    	// Send Command to ISY
-    	
-    	// Dummy code to see action
-    	//mValueText.setText("Off");
-    	//mRawValueText.setText("0");
-    	mStatusText.setText("");
-    	new NodeCommander().execute("cmd/DOF","ST");
-//    	Toast.makeText(this, mName + "turned off.", Toast.LENGTH_LONG).show();
+    	builder.setPositiveButton("Set",
+    			new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int whichButton) {
+						String newValue = input.getText().toString();
+						// Launch set command
+				    	new VariableCommander().execute(newValue,"");
+					}
+				});
+    	builder.setNegativeButton("Cancel",
+    			new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// Do nothing
+					}
+				});
+    	// 3. Get the AlertDialog from create()
+    	final AlertDialog dialog = builder.create();
+    	input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+    	    @Override
+    	    public void onFocusChange(View v, boolean hasFocus) {
+    	        if (hasFocus) {
+    	            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+    	        }
+    	    }
+    	});
+    	dialog.show();
     }
 
     public void updateValues(String value, String rawValue) {
@@ -167,7 +204,7 @@ public class VariableViewActivity extends Activity {
     }
     
 
-    public class NodeCommander extends AsyncTask<String, Integer, Integer> {
+    public class VariableCommander extends AsyncTask<String, Integer, Integer> {
     	private boolean mCommandSuccess;
     	private String mCommand;
 	    //private ProgressDialog pDialog;
@@ -200,19 +237,15 @@ public class VariableViewActivity extends Activity {
 			super.onProgressUpdate(progress);
 			// advance progress indicator
 			 String results = "";
- 	        if (mCommandSuccess) {
- 	        	if (mCommand.equals("ST")) {
- 	        		//updateValues(mValue,mRawValue);
- 	        	}
- 	        } else {
+ 	        if (mCommand.equals("")) {
+ 	        	refreshDataValues();
+ 	        } else if (!mCommandSuccess) {
  	        	results = "Failed to figure out cmd="+mCommand;
- 	        	if (mCommand.equals("DON")) {
- 	        		//results = mType + " On failed...";
- 	        	} else if (mCommand.equals("DOF")) {
- 	        		//results = mType + " Off failed...";
- 	        	} else if (mCommand.equals("ST")) {
- 	        		//results = "Query Failed...";
- 	        	}
+// 	        	if (mCommand.equals("DON")) {
+// 	        		results =  + " On failed...";
+// 	        	} else if (mCommand.equals("DOF")) {
+// 	        		results = mType + " Off failed...";
+// 	        	}
 	 	       	Toast.makeText(getBaseContext(), results, Toast.LENGTH_LONG).show();
  	        }
     	}
@@ -223,7 +256,6 @@ public class VariableViewActivity extends Activity {
 //	        pDialog.hide();
 //	        pDialog.dismiss();
 			// Update display values
-	       
     	}   ///  end ---   onPostExecute(..)
 
 		@Override
@@ -234,18 +266,22 @@ public class VariableViewActivity extends Activity {
 	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 	        if (networkInfo != null && networkInfo.isConnected())
 	        {
+	        	int count = params.length;
+//	        	mCount = count;
+	        	for (int i = 0; i < count; i++) {
 		        	// DO URL GET
 		        	try {
-		        		String cmd = params[0];
-//
-//		        		if (cmd.length()>6) {
-//		        			mCommand = cmd.substring(4,7);
-//		        		} else if (cmd.length()>0) {
-//		        			mCommand = cmd;
-//		        		}
-//			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
-//		        		
-		        		URL url = new URL(baseUrl+cmd);
+		        		String cmd = params[i];
+		        		mCommand = cmd;
+			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
+		        		
+			        	String urlCommand;
+			        	if (cmd.equals("")) {
+			        		urlCommand = baseUrl+"get/"+mVarData.mType+"/"+mVarData.mAddress;
+			        	} else {
+			        		urlCommand = baseUrl+"set/"+mVarData.mType+"/"+mVarData.mAddress+"/"+cmd;
+			        	}
+		        		URL url = new URL(urlCommand);
 		        		URI uri = null;
 		        		try {
 		        			uri = new URI(url.getProtocol(),url.getUserInfo(),url.getHost(),url.getPort(),url.getPath(),url.getQuery(),url.getRef());
@@ -259,25 +295,35 @@ public class VariableViewActivity extends Activity {
 		        		Log.e("URL Download failed",ie.toString());
 		        	}
 		        	// PARSE URL RESPONSE
-		        	ISYRESTParser parser = new ISYRESTParser(mInputStream);
-		        	parser.getDatabaseValues();
+		        	try {
+		        		ISYRESTParser parser = new ISYRESTParser(mInputStream);
+		        		if (parser.getRootName().equals("RestResponse")) {
+		        			mCommandSuccess = parser.getSuccess();
+		        		} else {
+		        			mVarData = parser.getVariableData(mVarData.mName);
+		        		}
+		    			
+		    			
+		    		} catch (Exception e) {
+		    			Log.e("Parsing Node List Failed",e.toString());
+		    		}
 		        	
 		        	// Update Display with errors or new values
-		        	publishProgress(0);
+		        	publishProgress(i);
+		        	Log.i("ASYNC TASK","Completed "+i+" out of "+count+"commands");
 		        	try {
-						Thread.sleep(200);
+						Thread.sleep(50);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-//		 	        if (isCancelled()) {
-//		 	        	//break;
-//		 	        }
+		 	        if (isCancelled()) {
+		 	        	break;
+		 	        }
 	        	}
-	        
+	        }
 
 			return 0;
 		} // End method doInBackground
     } // End Class NodeListUpdater
-
 }
