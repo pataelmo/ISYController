@@ -3,6 +3,7 @@ android.support.v4.app.BackStackState: android.os.Parcelable$Creator CREATOR
 android.support.v4.app.Fragment$SavedState
 android.support.v4.app.Fragment$SavedState: android.os.Parcelable$Creator CREATOR
 android.support.v4.app.FragmentActivity
+android.support.v4.app.FragmentActivity: FragmentActivity()
 android.support.v4.app.FragmentManagerState
 android.support.v4.app.FragmentManagerState: android.os.Parcelable$Creator CREATOR
 android.support.v4.app.FragmentState
@@ -70,6 +71,19 @@ com.pataelmo.isycontroller.NodeViewActivity: NodeViewActivity()
 com.pataelmo.isycontroller.NodeViewActivity: void queryNode(android.view.View)
 com.pataelmo.isycontroller.NodeViewActivity: void cmdNodeOn(android.view.View)
 com.pataelmo.isycontroller.NodeViewActivity: void cmdNodeOff(android.view.View)
+com.pataelmo.isycontroller.ProgramTreeViewActivity
+com.pataelmo.isycontroller.ProgramTreeViewActivity: ProgramTreeViewActivity()
+com.pataelmo.isycontroller.ProgramViewActivity
+com.pataelmo.isycontroller.ProgramViewActivity: ProgramViewActivity()
+com.pataelmo.isycontroller.ProgramViewActivity: void refreshData(android.view.View)
+com.pataelmo.isycontroller.ProgramViewActivity: void runProgram(android.view.View)
+com.pataelmo.isycontroller.ProgramViewActivity: void stopProgram(android.view.View)
+com.pataelmo.isycontroller.ProgramViewActivity: void runThenProgram(android.view.View)
+com.pataelmo.isycontroller.ProgramViewActivity: void runElseProgram(android.view.View)
+com.pataelmo.isycontroller.ProgramViewActivity: void enableProgram(android.view.View)
+com.pataelmo.isycontroller.ProgramViewActivity: void disableProgram(android.view.View)
+com.pataelmo.isycontroller.ProgramViewActivity: void enableRunAtStartProgram(android.view.View)
+com.pataelmo.isycontroller.ProgramViewActivity: void disableRunAtStartProgram(android.view.View)
 com.pataelmo.isycontroller.R$array: int pref_example_list_titles
 com.pataelmo.isycontroller.R$array: int pref_example_list_values
 com.pataelmo.isycontroller.R$array: int pref_sync_frequency_titles
@@ -79,6 +93,7 @@ com.pataelmo.isycontroller.R$dimen: int activity_vertical_margin
 com.pataelmo.isycontroller.R$drawable: int bulb
 com.pataelmo.isycontroller.R$drawable: int folder
 com.pataelmo.isycontroller.R$drawable: int ic_launcher
+com.pataelmo.isycontroller.R$drawable: int icon
 com.pataelmo.isycontroller.R$drawable: int scene
 com.pataelmo.isycontroller.R$id: int action_settings
 com.pataelmo.isycontroller.R$id: int addressText
@@ -86,7 +101,22 @@ com.pataelmo.isycontroller.R$id: int configureButton
 com.pataelmo.isycontroller.R$id: int connectButton
 com.pataelmo.isycontroller.R$id: int currentRawStateLabel
 com.pataelmo.isycontroller.R$id: int currentStateLabel
+com.pataelmo.isycontroller.R$id: int currentValueLabel
+com.pataelmo.isycontroller.R$id: int disableButton
+com.pataelmo.isycontroller.R$id: int disableRunAtStartButton
+com.pataelmo.isycontroller.R$id: int enabedLabel
+com.pataelmo.isycontroller.R$id: int enableButton
+com.pataelmo.isycontroller.R$id: int enableRunAtStartButton
+com.pataelmo.isycontroller.R$id: int enabledText
 com.pataelmo.isycontroller.R$id: int icon
+com.pataelmo.isycontroller.R$id: int initValueLabel
+com.pataelmo.isycontroller.R$id: int initValueText
+com.pataelmo.isycontroller.R$id: int lastChangedLabel
+com.pataelmo.isycontroller.R$id: int lastChangedText
+com.pataelmo.isycontroller.R$id: int lastEndTimeLabel
+com.pataelmo.isycontroller.R$id: int lastEndTimeText
+com.pataelmo.isycontroller.R$id: int lastRunTimeLabel
+com.pataelmo.isycontroller.R$id: int lastRunTimeText
 com.pataelmo.isycontroller.R$id: int listView
 com.pataelmo.isycontroller.R$id: int name
 com.pataelmo.isycontroller.R$id: int nameText
@@ -95,14 +125,26 @@ com.pataelmo.isycontroller.R$id: int onButton
 com.pataelmo.isycontroller.R$id: int queryButton
 com.pataelmo.isycontroller.R$id: int quitButton
 com.pataelmo.isycontroller.R$id: int rawValueText
+com.pataelmo.isycontroller.R$id: int refreshButton
+com.pataelmo.isycontroller.R$id: int runAtStartupLabel
+com.pataelmo.isycontroller.R$id: int runAtStartupText
+com.pataelmo.isycontroller.R$id: int runButton
+com.pataelmo.isycontroller.R$id: int runElseButton
+com.pataelmo.isycontroller.R$id: int runThenButton
+com.pataelmo.isycontroller.R$id: int runningLabel
+com.pataelmo.isycontroller.R$id: int runningText
+com.pataelmo.isycontroller.R$id: int statusLabel
 com.pataelmo.isycontroller.R$id: int statusText
+com.pataelmo.isycontroller.R$id: int stopButton
 com.pataelmo.isycontroller.R$id: int titleText
 com.pataelmo.isycontroller.R$id: int type
 com.pataelmo.isycontroller.R$id: int value
 com.pataelmo.isycontroller.R$id: int valueText
 com.pataelmo.isycontroller.R$layout: int activity_main
 com.pataelmo.isycontroller.R$layout: int activity_node_view
+com.pataelmo.isycontroller.R$layout: int activity_program_view
 com.pataelmo.isycontroller.R$layout: int activity_start_page
+com.pataelmo.isycontroller.R$layout: int activity_variable_view
 com.pataelmo.isycontroller.R$layout: int listview_row
 com.pataelmo.isycontroller.R$menu: int main
 com.pataelmo.isycontroller.R$menu: int start_page
@@ -110,8 +152,18 @@ com.pataelmo.isycontroller.R$string: int action_settings
 com.pataelmo.isycontroller.R$string: int app_name
 com.pataelmo.isycontroller.R$string: int configureButton
 com.pataelmo.isycontroller.R$string: int connectButton
+com.pataelmo.isycontroller.R$string: int currentValue
+com.pataelmo.isycontroller.R$string: int disableButton
+com.pataelmo.isycontroller.R$string: int disableRunAtStartButton
+com.pataelmo.isycontroller.R$string: int enableButton
+com.pataelmo.isycontroller.R$string: int enableRunAtStartButton
+com.pataelmo.isycontroller.R$string: int enabledLabel
 com.pataelmo.isycontroller.R$string: int hello_world
 com.pataelmo.isycontroller.R$string: int iconDescription
+com.pataelmo.isycontroller.R$string: int initValue
+com.pataelmo.isycontroller.R$string: int lastChangedLabel
+com.pataelmo.isycontroller.R$string: int lastFinishTimeLabel
+com.pataelmo.isycontroller.R$string: int lastRunTimeLabel
 com.pataelmo.isycontroller.R$string: int offButton
 com.pataelmo.isycontroller.R$string: int onButton
 com.pataelmo.isycontroller.R$string: int pref_default_display_name
@@ -122,6 +174,8 @@ com.pataelmo.isycontroller.R$string: int pref_header_notifications
 com.pataelmo.isycontroller.R$string: int pref_login
 com.pataelmo.isycontroller.R$string: int pref_password
 com.pataelmo.isycontroller.R$string: int pref_password_summary
+com.pataelmo.isycontroller.R$string: int pref_reset_db
+com.pataelmo.isycontroller.R$string: int pref_reset_db_summary
 com.pataelmo.isycontroller.R$string: int pref_ringtone_silent
 com.pataelmo.isycontroller.R$string: int pref_server
 com.pataelmo.isycontroller.R$string: int pref_server_name
@@ -142,6 +196,15 @@ com.pataelmo.isycontroller.R$string: int pref_user_name
 com.pataelmo.isycontroller.R$string: int pref_user_name_summary
 com.pataelmo.isycontroller.R$string: int queryButton
 com.pataelmo.isycontroller.R$string: int quitButton
+com.pataelmo.isycontroller.R$string: int refreshButton
+com.pataelmo.isycontroller.R$string: int runAtStartupLabel
+com.pataelmo.isycontroller.R$string: int runButton
+com.pataelmo.isycontroller.R$string: int runElseButton
+com.pataelmo.isycontroller.R$string: int runThenButton
+com.pataelmo.isycontroller.R$string: int runningLabel
+com.pataelmo.isycontroller.R$string: int setNewValueButton
+com.pataelmo.isycontroller.R$string: int statusLabel
+com.pataelmo.isycontroller.R$string: int stopButton
 com.pataelmo.isycontroller.R$string: int titleString
 com.pataelmo.isycontroller.R$string: int title_activity_config
 com.pataelmo.isycontroller.R$string: int title_activity_main
@@ -160,3 +223,9 @@ com.pataelmo.isycontroller.StartPageActivity: StartPageActivity()
 com.pataelmo.isycontroller.StartPageActivity: void connectToISY(android.view.View)
 com.pataelmo.isycontroller.StartPageActivity: void configureISY(android.view.View)
 com.pataelmo.isycontroller.StartPageActivity: void quit(android.view.View)
+com.pataelmo.isycontroller.VariableTreeViewActivity
+com.pataelmo.isycontroller.VariableTreeViewActivity: VariableTreeViewActivity()
+com.pataelmo.isycontroller.VariableViewActivity
+com.pataelmo.isycontroller.VariableViewActivity: VariableViewActivity()
+com.pataelmo.isycontroller.VariableViewActivity: void refreshButton(android.view.View)
+com.pataelmo.isycontroller.VariableViewActivity: void setButton(android.view.View)

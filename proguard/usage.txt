@@ -1114,10 +1114,32 @@ com.pataelmo.isycontroller.DatabaseHelper:
     static final java.lang.String ADD_NODES_TESTDATA_2
     static final java.lang.String ADD_NODES_TESTDATA_3
     static final java.lang.String ADD_NODES_TESTDATA_4
-    117:121:public android.database.Cursor getCursorAllData()
-com.pataelmo.isycontroller.NodeViewActivity$NodeCommander:
-    private android.app.ProgressDialog pDialog
-    private java.lang.String mResults
+    static final java.lang.String PROGRAMS_TABLE_NAME
+    static final java.lang.String KEY_ISFOLDER
+    static final java.lang.String KEY_STATUS
+    static final java.lang.String KEY_ENABLED
+    static final java.lang.String KEY_RUNATSTARTUP
+    static final java.lang.String KEY_RUNNING
+    static final java.lang.String KEY_LASTRUNTIME
+    static final java.lang.String KEY_LASTENDTIME
+    static final java.lang.String CREATE_PROGRAMS_TABLE
+    static final java.lang.String DROP_PROGRAMS_TABLE
+    static final java.lang.String ADD_PROGRAMS_TESTDATA_0
+    static final java.lang.String ADD_PROGRAMS_TESTDATA_1
+    static final java.lang.String ADD_PROGRAMS_TESTDATA_2
+    static final java.lang.String ADD_PROGRAMS_TESTDATA_3
+    static final java.lang.String ADD_PROGRAMS_TESTDATA_4
+    static final java.lang.String VARS_TABLE_NAME
+    static final java.lang.String KEY_INIT
+    static final java.lang.String KEY_LASTCHANGED
+    static final java.lang.String CREATE_VARS_TABLE
+    static final java.lang.String DROP_VARS_TABLE
+    static final java.lang.String ADD_VARS_TESTDATA_0
+    static final java.lang.String ADD_VARS_TESTDATA_1
+    static final java.lang.String ADD_VARS_TESTDATA_2
+    static final java.lang.String ADD_VARS_TESTDATA_3
+    217:221:public android.database.Cursor getCursorAllData()
+    249:260:public boolean isFolder(java.lang.String)
 com.pataelmo.isycontroller.R
 com.pataelmo.isycontroller.R$array
 com.pataelmo.isycontroller.R$attr
@@ -1134,7 +1156,12 @@ com.pataelmo.isycontroller.SettingsActivity:
     public static final java.lang.String KEY_PREF_USERNAME
     public static final java.lang.String KEY_PREF_PASSWORD
     public static final java.lang.String KEY_PREF_SERVER_URL
-    224:224:static synthetic void access$0(android.preference.Preference)
+    public static final java.lang.String KEY_PREF_DUMPDB
+    227:227:static synthetic void access$0(android.preference.Preference)
 com.pataelmo.isycontroller.SettingsActivity$DataSyncPreferenceFragment
 com.pataelmo.isycontroller.SettingsActivity$GeneralPreferenceFragment
 com.pataelmo.isycontroller.SettingsActivity$NotificationPreferenceFragment
+com.pataelmo.isycontroller.VariableViewActivity:
+    android.widget.TextView mRawValueText
+    android.widget.TextView mStatusText
+    200:204:public void updateValues(java.lang.String,java.lang.String)

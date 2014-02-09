@@ -1527,13 +1527,48 @@ com.pataelmo.isycontroller.DatabaseHelper -> com.pataelmo.isycontroller.a:
     android.database.sqlite.SQLiteDatabase getDatabase() -> a
     void updateNodeTable(java.util.ArrayList) -> a
     android.database.Cursor getCursorListData(java.lang.String) -> a
-    boolean isFolder(java.lang.String) -> b
-    java.lang.String getNameFromId(java.lang.String) -> c
-    java.lang.String getTypeFromId(java.lang.String) -> d
-    java.lang.String getAddressFromId(java.lang.String) -> e
-    java.lang.String getValueFromId(java.lang.String) -> f
-    java.lang.String getRawValueFromId(java.lang.String) -> g
+    java.lang.String getNameFromId(java.lang.String) -> b
+    java.lang.String getTypeFromId(java.lang.String) -> c
+    java.lang.String getAddressFromId(java.lang.String) -> d
+    java.lang.String getValueFromId(java.lang.String) -> e
+    java.lang.String getRawValueFromId(java.lang.String) -> f
     void updateNodeValue(java.lang.String,java.lang.String,java.lang.String) -> a
+    java.lang.String getProgramNameFromId(java.lang.String) -> g
+    com.pataelmo.isycontroller.ProgramData getProgramData(java.lang.String) -> h
+    com.pataelmo.isycontroller.VariableData getVarData(java.lang.String) -> i
+    java.lang.String getVarNameFromId(java.lang.String) -> j
+    android.database.Cursor getVarList() -> b
+    void dumpDatabase() -> c
+    android.database.Cursor getProgramsList(java.lang.String) -> k
+    boolean isProgramIdFolder(java.lang.String) -> l
+    void updateProgramsTable(java.util.ArrayList) -> b
+    void updateVarsTable(java.util.ArrayList) -> c
+com.pataelmo.isycontroller.ISYRESTParser -> com.pataelmo.isycontroller.b:
+    java.io.InputStream mInputStream -> a
+    org.w3c.dom.Document mDOM -> b
+    org.w3c.dom.Element mRoot -> c
+    java.lang.String mRootName -> d
+    boolean mSuccess -> e
+    java.util.HashMap mVarNameMap -> f
+    java.util.ArrayList mDbEntries -> g
+    com.pataelmo.isycontroller.ProgramData mProgramData -> h
+    com.pataelmo.isycontroller.VariableData mVariableData -> i
+    java.lang.String getRootName() -> a
+    java.lang.String parse() -> b
+    java.util.HashMap getVarNameMap() -> c
+    void parseVarNames(org.w3c.dom.Element) -> a
+    void parseVars(org.w3c.dom.Element) -> b
+    void parseVar(org.w3c.dom.Element) -> c
+    void parsePrograms(org.w3c.dom.Element) -> d
+    void parseNodeProperties(org.w3c.dom.Node) -> a
+    void parseRestResponse(org.w3c.dom.Element) -> e
+    boolean getSuccess() -> d
+    void parseNodeInfo(org.w3c.dom.Element) -> f
+    void parseNode(org.w3c.dom.Node) -> b
+    void parseNodes(org.w3c.dom.Element) -> g
+    java.util.ArrayList getDatabaseValues() -> e
+    com.pataelmo.isycontroller.ProgramData getProgramData() -> f
+    com.pataelmo.isycontroller.VariableData getVariableData(java.lang.String) -> a
 com.pataelmo.isycontroller.MainActivity -> com.pataelmo.isycontroller.MainActivity:
     com.pataelmo.isycontroller.DatabaseHelper dbh -> a
     android.support.v4.widget.SimpleCursorAdapter mAdapter -> b
@@ -1541,29 +1576,32 @@ com.pataelmo.isycontroller.MainActivity -> com.pataelmo.isycontroller.MainActivi
     java.lang.String baseUrl -> d
     java.lang.String loginUser -> e
     java.lang.String loginPass -> f
-    java.lang.String parent_id -> g
+    java.lang.String mParentId -> g
     int mListPosition -> h
+    java.lang.String mParentType -> i
     void onCreate(android.os.Bundle) -> onCreate
+    void launchProgramView() -> a
+    void launchVariableView() -> b
     void onPause() -> onPause
     void onStop() -> onStop
     void onRestart() -> onRestart
     void onResume() -> onResume
     void relaunchSelf(java.lang.String) -> a
     void loadNode(java.lang.String) -> b
-    void refreshListData() -> a
-    void setupActionBar() -> b
+    void refreshListData() -> c
+    void setupActionBar() -> d
     void setActionBarTitle(java.lang.String) -> c
     boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
     boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
     void access$0(com.pataelmo.isycontroller.MainActivity,java.lang.String) -> a
     void access$1(com.pataelmo.isycontroller.MainActivity,java.lang.String) -> b
-com.pataelmo.isycontroller.MainActivity$1 -> com.pataelmo.isycontroller.b:
+com.pataelmo.isycontroller.MainActivity$1 -> com.pataelmo.isycontroller.c:
     com.pataelmo.isycontroller.MainActivity this$0 -> m
     void setViewImage(android.widget.ImageView,java.lang.String) -> a
-com.pataelmo.isycontroller.MainActivity$2 -> com.pataelmo.isycontroller.c:
+com.pataelmo.isycontroller.MainActivity$2 -> com.pataelmo.isycontroller.d:
     com.pataelmo.isycontroller.MainActivity this$0 -> a
     void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
-com.pataelmo.isycontroller.MainActivity$NodeListUpdater -> com.pataelmo.isycontroller.d:
+com.pataelmo.isycontroller.MainActivity$NodeListUpdater -> com.pataelmo.isycontroller.e:
     java.util.ArrayList dbEntries -> b
     android.app.ProgressDialog pDialog -> c
     java.io.InputStream mInputStream -> d
@@ -1576,7 +1614,7 @@ com.pataelmo.isycontroller.MainActivity$NodeListUpdater -> com.pataelmo.isycontr
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
     void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
     com.pataelmo.isycontroller.MainActivity access$3(com.pataelmo.isycontroller.MainActivity$NodeListUpdater) -> a
-com.pataelmo.isycontroller.MainActivity$NodeListUpdater$1 -> com.pataelmo.isycontroller.e:
+com.pataelmo.isycontroller.MainActivity$NodeListUpdater$1 -> com.pataelmo.isycontroller.f:
     com.pataelmo.isycontroller.MainActivity$NodeListUpdater this$1 -> a
     java.net.PasswordAuthentication getPasswordAuthentication() -> getPasswordAuthentication
 com.pataelmo.isycontroller.NodeViewActivity -> com.pataelmo.isycontroller.NodeViewActivity:
@@ -1604,11 +1642,10 @@ com.pataelmo.isycontroller.NodeViewActivity -> com.pataelmo.isycontroller.NodeVi
     void cmdNodeOn(android.view.View) -> cmdNodeOn
     void cmdNodeOff(android.view.View) -> cmdNodeOff
     void updateValues(java.lang.String,java.lang.String) -> a
-com.pataelmo.isycontroller.NodeViewActivity$NodeCommander -> com.pataelmo.isycontroller.f:
+com.pataelmo.isycontroller.NodeViewActivity$NodeCommander -> com.pataelmo.isycontroller.g:
     boolean mCommandSuccess -> b
     java.lang.String mCommand -> c
     java.io.InputStream mInputStream -> d
-    int mCount -> e
     com.pataelmo.isycontroller.NodeViewActivity this$0 -> a
     void onPreExecute() -> onPreExecute
     void onProgressUpdate(java.lang.Integer[]) -> a
@@ -1618,8 +1655,113 @@ com.pataelmo.isycontroller.NodeViewActivity$NodeCommander -> com.pataelmo.isycon
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
     void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
     com.pataelmo.isycontroller.NodeViewActivity access$3(com.pataelmo.isycontroller.NodeViewActivity$NodeCommander) -> a
-com.pataelmo.isycontroller.NodeViewActivity$NodeCommander$1 -> com.pataelmo.isycontroller.g:
+com.pataelmo.isycontroller.NodeViewActivity$NodeCommander$1 -> com.pataelmo.isycontroller.h:
     com.pataelmo.isycontroller.NodeViewActivity$NodeCommander this$1 -> a
+    java.net.PasswordAuthentication getPasswordAuthentication() -> getPasswordAuthentication
+com.pataelmo.isycontroller.ProgramData -> com.pataelmo.isycontroller.i:
+    int mId -> a
+    java.lang.String mName -> b
+    java.lang.String mAddress -> c
+    boolean mIsFolder -> d
+    java.lang.String mStatus -> e
+    java.lang.String mParent -> f
+    boolean mEnabled -> g
+    boolean mRunAtStartup -> h
+    java.lang.String mRunning -> i
+    java.lang.Long mLastRunTime -> j
+    java.lang.Long mLastEndTime -> k
+com.pataelmo.isycontroller.ProgramTreeViewActivity -> com.pataelmo.isycontroller.ProgramTreeViewActivity:
+    com.pataelmo.isycontroller.DatabaseHelper dbh -> a
+    android.support.v4.widget.SimpleCursorAdapter mAdapter -> b
+    android.widget.ListView mList -> c
+    java.lang.String baseUrl -> d
+    java.lang.String loginUser -> e
+    java.lang.String loginPass -> f
+    java.lang.String mParentId -> g
+    int mListPosition -> h
+    void onCreate(android.os.Bundle) -> onCreate
+    void onPause() -> onPause
+    void onStop() -> onStop
+    void onRestart() -> onRestart
+    void onResume() -> onResume
+    void relaunchSelf(java.lang.String) -> a
+    void loadNode(java.lang.String) -> b
+    void refreshListData() -> a
+    void setupActionBar() -> b
+    void setActionBarTitle(java.lang.String) -> c
+    boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
+    boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
+    void access$0(com.pataelmo.isycontroller.ProgramTreeViewActivity,java.lang.String) -> a
+    void access$1(com.pataelmo.isycontroller.ProgramTreeViewActivity,java.lang.String) -> b
+com.pataelmo.isycontroller.ProgramTreeViewActivity$1 -> com.pataelmo.isycontroller.j:
+    com.pataelmo.isycontroller.ProgramTreeViewActivity this$0 -> m
+    void setViewImage(android.widget.ImageView,java.lang.String) -> a
+    void setViewText(android.widget.TextView,java.lang.String) -> a
+com.pataelmo.isycontroller.ProgramTreeViewActivity$2 -> com.pataelmo.isycontroller.k:
+    com.pataelmo.isycontroller.ProgramTreeViewActivity this$0 -> a
+    void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+com.pataelmo.isycontroller.ProgramTreeViewActivity$NodeListUpdater -> com.pataelmo.isycontroller.l:
+    java.util.ArrayList dbEntries -> b
+    android.app.ProgressDialog pDialog -> c
+    java.io.InputStream mInputStream -> d
+    com.pataelmo.isycontroller.ProgramTreeViewActivity this$0 -> a
+    void onPreExecute() -> onPreExecute
+    void onProgressUpdate(java.lang.Integer[]) -> a
+    void onPostExecute(java.lang.Integer) -> a
+    java.lang.Integer doInBackground(java.net.URL[]) -> a
+    void onPostExecute(java.lang.Object) -> onPostExecute
+    java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+    void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
+    com.pataelmo.isycontroller.ProgramTreeViewActivity access$3(com.pataelmo.isycontroller.ProgramTreeViewActivity$NodeListUpdater) -> a
+com.pataelmo.isycontroller.ProgramTreeViewActivity$NodeListUpdater$1 -> com.pataelmo.isycontroller.m:
+    com.pataelmo.isycontroller.ProgramTreeViewActivity$NodeListUpdater this$1 -> a
+    java.net.PasswordAuthentication getPasswordAuthentication() -> getPasswordAuthentication
+com.pataelmo.isycontroller.ProgramViewActivity -> com.pataelmo.isycontroller.ProgramViewActivity:
+    com.pataelmo.isycontroller.DatabaseHelper dbh -> a
+    java.lang.String mId -> b
+    android.widget.TextView mNameText -> c
+    android.widget.TextView mAddressText -> d
+    android.widget.TextView mStatusText -> e
+    android.widget.TextView mEnabledText -> f
+    android.widget.TextView mRunAtStartupText -> g
+    android.widget.TextView mRunningText -> h
+    android.widget.TextView mLastRunTimeText -> i
+    android.widget.TextView mLastEndTimeText -> j
+    java.lang.String baseUrl -> k
+    java.lang.String loginUser -> l
+    java.lang.String loginPass -> m
+    com.pataelmo.isycontroller.ProgramData mProgramData -> n
+    void onCreate(android.os.Bundle) -> onCreate
+    void refreshDataValues() -> a
+    void setupActionBar() -> b
+    void setActionBarTitle(java.lang.String) -> a
+    boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
+    boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
+    void refreshData(android.view.View) -> refreshData
+    void runProgram(android.view.View) -> runProgram
+    void stopProgram(android.view.View) -> stopProgram
+    void runThenProgram(android.view.View) -> runThenProgram
+    void runElseProgram(android.view.View) -> runElseProgram
+    void enableProgram(android.view.View) -> enableProgram
+    void disableProgram(android.view.View) -> disableProgram
+    void enableRunAtStartProgram(android.view.View) -> enableRunAtStartProgram
+    void disableRunAtStartProgram(android.view.View) -> disableRunAtStartProgram
+    void access$0(com.pataelmo.isycontroller.ProgramViewActivity,com.pataelmo.isycontroller.ProgramData) -> a
+com.pataelmo.isycontroller.ProgramViewActivity$ProgramCommander -> com.pataelmo.isycontroller.n:
+    boolean mCommandSuccess -> b
+    java.lang.String mCommand -> c
+    java.io.InputStream mInputStream -> d
+    com.pataelmo.isycontroller.ProgramViewActivity this$0 -> a
+    void onPreExecute() -> onPreExecute
+    void onProgressUpdate(java.lang.Integer[]) -> a
+    void onPostExecute(java.lang.Integer) -> a
+    java.lang.Integer doInBackground(java.lang.String[]) -> a
+    void onPostExecute(java.lang.Object) -> onPostExecute
+    java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+    void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
+    com.pataelmo.isycontroller.ProgramViewActivity access$3(com.pataelmo.isycontroller.ProgramViewActivity$ProgramCommander) -> a
+com.pataelmo.isycontroller.ProgramViewActivity$ProgramCommander$1 -> com.pataelmo.isycontroller.o:
+    com.pataelmo.isycontroller.ProgramViewActivity$ProgramCommander this$1 -> a
     java.net.PasswordAuthentication getPasswordAuthentication() -> getPasswordAuthentication
 com.pataelmo.isycontroller.SettingsActivity -> com.pataelmo.isycontroller.SettingsActivity:
     android.preference.Preference$OnPreferenceChangeListener sBindPreferenceSummaryToValueListener -> a
@@ -1633,7 +1775,7 @@ com.pataelmo.isycontroller.SettingsActivity -> com.pataelmo.isycontroller.Settin
     boolean isSimplePreferences(android.content.Context) -> b
     void onBuildHeaders(java.util.List) -> onBuildHeaders
     void bindPreferenceSummaryToValue(android.preference.Preference) -> a
-com.pataelmo.isycontroller.SettingsActivity$1 -> com.pataelmo.isycontroller.h:
+com.pataelmo.isycontroller.SettingsActivity$1 -> com.pataelmo.isycontroller.p:
     boolean onPreferenceChange(android.preference.Preference,java.lang.Object) -> onPreferenceChange
 com.pataelmo.isycontroller.StartPageActivity -> com.pataelmo.isycontroller.StartPageActivity:
     void onCreate(android.os.Bundle) -> onCreate
@@ -1641,3 +1783,108 @@ com.pataelmo.isycontroller.StartPageActivity -> com.pataelmo.isycontroller.Start
     void connectToISY(android.view.View) -> connectToISY
     void configureISY(android.view.View) -> configureISY
     void quit(android.view.View) -> quit
+com.pataelmo.isycontroller.VariableData -> com.pataelmo.isycontroller.q:
+    int mId -> a
+    java.lang.String mName -> b
+    java.lang.String mAddress -> c
+    java.lang.String mType -> d
+    int mInit -> e
+    int mValue -> f
+    java.lang.Long mLastChanged -> g
+    java.lang.String getValueStr() -> a
+    java.lang.String getInitValueStr() -> b
+com.pataelmo.isycontroller.VariableTreeViewActivity -> com.pataelmo.isycontroller.VariableTreeViewActivity:
+    com.pataelmo.isycontroller.DatabaseHelper dbh -> a
+    android.support.v4.widget.SimpleCursorAdapter mAdapter -> b
+    android.widget.ListView mList -> c
+    java.lang.String baseUrl -> d
+    java.lang.String loginUser -> e
+    java.lang.String loginPass -> f
+    java.lang.String mParentId -> g
+    int mListPosition -> h
+    void onCreate(android.os.Bundle) -> onCreate
+    void onPause() -> onPause
+    void onStop() -> onStop
+    void onRestart() -> onRestart
+    void onResume() -> onResume
+    void loadNode(java.lang.String) -> a
+    void refreshListData() -> a
+    void setupActionBar() -> b
+    void setActionBarTitle(java.lang.String) -> b
+    boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
+    boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
+    void loadDbValues(java.util.ArrayList) -> a
+    void access$0(com.pataelmo.isycontroller.VariableTreeViewActivity,java.lang.String) -> a
+com.pataelmo.isycontroller.VariableTreeViewActivity$1 -> com.pataelmo.isycontroller.r:
+    com.pataelmo.isycontroller.VariableTreeViewActivity this$0 -> m
+    void setViewImage(android.widget.ImageView,java.lang.String) -> a
+    void setViewText(android.widget.TextView,java.lang.String) -> a
+com.pataelmo.isycontroller.VariableTreeViewActivity$2 -> com.pataelmo.isycontroller.s:
+    com.pataelmo.isycontroller.VariableTreeViewActivity this$0 -> a
+    void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+com.pataelmo.isycontroller.VariableTreeViewActivity$VarListUpdater -> com.pataelmo.isycontroller.t:
+    java.io.InputStream mInputStream -> b
+    java.util.HashMap mNameMap -> c
+    java.util.ArrayList mDbEntries -> d
+    com.pataelmo.isycontroller.VariableTreeViewActivity this$0 -> a
+    void onPreExecute() -> onPreExecute
+    void onProgressUpdate(java.lang.Integer[]) -> a
+    void onPostExecute(java.lang.Integer) -> a
+    java.lang.Integer doInBackground(java.lang.String[]) -> a
+    void onPostExecute(java.lang.Object) -> onPostExecute
+    java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+    void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
+    com.pataelmo.isycontroller.VariableTreeViewActivity access$3(com.pataelmo.isycontroller.VariableTreeViewActivity$VarListUpdater) -> a
+com.pataelmo.isycontroller.VariableTreeViewActivity$VarListUpdater$1 -> com.pataelmo.isycontroller.u:
+    com.pataelmo.isycontroller.VariableTreeViewActivity$VarListUpdater this$1 -> a
+    java.net.PasswordAuthentication getPasswordAuthentication() -> getPasswordAuthentication
+com.pataelmo.isycontroller.VariableViewActivity -> com.pataelmo.isycontroller.VariableViewActivity:
+    com.pataelmo.isycontroller.DatabaseHelper dbh -> n
+    java.lang.String mId -> o
+    android.widget.TextView mNameText -> p
+    android.widget.TextView mAddressText -> q
+    android.widget.TextView mValueText -> r
+    java.lang.String baseUrl -> s
+    java.lang.String loginUser -> t
+    java.lang.String loginPass -> u
+    com.pataelmo.isycontroller.VariableData mVarData -> v
+    android.widget.TextView mInitValueText -> w
+    android.widget.TextView mLastChangedText -> x
+    void onCreate(android.os.Bundle) -> onCreate
+    void refreshDataValues() -> e
+    void setupActionBar() -> f
+    void setActionBarTitle(java.lang.String) -> b
+    boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
+    boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
+    void refreshButton(android.view.View) -> refreshButton
+    void setButton(android.view.View) -> setButton
+    void access$0(com.pataelmo.isycontroller.VariableViewActivity) -> a
+    com.pataelmo.isycontroller.VariableData access$1(com.pataelmo.isycontroller.VariableViewActivity) -> b
+    void access$2(com.pataelmo.isycontroller.VariableViewActivity,com.pataelmo.isycontroller.VariableData) -> a
+com.pataelmo.isycontroller.VariableViewActivity$1 -> com.pataelmo.isycontroller.v:
+    com.pataelmo.isycontroller.VariableViewActivity this$0 -> a
+    android.widget.EditText val$input -> b
+    void onClick(android.content.DialogInterface,int) -> onClick
+com.pataelmo.isycontroller.VariableViewActivity$2 -> com.pataelmo.isycontroller.w:
+    com.pataelmo.isycontroller.VariableViewActivity this$0 -> a
+    void onClick(android.content.DialogInterface,int) -> onClick
+com.pataelmo.isycontroller.VariableViewActivity$3 -> com.pataelmo.isycontroller.x:
+    com.pataelmo.isycontroller.VariableViewActivity this$0 -> a
+    android.app.AlertDialog val$dialog -> b
+    void onFocusChange(android.view.View,boolean) -> onFocusChange
+com.pataelmo.isycontroller.VariableViewActivity$VariableCommander -> com.pataelmo.isycontroller.y:
+    boolean mCommandSuccess -> b
+    java.lang.String mCommand -> c
+    java.io.InputStream mInputStream -> d
+    com.pataelmo.isycontroller.VariableViewActivity this$0 -> a
+    void onPreExecute() -> onPreExecute
+    void onProgressUpdate(java.lang.Integer[]) -> a
+    void onPostExecute(java.lang.Integer) -> a
+    java.lang.Integer doInBackground(java.lang.String[]) -> a
+    void onPostExecute(java.lang.Object) -> onPostExecute
+    java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+    void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
+    com.pataelmo.isycontroller.VariableViewActivity access$3(com.pataelmo.isycontroller.VariableViewActivity$VariableCommander) -> a
+com.pataelmo.isycontroller.VariableViewActivity$VariableCommander$1 -> com.pataelmo.isycontroller.z:
+    com.pataelmo.isycontroller.VariableViewActivity$VariableCommander this$1 -> a
+    java.net.PasswordAuthentication getPasswordAuthentication() -> getPasswordAuthentication
