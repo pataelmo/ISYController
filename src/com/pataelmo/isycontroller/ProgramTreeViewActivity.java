@@ -1,21 +1,8 @@
 package com.pataelmo.isycontroller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.util.ArrayList;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.ProgressDialog;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -82,7 +69,7 @@ public class ProgramTreeViewActivity extends FragmentActivity {
 //        	try {
 //        		new NodeListUpdater().execute(new URL(baseUrl+"?subfolders=true"));
 //        	} catch (MalformedURLException e) {
-//        		Log.e("SystemViewActivity invalid URL: ", baseUrl);
+//        		Log.e("ProgramTreeActivity invalid URL: ", baseUrl);
 //        	}
 //        } else {
 //        	title = dbh.getProgramNameFromId(mParentId);
@@ -140,28 +127,28 @@ public class ProgramTreeViewActivity extends FragmentActivity {
 //             }
 //
 //         });
-//        Log.i("SystemViewActivity","Created:"+this);
+//        Log.i("ProgramTreeActivity","Created:"+this);
 	}
 	
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		Log.v("SystemViewActivity","Paused:"+this);
+		Log.v("ProgramTreeActivity","Paused:"+this);
 //		mListPosition = mList.getFirstVisiblePosition();
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		Log.v("SystemViewActivity","Stopped:"+this);
+		Log.v("ProgramTreeActivity","Stopped:"+this);
 	}
 	
 	@Override
 	protected void onRestart() {
 		super.onRestart();
 		//refreshListData();
-		Log.v("SystemViewActivity","Restarted:"+this);
+		Log.v("ProgramTreeActivity","Restarted:"+this);
 	}
 	
 	@Override
@@ -169,7 +156,7 @@ public class ProgramTreeViewActivity extends FragmentActivity {
 		super.onResume();
 //		refreshListData();
 //		mList.setSelectionFromTop(mListPosition,0);
-		Log.v("SystemViewActivity","Resumed:"+this);
+		Log.v("ProgramTreeActivity","Resumed:"+this);
 	}
 	
 //	private void relaunchSelf(String parent_id) {

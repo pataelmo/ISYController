@@ -7,14 +7,11 @@ import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Date;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -22,37 +19,38 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.text.InputFilter;
+import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class NodeViewFragment extends Fragment implements OnClickListener{
+public class VariableViewFragment extends Fragment implements OnClickListener {
 
+	private DatabaseHelper dbh;
 	private String mLoginUser;
 	private String mLoginPass;
-	private String baseUrl;
-	private DatabaseHelper dbh;
 	private String mId;
-	private String mName;
-	private String mType;
-	private String mAddress;
-	private String mValue;
-	private String mRawValue;
+	private VariableData mVarData;
+	private String baseUrl;
 	private TextView mNameText;
 	private TextView mAddressText;
 	private TextView mValueText;
-	private TextView mRawValueText;
+	private TextView mInitValueText;
+	private TextView mLastChangedText;
 
-	public NodeViewFragment() {
+
+	public VariableViewFragment() {
 		// TODO Auto-generated constructor stub
 	}
 
-	
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
@@ -74,36 +72,30 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 
 
         mId = getArguments().getString("id");
-        Log.v("NodeViewFragment.onCreateView","Parent id = "+mId);
-        
+        Log.v("VariableViewFragment.onCreateView","Parent id = "+mId);
 
+        mVarData = dbh.getVarData(mId);
 
-        mName = dbh.getNameFromId(mId);
-        mType = dbh.getTypeFromId(mId);
-        mAddress = dbh.getAddressFromId(mId);
-        mValue = dbh.getValueFromId(mId);
-        mRawValue = dbh.getRawValueFromId(mId);
- 
-        if (mValue==null) {
-        	mValue = "N/A";
-        }
-        if (mRawValue==null) {
-        	mRawValue = "N/A";
-        }
+    	baseUrl = urlBase + "/vars/";
         
+        View view = inflater.inflate(R.layout.activity_variable_view, container, false);
 
-        baseUrl = urlBase + "/nodes/" + mAddress + "/" ;
+        getActivity().setTitle(mVarData.mName);
         
-        getActivity().setTitle(mName);
-        View view = inflater.inflate(R.layout.activity_node_view, container, false);
+	    mNameText = (TextView) view.findViewById(R.id.nameText);
+	    mAddressText = (TextView) view.findViewById(R.id.addressText);
+	    mValueText = (TextView) view.findViewById(R.id.valueText);
+	    mInitValueText = (TextView) view.findViewById(R.id.initValueText);
+	    mLastChangedText = (TextView) view.findViewById(R.id.lastChangedText);
+	    
+	    refreshDataValues();
         
-        Button queryButton = (Button) view.findViewById(R.id.queryButton);
-        Button onButton = (Button) view.findViewById(R.id.onButton);
-        Button offButton = (Button) view.findViewById(R.id.offButton);
-        
-        queryButton.setOnClickListener(this);
-        onButton.setOnClickListener(this);
-        offButton.setOnClickListener(this);
+	    // Iterate through all the buttons and make this their onClickListener
+	    int[] buttons = {R.id.refreshButton,R.id.setButton};
+	    for(int i = 0;i<buttons.length;i++) {
+	    	Button button = (Button) view.findViewById(buttons[i]);
+	    	button.setOnClickListener(this);
+	    }
         
         return view;
     }
@@ -111,18 +103,19 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
-	    mNameText = (TextView) getView().findViewById(R.id.nameText);
-	    mAddressText = (TextView) getView().findViewById(R.id.addressText);
-	    mValueText = (TextView) getView().findViewById(R.id.valueText);
-	    mRawValueText = (TextView) getView().findViewById(R.id.rawValueText);
-	    
-	    mNameText.setText(mName);
-	    mAddressText.setText(mAddress);
-	    mValueText.setText(mValue);
-	    mRawValueText.setText(mRawValue);
 	}
 
+
+	private void refreshDataValues() {
+	    mNameText.setText(mVarData.mName);
+	    mAddressText.setText(mVarData.mAddress);
+	    mValueText.setText(mVarData.getValueStr());
+	    mInitValueText.setText(mVarData.getInitValueStr());
+	    Date lastChanged = new Date(mVarData.mLastChanged);
+	    mLastChangedText.setText(lastChanged.toString());
+	}
+
+	
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -136,69 +129,68 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.queryButton:
-			queryNode(v);
+		case R.id.setButton:
+	    	setButton(v);
 			break;
-		case R.id.onButton:
-			cmdNodeOn(v);
+		
+		case R.id.refreshButton:
+	    	new VariableCommander().execute("");
 			break;
 			
-		case R.id.offButton:
-			cmdNodeOff(v);
-			break;
 		}
 	}
+	
 
-	// Button Handlers
-    
-    public void queryNode(View view) {
+    public void setButton(View view) {
     	// Request Node Update
+//    	new VariableCommander().execute("");
+    	// 1. Instantiate an AlertDialog.Builder with its constructor
+    	AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+    	// 2. Chain together various setter methods to set the dialog characteristics
+    	builder.setTitle("Set New Value");
+    	final EditText input = new EditText(getActivity());
+    	builder.setView(input);
+    	input.setText(Integer.toString(mVarData.mValue));
+    	input.setTextSize(40);
+    	input.selectAll();
+    	input.setFilters(new InputFilter[] {
+    			// Digits only.
+    		    DigitsKeyListener.getInstance(),  // Not strictly needed, IMHO.
+    	});
+    	input.setKeyListener(DigitsKeyListener.getInstance());
     	
-    	// Dummy code to see action
-    	//mStatusText.setText("Node value Queried");
-
-    	new NodeCommander().execute("ST");
+    	builder.setPositiveButton("Set",
+    			new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int whichButton) {
+						String newValue = input.getText().toString();
+						// Launch set command
+				    	new VariableCommander().execute(newValue,"");
+					}
+				});
+    	builder.setNegativeButton("Cancel",
+    			new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// Do nothing
+					}
+				});
+    	// 3. Get the AlertDialog from create()
+    	final AlertDialog dialog = builder.create();
+    	input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+    	    @Override
+    	    public void onFocusChange(View v, boolean hasFocus) {
+    	        if (hasFocus) {
+    	            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+    	        }
+    	    }
+    	});
+    	dialog.show();
     }
-    
-    public void cmdNodeOn(View view) {
-    	// Send Command to ISY
-
-    	// Dummy code to see action
-    	//mValueText.setText("On");
-    	//mRawValueText.setText("255");
-    	if (mType.equals("Node")) {
-    		new NodeCommander().execute("cmd/DON","ST");
-    	} else {
-    		new NodeCommander().execute("cmd/DON");
-    	}
-    	//Toast.makeText(this, mName + "turned on.", Toast.LENGTH_LONG).show();
-    	
-    }
-    
-    public void cmdNodeOff(View view) {
-    	// Send Command to ISY
-    	
-    	// Dummy code to see action
-    	//mValueText.setText("Off");
-    	//mRawValueText.setText("0");
-    	if (mType.equals("Node")) {
-    		new NodeCommander().execute("cmd/DOF","ST");
-    	} else {
-    		new NodeCommander().execute("cmd/DOF");
-    	}
-//    	Toast.makeText(this, mName + "turned off.", Toast.LENGTH_LONG).show();
-    }
-
-    public void updateValues(String value, String rawValue) {
-    	// Update display
-    	mValueText.setText(value);
-    	mRawValueText.setText(rawValue);
-    	// Update database
-    	dbh.updateNodeValue(mId, value, rawValue);
-    }
-    
-
-    public class NodeCommander extends AsyncTask<String, Integer, Integer> {
+	
+    public class VariableCommander extends AsyncTask<String, Integer, Integer> {
     	private boolean mCommandSuccess;
     	private String mCommand;
 	    //private ProgressDialog pDialog;
@@ -231,19 +223,16 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 			super.onProgressUpdate(progress);
 			// advance progress indicator
 			 String results = "";
- 	        if (mCommandSuccess) {
- 	        	if (mCommand.equals("ST")) {
- 	        		updateValues(mValue,mRawValue);
- 	        	}
- 	        } else {
+ 	        if (mCommand.equals("")) {
+ 	        	refreshDataValues();
+ 	        	dbh.updateVariableData(mVarData);
+ 	        } else if (!mCommandSuccess) {
  	        	results = "Failed to figure out cmd="+mCommand;
- 	        	if (mCommand.equals("DON")) {
- 	        		results = mType + " On failed...";
- 	        	} else if (mCommand.equals("DOF")) {
- 	        		results = mType + " Off failed...";
- 	        	} else if (mCommand.equals("ST")) {
- 	        		results = "Query Failed...";
- 	        	}
+// 	        	if (mCommand.equals("DON")) {
+// 	        		results =  + " On failed...";
+// 	        	} else if (mCommand.equals("DOF")) {
+// 	        		results = mType + " Off failed...";
+// 	        	}
 	 	       	Toast.makeText(getActivity(), results, Toast.LENGTH_LONG).show();
  	        }
     	}
@@ -254,7 +243,6 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 //	        pDialog.hide();
 //	        pDialog.dismiss();
 			// Update display values
-	       
     	}   ///  end ---   onPostExecute(..)
 
 		@Override
@@ -271,15 +259,16 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 		        	// DO URL GET
 		        	try {
 		        		String cmd = params[i];
-
-		        		if (cmd.length()>6) {
-		        			mCommand = cmd.substring(4,7);
-		        		} else if (cmd.length()>0) {
-		        			mCommand = cmd;
-		        		}
+		        		mCommand = cmd;
 			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
 		        		
-		        		URL url = new URL(baseUrl+cmd);
+			        	String urlCommand;
+			        	if (cmd.equals("")) {
+			        		urlCommand = baseUrl+"get/"+mVarData.mType+"/"+mVarData.mAddress;
+			        	} else {
+			        		urlCommand = baseUrl+"set/"+mVarData.mType+"/"+mVarData.mAddress+"/"+cmd;
+			        	}
+		        		URL url = new URL(urlCommand);
 		        		URI uri = null;
 		        		try {
 		        			uri = new URI(url.getProtocol(),url.getUserInfo(),url.getHost(),url.getPort(),url.getPath(),url.getQuery(),url.getRef());
@@ -294,25 +283,12 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 		        	}
 		        	// PARSE URL RESPONSE
 		        	try {
-		    			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
-		    			Element root = dom.getDocumentElement();
-		    			String rootName = root.getNodeName();
-		    			mCommandSuccess = false;
-		    			if (rootName.equalsIgnoreCase("RestResponse")) {
-		    				// Get success or fail
-		    				if (root.getAttribute("succeeded").equalsIgnoreCase("true")) {
-		    					mCommandSuccess = true;
-		    				} else {
-		    					mCommandSuccess = false;
-		    				}
-		    			} else if (rootName.equalsIgnoreCase("nodeInfo")) {
-		    				// Parse data out to update display
-		    			} else if (rootName.equalsIgnoreCase("properties")){
-		    				NamedNodeMap props = root.getFirstChild().getAttributes();
-		    				mRawValue = props.getNamedItem("value").getNodeValue();
-		    				mValue = props.getNamedItem("formatted").getNodeValue();
-		    				mCommandSuccess = true;
-		    			}
+		        		ISYRESTParser parser = new ISYRESTParser(mInputStream,mVarData);
+		        		if (parser.getRootName().equals("RestResponse")) {
+		        			mCommandSuccess = parser.getSuccess();
+		        		} else {
+		        			mVarData = parser.getVariableData(mVarData.mName);
+		        		}
 		    			
 		    			
 		    		} catch (Exception e) {
@@ -323,7 +299,7 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 		        	publishProgress(i);
 		        	Log.i("ASYNC TASK","Completed "+i+" out of "+count+"commands");
 		        	try {
-						Thread.sleep(200);
+						Thread.sleep(50);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -336,6 +312,6 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 
 			return 0;
 		} // End method doInBackground
-    } // End Class NodeListUpdater
-	
+    } // End Class VariableCommander
+
 }

@@ -39,6 +39,25 @@ public class ISYRESTParser {
 	
 	public ISYRESTParser(InputStream is) {
 		mInputStream = is;
+		createDOM();
+		parse();
+	}
+	
+	public ISYRESTParser(InputStream is, ProgramData programData) {
+		mInputStream = is;
+		mProgramData = programData;
+		createDOM();
+		parse();
+	}
+
+	public ISYRESTParser(InputStream is, VariableData varData) {
+		mInputStream = is;
+		mVariableData = varData;
+		createDOM();
+		parse();
+	}
+
+	private void createDOM() {
 		try {
 			mDOM = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
 		} catch (IOException e) {
@@ -50,7 +69,6 @@ public class ISYRESTParser {
 		}
 		mRoot = mDOM.getDocumentElement();
 		mRootName = mRoot.getNodeName();
-		parse();
 	}
 	
 	public String getRootName() {
@@ -87,7 +105,9 @@ public class ISYRESTParser {
 	
 	private void parseVarNames(Element root) {
 		// TODO Auto-generated method stub
-		mVarNameMap = new HashMap<String,String>();
+		if (mVarNameMap == null) {
+			mVarNameMap = new HashMap<String,String>();
+		}
 		NodeList variables = root.getElementsByTagName("e");
 		for (int i=0;i<variables.getLength();i++) {
 			Node variable = variables.item(i);
@@ -100,8 +120,12 @@ public class ISYRESTParser {
 	}
 
 	private void parseVars(Element root) {
-		mVariableData = new VariableData();
-		mDbEntries = new ArrayList<ContentValues>();
+		if (mVariableData == null) {
+			mVariableData = new VariableData();
+		}
+		if (mDbEntries == null) {
+			mDbEntries = new ArrayList<ContentValues>();
+		}
 		NodeList variables = root.getElementsByTagName("var");
 		for (int i=0;i<variables.getLength();i++) {
 			ContentValues content = new ContentValues();
@@ -147,7 +171,9 @@ public class ISYRESTParser {
 	}
 	
 	private void parseVar(Element root) {
-		mVariableData = new VariableData();
+		if (mVariableData == null) {
+			mVariableData = new VariableData();
+		}
 		Node variable = root;
 		NamedNodeMap attributes = variable.getAttributes();
 		String id = attributes.getNamedItem("id").getNodeValue();
@@ -183,8 +209,12 @@ public class ISYRESTParser {
 
 	private void parsePrograms(Element root) {
 		// TODO Auto-generated method stub
-		mDbEntries = new ArrayList<ContentValues>();
-		mProgramData = new ProgramData();
+		if (mDbEntries == null) {
+			mDbEntries = new ArrayList<ContentValues>();
+		}
+		if (mProgramData == null) {
+			mProgramData = new ProgramData();
+		}
 		NodeList programs = root.getElementsByTagName("program");
 
 		// Parse Program Data
@@ -246,7 +276,7 @@ public class ISYRESTParser {
 				} else if (name.equalsIgnoreCase("lastRunTime")) {
 					if (property.getFirstChild() != null) {
 						String time = property.getFirstChild().getNodeValue();
-						SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd K:mm:ss a", Locale.US);	// example value 2014/02/05 9:52:22 PM
+						SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss a", Locale.US);	// example value 2014/02/05 9:52:22 PM
 						Date date = null;
 						try {
 							date = dateFormatter.parse(time);
@@ -260,7 +290,7 @@ public class ISYRESTParser {
 				} else if (name.equalsIgnoreCase("lastFinishTime")) {
 					if (property.getFirstChild() != null) {
 						String time = property.getFirstChild().getNodeValue();
-						SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd K:mm:ss a", Locale.US);	// example value 2014/02/05 9:52:22 PM
+						SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss a", Locale.US);	// example value 2014/02/05 9:52:22 PM
 						Date date = null;
 						try {
 							date = dateFormatter.parse(time);
@@ -321,7 +351,9 @@ public class ISYRESTParser {
 
 	private void parseNodes(Element root) {
 		// TODO Auto-generated method stub
-		mDbEntries = new ArrayList<ContentValues>();
+		if (mDbEntries == null) {
+			mDbEntries = new ArrayList<ContentValues>();
+		}
 		NodeList folders = root.getElementsByTagName("folder");
 		NodeList nodes = root.getElementsByTagName("node");
 		NodeList groups = root.getElementsByTagName("group");

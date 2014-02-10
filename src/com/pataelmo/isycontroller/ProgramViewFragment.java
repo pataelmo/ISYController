@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package com.pataelmo.isycontroller;
 
 import java.io.IOException;
@@ -7,12 +10,7 @@ import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
+import java.util.Date;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -31,28 +29,28 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class NodeViewFragment extends Fragment implements OnClickListener{
 
-	private String mLoginUser;
-	private String mLoginPass;
-	private String baseUrl;
-	private DatabaseHelper dbh;
-	private String mId;
-	private String mName;
-	private String mType;
-	private String mAddress;
-	private String mValue;
-	private String mRawValue;
-	private TextView mNameText;
-	private TextView mAddressText;
-	private TextView mValueText;
-	private TextView mRawValueText;
-
-	public NodeViewFragment() {
-		// TODO Auto-generated constructor stub
-	}
+public class ProgramViewFragment extends Fragment implements OnClickListener {
 
 	
+	private DatabaseHelper dbh;
+	private String mLoginUser;
+	private String mLoginPass;
+	private Object baseUrl;
+	private String mId;
+	private ProgramData mProgramData;
+	private TextView mNameText;
+	private TextView mAddressText;
+	private TextView mStatusText;
+	private TextView mEnabledText;
+	private TextView mRunAtStartupText;
+	private TextView mRunningText;
+	private TextView mLastRunTimeText;
+	private TextView mLastEndTimeText;
+
+	public ProgramViewFragment() {
+	}
+
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
@@ -74,36 +72,33 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 
 
         mId = getArguments().getString("id");
-        Log.v("NodeViewFragment.onCreateView","Parent id = "+mId);
-        
+        Log.v("ProgramViewFragment.onCreateView","Parent id = "+mId);
 
+        mProgramData = dbh.getProgramData(mId);
 
-        mName = dbh.getNameFromId(mId);
-        mType = dbh.getTypeFromId(mId);
-        mAddress = dbh.getAddressFromId(mId);
-        mValue = dbh.getValueFromId(mId);
-        mRawValue = dbh.getRawValueFromId(mId);
- 
-        if (mValue==null) {
-        	mValue = "N/A";
-        }
-        if (mRawValue==null) {
-        	mRawValue = "N/A";
-        }
+    	baseUrl = urlBase + "/programs/" + mProgramData.mAddress + "/" ;
         
+        getActivity().setTitle(mProgramData.mName);
+        View view = inflater.inflate(R.layout.activity_program_view, container, false);
 
-        baseUrl = urlBase + "/nodes/" + mAddress + "/" ;
+	    mNameText = (TextView) view.findViewById(R.id.nameText);
+	    mAddressText = (TextView) view.findViewById(R.id.addressText);
+	    mStatusText = (TextView) view.findViewById(R.id.statusText);
+	    mEnabledText = (TextView) view.findViewById(R.id.enabledText);
+	    mRunAtStartupText = (TextView) view.findViewById(R.id.runAtStartupText);
+	    mRunningText = (TextView) view.findViewById(R.id.runningText);
+	    mLastRunTimeText = (TextView) view.findViewById(R.id.lastRunTimeText);
+	    mLastEndTimeText = (TextView) view.findViewById(R.id.lastEndTimeText);
+	    
+	    refreshDataValues();
         
-        getActivity().setTitle(mName);
-        View view = inflater.inflate(R.layout.activity_node_view, container, false);
-        
-        Button queryButton = (Button) view.findViewById(R.id.queryButton);
-        Button onButton = (Button) view.findViewById(R.id.onButton);
-        Button offButton = (Button) view.findViewById(R.id.offButton);
-        
-        queryButton.setOnClickListener(this);
-        onButton.setOnClickListener(this);
-        offButton.setOnClickListener(this);
+	    // Iterate through all the buttons and make this their onClickListener
+	    int[] buttons = {R.id.refreshButton,R.id.runButton,R.id.stopButton,R.id.runThenButton,R.id.runElseButton,
+	    		R.id.enableButton,R.id.disableButton,R.id.enableRunAtStartButton,R.id.disableRunAtStartButton};
+	    for(int i = 0;i<buttons.length;i++) {
+	    	Button button = (Button) view.findViewById(buttons[i]);
+	    	button.setOnClickListener(this);
+	    }
         
         return view;
     }
@@ -111,18 +106,33 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-
-	    mNameText = (TextView) getView().findViewById(R.id.nameText);
-	    mAddressText = (TextView) getView().findViewById(R.id.addressText);
-	    mValueText = (TextView) getView().findViewById(R.id.valueText);
-	    mRawValueText = (TextView) getView().findViewById(R.id.rawValueText);
-	    
-	    mNameText.setText(mName);
-	    mAddressText.setText(mAddress);
-	    mValueText.setText(mValue);
-	    mRawValueText.setText(mRawValue);
 	}
 
+
+	public void refreshDataValues() {
+
+	    mNameText.setText(mProgramData.mName);
+	    mAddressText.setText(mProgramData.mAddress);
+	    mStatusText.setText(mProgramData.mStatus);
+	    if (mProgramData.mEnabled) {
+	    	mEnabledText.setText("True");
+	    } else {
+	    	mEnabledText.setText("False");
+	    }
+	    if (mProgramData.mRunAtStartup) {
+	    	mRunAtStartupText.setText("True");
+	    } else {
+	    	mRunAtStartupText.setText("False");
+	    }
+	    mRunningText.setText(mProgramData.mRunning);
+	    Log.v("ProgramViewFragment","Got Raw Timestamp for "+mProgramData.mId+" = "+mProgramData.mLastRunTime);
+	    String formattedTime = new Date(mProgramData.mLastRunTime).toString();
+	    mLastRunTimeText.setText(formattedTime);
+	    formattedTime = new Date(mProgramData.mLastEndTime).toString();
+	    mLastEndTimeText.setText(formattedTime);
+	}
+	
+	
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -136,69 +146,45 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.queryButton:
-			queryNode(v);
+		case R.id.refreshButton:
+	    	new ProgramCommander().execute("");
 			break;
-		case R.id.onButton:
-			cmdNodeOn(v);
+		case R.id.runButton:
+			new ProgramCommander().execute("run","");
 			break;
 			
-		case R.id.offButton:
-			cmdNodeOff(v);
+		case R.id.stopButton:
+			new ProgramCommander().execute("stop","");
 			break;
+
+		case R.id.runThenButton:
+	    	new ProgramCommander().execute("runThen","");
+			break;
+
+		case R.id.runElseButton:
+	    	new ProgramCommander().execute("runElse","");
+			break;
+
+		case R.id.enableButton:
+			new ProgramCommander().execute("enable","");
+			break;
+			
+		case R.id.disableButton:
+	    	new ProgramCommander().execute("disable","");
+			break;
+
+		case R.id.enableRunAtStartButton:
+	    	new ProgramCommander().execute("enableRunAtStartup","");
+			break;
+
+		case R.id.disableRunAtStartButton:
+			new ProgramCommander().execute("disableRunAtStartup","");
+			break;
+			
 		}
 	}
 
-	// Button Handlers
-    
-    public void queryNode(View view) {
-    	// Request Node Update
-    	
-    	// Dummy code to see action
-    	//mStatusText.setText("Node value Queried");
-
-    	new NodeCommander().execute("ST");
-    }
-    
-    public void cmdNodeOn(View view) {
-    	// Send Command to ISY
-
-    	// Dummy code to see action
-    	//mValueText.setText("On");
-    	//mRawValueText.setText("255");
-    	if (mType.equals("Node")) {
-    		new NodeCommander().execute("cmd/DON","ST");
-    	} else {
-    		new NodeCommander().execute("cmd/DON");
-    	}
-    	//Toast.makeText(this, mName + "turned on.", Toast.LENGTH_LONG).show();
-    	
-    }
-    
-    public void cmdNodeOff(View view) {
-    	// Send Command to ISY
-    	
-    	// Dummy code to see action
-    	//mValueText.setText("Off");
-    	//mRawValueText.setText("0");
-    	if (mType.equals("Node")) {
-    		new NodeCommander().execute("cmd/DOF","ST");
-    	} else {
-    		new NodeCommander().execute("cmd/DOF");
-    	}
-//    	Toast.makeText(this, mName + "turned off.", Toast.LENGTH_LONG).show();
-    }
-
-    public void updateValues(String value, String rawValue) {
-    	// Update display
-    	mValueText.setText(value);
-    	mRawValueText.setText(rawValue);
-    	// Update database
-    	dbh.updateNodeValue(mId, value, rawValue);
-    }
-    
-
-    public class NodeCommander extends AsyncTask<String, Integer, Integer> {
+    public class ProgramCommander extends AsyncTask<String, Integer, Integer> {
     	private boolean mCommandSuccess;
     	private String mCommand;
 	    //private ProgressDialog pDialog;
@@ -231,19 +217,16 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 			super.onProgressUpdate(progress);
 			// advance progress indicator
 			 String results = "";
- 	        if (mCommandSuccess) {
- 	        	if (mCommand.equals("ST")) {
- 	        		updateValues(mValue,mRawValue);
- 	        	}
- 	        } else {
+ 	        if (mCommand.equals("")) {
+ 	        	refreshDataValues();
+ 	        	dbh.updateProgramData(mProgramData);
+ 	        } else if (!mCommandSuccess) {
  	        	results = "Failed to figure out cmd="+mCommand;
- 	        	if (mCommand.equals("DON")) {
- 	        		results = mType + " On failed...";
- 	        	} else if (mCommand.equals("DOF")) {
- 	        		results = mType + " Off failed...";
- 	        	} else if (mCommand.equals("ST")) {
- 	        		results = "Query Failed...";
- 	        	}
+// 	        	if (mCommand.equals("DON")) {
+// 	        		results =  + " On failed...";
+// 	        	} else if (mCommand.equals("DOF")) {
+// 	        		results = mType + " Off failed...";
+// 	        	}
 	 	       	Toast.makeText(getActivity(), results, Toast.LENGTH_LONG).show();
  	        }
     	}
@@ -254,7 +237,6 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 //	        pDialog.hide();
 //	        pDialog.dismiss();
 			// Update display values
-	       
     	}   ///  end ---   onPostExecute(..)
 
 		@Override
@@ -271,12 +253,7 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 		        	// DO URL GET
 		        	try {
 		        		String cmd = params[i];
-
-		        		if (cmd.length()>6) {
-		        			mCommand = cmd.substring(4,7);
-		        		} else if (cmd.length()>0) {
-		        			mCommand = cmd;
-		        		}
+		        		mCommand = cmd;
 			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
 		        		
 		        		URL url = new URL(baseUrl+cmd);
@@ -294,25 +271,12 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 		        	}
 		        	// PARSE URL RESPONSE
 		        	try {
-		    			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
-		    			Element root = dom.getDocumentElement();
-		    			String rootName = root.getNodeName();
-		    			mCommandSuccess = false;
-		    			if (rootName.equalsIgnoreCase("RestResponse")) {
-		    				// Get success or fail
-		    				if (root.getAttribute("succeeded").equalsIgnoreCase("true")) {
-		    					mCommandSuccess = true;
-		    				} else {
-		    					mCommandSuccess = false;
-		    				}
-		    			} else if (rootName.equalsIgnoreCase("nodeInfo")) {
-		    				// Parse data out to update display
-		    			} else if (rootName.equalsIgnoreCase("properties")){
-		    				NamedNodeMap props = root.getFirstChild().getAttributes();
-		    				mRawValue = props.getNamedItem("value").getNodeValue();
-		    				mValue = props.getNamedItem("formatted").getNodeValue();
-		    				mCommandSuccess = true;
-		    			}
+		        		ISYRESTParser parser = new ISYRESTParser(mInputStream,mProgramData);
+		        		if (parser.getRootName().equals("RestResponse")) {
+		        			mCommandSuccess = parser.getSuccess();
+		        		} else {
+		        			mProgramData = parser.getProgramData();
+		        		}
 		    			
 		    			
 		    		} catch (Exception e) {
@@ -323,7 +287,7 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 		        	publishProgress(i);
 		        	Log.i("ASYNC TASK","Completed "+i+" out of "+count+"commands");
 		        	try {
-						Thread.sleep(200);
+						Thread.sleep(50);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -336,6 +300,6 @@ public class NodeViewFragment extends Fragment implements OnClickListener{
 
 			return 0;
 		} // End method doInBackground
-    } // End Class NodeListUpdater
-	
+    } // End Class ProgramCommander
+
 }

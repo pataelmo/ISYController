@@ -312,9 +312,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return result;
 	}
 
+	public void updateProgramData(ProgramData data) {
+		SQLiteDatabase db = getDatabase();
+		ContentValues values = new ContentValues();
+		String id = Integer.toString(data.mId);
+		values.put(KEY_LASTENDTIME, data.mLastEndTime);
+		values.put(KEY_LASTRUNTIME, data.mLastRunTime);
+		values.put(KEY_NAME, data.mName);
+		values.put(KEY_RUNNING, data.mRunning);
+		values.put(KEY_STATUS, data.mStatus);
+		if (data.mEnabled) {
+			values.put(KEY_ENABLED,"1");
+		} else {
+			values.put(KEY_ENABLED, "0");
+		}
+		if (data.mRunAtStartup) {
+			values.put(KEY_RUNATSTARTUP, "1");
+		} else {
+			values.put(KEY_RUNATSTARTUP, "0");
+		}
+		db.update(PROGRAMS_TABLE_NAME, values, "_id = ?", new String[]{id});
+	}
+	
+	public void updateVariableData(VariableData data) {
+		SQLiteDatabase db = getDatabase();
+		ContentValues values = new ContentValues();
+		String id = Integer.toString(data.mId);
+		String type = data.mType;
+		values.put(KEY_LASTCHANGED, data.mLastChanged);
+		values.put(KEY_INIT, data.mInit);
+		values.put(KEY_NAME, data.mName);
+		values.put(KEY_VALUE, data.mValue);
+		db.update(VARS_TABLE_NAME, values, "_id = ? AND type= ?", new String[]{id,type});
+	}
 
 	public void updateNodeValue(String id, String value, String rawValue) {
-		// TODO Auto-generated method stub
 		SQLiteDatabase db = getDatabase();
 		ContentValues values = new ContentValues();
 		values.put(KEY_VALUE, value);
@@ -413,7 +445,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				cursor = db.query(PROGRAMS_TABLE_NAME, null,"parent = ?",new String[]{parent},null,null,KEY_NAME+" ASC",null);
 				Log.v("DATABASE","Non-root Cursor Found: "+cursor.getCount());
 			} else {
-				cursor = db.query(PROGRAMS_TABLE_NAME, null,"parent is null",null,null,null,KEY_NAME+" ASC",null);
+				cursor = db.query(PROGRAMS_TABLE_NAME, null,"parent = '0001'",null,null,null,KEY_NAME+" ASC",null);
 				Log.v("DATABASE","Root Cursor Found: "+cursor.getCount());
 			}
 		} catch (SQLiteException e) {

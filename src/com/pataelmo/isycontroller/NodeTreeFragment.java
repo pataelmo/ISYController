@@ -138,14 +138,14 @@ public class NodeTreeFragment extends ListFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
-		Log.v("SystemViewActivity","Paused:"+this);
+		Log.v("NodeTreeFragment","Paused:"+this);
 		mListPosition = getListView().getFirstVisiblePosition();
 	}
 	
 	@Override 
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		String my_id = Long.toString(id);
-		Log.i("ListItem Clicked:","position="+Integer.toString(position)+"|id="+Long.toString(id));
+		Log.i("NodeTreeFragment ListItem Clicked:","position="+Integer.toString(position)+"|id="+Long.toString(id));
 		String my_type = dbh.getTypeFromId(my_id);
 		if (my_type.equals("Folder")) {
 			relaunchSelf(my_id);
@@ -172,6 +172,7 @@ public class NodeTreeFragment extends ListFragment {
 
 	protected void launchProgramView() {
 		Intent i = new Intent(getActivity(),ProgramTreeViewActivity.class);
+		//i.putExtra("parent_id", "0001");	// Hack to hard code that we start on the program "0001" since it appears to be the real root
 		startActivity(i);
 	}
 

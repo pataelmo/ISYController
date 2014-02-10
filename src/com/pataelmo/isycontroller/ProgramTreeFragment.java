@@ -136,14 +136,14 @@ public class ProgramTreeFragment extends ListFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
-		Log.v("SystemViewActivity","Paused:"+this);
+		Log.v("ProgramTreeFragement","Paused:"+this);
 		mListPosition = getListView().getFirstVisiblePosition();
 	}
 	
 	@Override 
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		String my_id = Long.toString(id);
-		Log.i("ListItem Clicked:","position="+Integer.toString(position)+"|id="+Long.toString(id));
+		Log.i("ProgramTreeFragement ListItem Clicked:","position="+Integer.toString(position)+"|id="+Long.toString(id));
 		if (dbh.isProgramIdFolder(my_id)) {
 			relaunchSelf(my_id);
 		}  else {
