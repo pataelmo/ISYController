@@ -10,7 +10,6 @@ import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -23,6 +22,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.Menu;
@@ -32,7 +34,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 	
 	DatabaseHelper dbh = null;
 	SimpleCursorAdapter mAdapter;
@@ -47,99 +49,111 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_main_shell);
 		// Show the Up button in the action bar.
 		setupActionBar();
-		
-		final ListView listview = (ListView) findViewById(R.id.listView);
-		mList = listview;
-		
-		dbh = new DatabaseHelper(getBaseContext());
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		loginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
-		loginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
-		String urlBase = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
 
-		baseUrl = urlBase + "/nodes/";
+		// Check for intent data
+		Intent intent = getIntent();
+	  	mParentId = intent.getStringExtra("parent_id");
+	  	mParentType = intent.getStringExtra("parent_type");
 		
-		
-		
-        // Check for intent data
-        Intent intent = getIntent();
-        mParentId = intent.getStringExtra("parent_id");
-        mParentType = intent.getStringExtra("parent_type");
-       //Cursor cursor = dbh.getCursorAllData();
-        Cursor cursor;
-        if (mParentType != null) {
-        	if (mParentType.equals("System-Vars")) {
-        		// Load 
-        		
-        	}
-        }
-        cursor = dbh.getCursorListData(mParentId);
 
-        Log.d("List Cursor","Parent ID = "+mParentId);
-        Log.d("List Cursor","Count = "+cursor.getCount());
-        String title;
-        if (mParentId == null) {
-        	title = "Root";
-        	// Reload database nodes
-        	try {
-        		new NodeListUpdater().execute(new URL(baseUrl));
-        	} catch (MalformedURLException e) {
-        		Log.e("MainActivity invalid URL: ", baseUrl);
-        	}
-        } else {
-        	title = dbh.getNameFromId(mParentId);
-        }
-    	setActionBarTitle(title);
-    	
-    	// For the cursor adapter, specify which columns go into which views
-        String[] fromColumns = {DatabaseHelper.KEY_TYPE, DatabaseHelper.KEY_NAME,DatabaseHelper.KEY_TYPE,DatabaseHelper.KEY_VALUE};
-        int[] toViews = {R.id.icon,R.id.name,R.id.type,R.id.value}; // The TextView in simple_list_item_1
-
-        
-        // Create an empty adapter we will use to display the loaded data.
-        // We pass null for the cursor, then update it in onLoadFinished()
-        mAdapter = new SimpleCursorAdapter(this, 
-                R.layout.listview_row, cursor,
-                fromColumns, toViews, 0) {
-        	public void setViewImage(ImageView v, String value) {
-        		if (value.equalsIgnoreCase("Folder")) {
-        			v.setImageResource(R.drawable.folder);
-        		} else if (value.equalsIgnoreCase("Scene")) {
-        			v.setImageResource(R.drawable.scene);
-        		} else if (value.equalsIgnoreCase("System")) {
-        			v.setImageResource(R.drawable.icon);
-        		} else {
-        			v.setImageResource(R.drawable.bulb);
-        		}
-        	}
-        	
-        };
-        
-        listview.setAdapter(mAdapter);
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-        	@Override 
-            public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-        		String my_id = Long.toString(id);
-        		Log.i("ListItem Clicked:","position="+Integer.toString(position)+"|id="+Long.toString(id));
-        		String my_type = dbh.getTypeFromId(my_id);
-        		if (my_type.equals("Folder")) {
-        			relaunchSelf(my_id);
-        		} else if (my_type.equals("System")) {
-        			String subType = dbh.getAddressFromId(my_id);
-        			if (subType.equals("Vars")) {
-        				launchVariableView();
-        			} else if (subType.equals("Programs")) {
-        				launchProgramView();
-        			}
-        		} else {
-        			loadNode(my_id);
-        		}
-             }
-
-         });
+		Bundle bundle = new Bundle();
+		bundle.putString("parent_id", mParentId);
+		bundle.putString("parent_type", mParentType);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+		NodeTreeFragment fragment = new NodeTreeFragment();
+		fragment.setArguments(bundle);
+		fragmentTransaction.add(R.id.frame, fragment);
+		fragmentTransaction.commit();
+//		
+//		final ListView listview = (ListView) findViewById(R.id.listView);
+//		mList = listview;
+//		
+//		dbh = new DatabaseHelper(getBaseContext());
+//		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+//		loginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
+//		loginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
+//		String urlBase = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
+//
+//		baseUrl = urlBase + "/nodes/";
+//		
+//		
+//		
+//       //Cursor cursor = dbh.getCursorAllData();
+//        Cursor cursor;
+//        if (mParentType != null) {
+//        	if (mParentType.equals("System-Vars")) {
+//        		// Load 
+//        		
+//        	}
+//        }
+//        cursor = dbh.getCursorListData(mParentId);
+//
+//        Log.d("List Cursor","Parent ID = "+mParentId);
+//        Log.d("List Cursor","Count = "+cursor.getCount());
+//        String title;
+//        if (mParentId == null) {
+//        	title = "Root";
+//        	// Reload database nodes
+//        	try {
+//        		new NodeListUpdater().execute(new URL(baseUrl));
+//        	} catch (MalformedURLException e) {
+//        		Log.e("MainActivity invalid URL: ", baseUrl);
+//        	}
+//        } else {
+//        	title = dbh.getNameFromId(mParentId);
+//        }
+//    	setActionBarTitle(title);
+//    	
+//    	// For the cursor adapter, specify which columns go into which views
+//        String[] fromColumns = {DatabaseHelper.KEY_TYPE, DatabaseHelper.KEY_NAME,DatabaseHelper.KEY_TYPE,DatabaseHelper.KEY_VALUE};
+//        int[] toViews = {R.id.icon,R.id.name,R.id.type,R.id.value}; // The TextView in simple_list_item_1
+//
+//        
+//        // Create an empty adapter we will use to display the loaded data.
+//        // We pass null for the cursor, then update it in onLoadFinished()
+//        mAdapter = new SimpleCursorAdapter(this, 
+//                R.layout.listview_row, cursor,
+//                fromColumns, toViews, 0) {
+//        	public void setViewImage(ImageView v, String value) {
+//        		if (value.equalsIgnoreCase("Folder")) {
+//        			v.setImageResource(R.drawable.folder);
+//        		} else if (value.equalsIgnoreCase("Scene")) {
+//        			v.setImageResource(R.drawable.scene);
+//        		} else if (value.equalsIgnoreCase("System")) {
+//        			v.setImageResource(R.drawable.icon);
+//        		} else {
+//        			v.setImageResource(R.drawable.bulb);
+//        		}
+//        	}
+//        	
+//        };
+//        
+//        listview.setAdapter(mAdapter);
+//        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//        	@Override 
+//            public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
+//        		String my_id = Long.toString(id);
+//        		Log.i("ListItem Clicked:","position="+Integer.toString(position)+"|id="+Long.toString(id));
+//        		String my_type = dbh.getTypeFromId(my_id);
+//        		if (my_type.equals("Folder")) {
+//        			relaunchSelf(my_id);
+//        		} else if (my_type.equals("System")) {
+//        			String subType = dbh.getAddressFromId(my_id);
+//        			if (subType.equals("Vars")) {
+//        				launchVariableView();
+//        			} else if (subType.equals("Programs")) {
+//        				launchProgramView();
+//        			}
+//        		} else {
+//        			loadNode(my_id);
+//        		}
+//             }
+//
+//         });
         Log.i("MainActivity","Created:"+this);
 	}
 	
@@ -157,7 +171,7 @@ public class MainActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 		Log.v("MainActivity","Paused:"+this);
-		mListPosition = mList.getFirstVisiblePosition();
+//		mListPosition = mList.getFirstVisiblePosition();
 	}
 
 	@Override
@@ -176,8 +190,8 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		refreshListData();
-		mList.setSelectionFromTop(mListPosition,0);
+//		refreshListData();
+//		mList.setSelectionFromTop(mListPosition,0);
 		Log.v("MainActivity","Resumed:"+this);
 	}
 	
@@ -245,7 +259,12 @@ public class MainActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
+	
+	@TargetApi(11)
+	public void setActionBarTitle(String main, String sub) {
+		getActionBar().setTitle(main);
+		getActionBar().setSubtitle(sub);
+	}
 
     public class NodeListUpdater extends AsyncTask<URL, Integer, Integer> {
     	private ArrayList<ContentValues> dbEntries;
