@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.Menu;
@@ -29,6 +30,7 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 	String mParentType;
 	private boolean mDualPane = false;
 	private ViewGroup mViewGroup = null;
+	private ListFragment mListFrag = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +45,11 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 	  	mParentType = intent.getStringExtra("parent_type");
 	  	
 	  	mViewGroup = (ViewGroup) findViewById(R.id.columnLayout);
-
+	  	if (mViewGroup != null) {
+	  		mDualPane = true;
+	  	}
 	  	if (savedInstanceState == null) {
-		  	if (mViewGroup != null) {
-		  		mDualPane = true;
+	  		if (mDualPane) {
 				Bundle bundle = new Bundle();
 				bundle.putString("parent_id", mParentId);
 				bundle.putString("parent_type", mParentType);
@@ -89,6 +92,7 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 			transaction.replace(R.id.primaryColumn, newNodeFrag);
 			transaction.addToBackStack(null);
 			transaction.commit();
+			mListFrag = newNodeFrag;
 		} else {
 			NodeTreeFragment newNodeFrag = new NodeTreeFragment();
 			Bundle args = new Bundle();
@@ -114,6 +118,7 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 			transaction.replace(R.id.primaryColumn, newNodeFrag);
 			transaction.addToBackStack(null);
 			transaction.commit();
+			mListFrag = newNodeFrag;
 		} else {
 			ProgramTreeFragment newNodeFrag = new ProgramTreeFragment();
 			Bundle args = new Bundle();
@@ -139,6 +144,7 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 			transaction.replace(R.id.primaryColumn, newNodeFrag);
 			transaction.addToBackStack(null);
 			transaction.commit();
+			mListFrag = newNodeFrag;
 		} else {
 			ProgramTreeFragment newNodeFrag = new ProgramTreeFragment();
 			Bundle args = new Bundle();
@@ -164,6 +170,7 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 			transaction.replace(R.id.primaryColumn, newNodeFrag);
 			transaction.addToBackStack(null);
 			transaction.commit();
+			mListFrag = newNodeFrag;
 		} else {
 			VariableTreeFragment newNodeFrag = new VariableTreeFragment();
 			Bundle args = new Bundle();
@@ -189,6 +196,7 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 			transaction.replace(R.id.primaryColumn, newNodeFrag);
 			transaction.addToBackStack(null);
 			transaction.commit();
+			mListFrag = newNodeFrag;
 		} else {
 			VariableTreeFragment newNodeFrag = new VariableTreeFragment();
 			Bundle args = new Bundle();
@@ -215,6 +223,7 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 			transaction.replace(R.id.nodeArea, newNodeFrag);
 			//transaction.addToBackStack(null);
 			transaction.commit();
+			
 		} else {
 			NodeViewFragment newNodeFrag = new NodeViewFragment();
 			Bundle args = new Bundle();
