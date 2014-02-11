@@ -12,6 +12,7 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.ListView;
 
 public class MainActivity extends FragmentActivity implements NodeTreeFragment.OnListSelectListener,
@@ -27,6 +28,7 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 	int mListPosition = 0;
 	String mParentType;
 	private boolean mDualPane = false;
+	private ViewGroup mViewGroup = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,19 +41,38 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 		Intent intent = getIntent();
 	  	mParentId = intent.getStringExtra("parent_id");
 	  	mParentType = intent.getStringExtra("parent_type");
-		
+	  	
+	  	mViewGroup = (ViewGroup) findViewById(R.id.columnLayout);
+
 	  	if (savedInstanceState == null) {
-			Bundle bundle = new Bundle();
-			bundle.putString("parent_id", mParentId);
-			bundle.putString("parent_type", mParentType);
-			FragmentManager fragmentManager = getSupportFragmentManager();
-			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-			NodeTreeFragment fragment = new NodeTreeFragment();
-			fragment.setArguments(bundle);
-			fragmentTransaction.add(R.id.frame, fragment);
-			fragmentTransaction.commit();
+		  	if (mViewGroup != null) {
+		  		mDualPane = true;
+				Bundle bundle = new Bundle();
+				bundle.putString("parent_id", mParentId);
+				bundle.putString("parent_type", mParentType);
+				FragmentManager fragmentManager = getSupportFragmentManager();
+				FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+				NodeTreeFragment fragment = new NodeTreeFragment();
+				fragment.setArguments(bundle);
+				fragmentTransaction.add(R.id.primaryColumn, fragment);
+				fragmentTransaction.commit();
+			  	
+		  	} else {
+				Bundle bundle = new Bundle();
+				bundle.putString("parent_id", mParentId);
+				bundle.putString("parent_type", mParentType);
+				FragmentManager fragmentManager = getSupportFragmentManager();
+				FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+				NodeTreeFragment fragment = new NodeTreeFragment();
+				fragment.setArguments(bundle);
+				fragmentTransaction.add(R.id.frame, fragment);
+				fragmentTransaction.commit();
+		  	}
+	  	} else {
+	  		Log.i("MainActivity","Restarted-IE Orientation Change");
 	  	}
         Log.i("MainActivity","Created:"+this);
+	  	
 	}
 	
 	@Override
@@ -59,7 +80,15 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 		// Update fragment
 		//NodeTreeFragment frag = (NodeTreeFragment) getSupportFragmentManager().findFragmentById(R.id.frame);
 		if (mDualPane) {
+			NodeTreeFragment newNodeFrag = new NodeTreeFragment();
+			Bundle args = new Bundle();
+			args.putString("parent_id",parent_id);
+			newNodeFrag.setArguments(args);
 			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.primaryColumn, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
 		} else {
 			NodeTreeFragment newNodeFrag = new NodeTreeFragment();
 			Bundle args = new Bundle();
@@ -77,7 +106,14 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 	public void loadProgramTree() {
 		// Update fragment
 		if (mDualPane) {
+			ProgramTreeFragment newNodeFrag = new ProgramTreeFragment();
+			Bundle args = new Bundle();
+			newNodeFrag.setArguments(args);
 			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.primaryColumn, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
 		} else {
 			ProgramTreeFragment newNodeFrag = new ProgramTreeFragment();
 			Bundle args = new Bundle();
@@ -94,7 +130,15 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 	public void loadProgramTree(String parent_id) {
 		// Update fragment
 		if (mDualPane) {
+			ProgramTreeFragment newNodeFrag = new ProgramTreeFragment();
+			Bundle args = new Bundle();
+			args.putString("parent_id", parent_id);
+			newNodeFrag.setArguments(args);
 			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.primaryColumn, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
 		} else {
 			ProgramTreeFragment newNodeFrag = new ProgramTreeFragment();
 			Bundle args = new Bundle();
@@ -112,7 +156,14 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 	public void loadVariableTree() {
 		// Update fragment
 		if (mDualPane) {
+			VariableTreeFragment newNodeFrag = new VariableTreeFragment();
+			Bundle args = new Bundle();
+			newNodeFrag.setArguments(args);
 			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.primaryColumn, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
 		} else {
 			VariableTreeFragment newNodeFrag = new VariableTreeFragment();
 			Bundle args = new Bundle();
@@ -129,7 +180,15 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 	public void loadVariableTree(String parent_id) {
 		// Update fragment
 		if (mDualPane) {
+			VariableTreeFragment newNodeFrag = new VariableTreeFragment();
+			Bundle args = new Bundle();
+			args.putString("parent_id",parent_id);
+			newNodeFrag.setArguments(args);
 			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.primaryColumn, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
 		} else {
 			VariableTreeFragment newNodeFrag = new VariableTreeFragment();
 			Bundle args = new Bundle();
@@ -147,7 +206,15 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 	public void loadNode(String id) {
 		// Update fragment
 		if (mDualPane) {
+			NodeViewFragment newNodeFrag = new NodeViewFragment();
+			Bundle args = new Bundle();
+			args.putString("id",id);
+			newNodeFrag.setArguments(args);
 			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.nodeArea, newNodeFrag);
+			//transaction.addToBackStack(null);
+			transaction.commit();
 		} else {
 			NodeViewFragment newNodeFrag = new NodeViewFragment();
 			Bundle args = new Bundle();
@@ -165,7 +232,15 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 	public void loadProgram(String id) {
 		// Update fragment
 		if (mDualPane) {
+			ProgramViewFragment newNodeFrag = new ProgramViewFragment();
+			Bundle args = new Bundle();
+			args.putString("id",id);
+			newNodeFrag.setArguments(args);
 			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.nodeArea, newNodeFrag);
+			//transaction.addToBackStack(null);
+			transaction.commit();
 		} else {
 			ProgramViewFragment newNodeFrag = new ProgramViewFragment();
 			Bundle args = new Bundle();
@@ -183,7 +258,15 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 	public void loadVariable(String id) {
 		// Update fragment
 		if (mDualPane) {
+			VariableViewFragment newNodeFrag = new VariableViewFragment();
+			Bundle args = new Bundle();
+			args.putString("id",id);
+			newNodeFrag.setArguments(args);
 			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.nodeArea, newNodeFrag);
+			//transaction.addToBackStack(null);
+			transaction.commit();
 		} else {
 			VariableViewFragment newNodeFrag = new VariableViewFragment();
 			Bundle args = new Bundle();
