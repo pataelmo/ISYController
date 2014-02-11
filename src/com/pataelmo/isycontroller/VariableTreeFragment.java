@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -32,7 +32,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class VariableTreeFragment extends ListFragment {
-
+	OnListSelectListener mCallback;
 	private DatabaseHelper dbh;
 	private String mLoginUser;
 	private String mLoginPass;
@@ -44,6 +44,10 @@ public class VariableTreeFragment extends ListFragment {
 		// TODO Auto-generated constructor stub
 	}
 
+	public interface OnListSelectListener {
+		public void loadVariableTree(String parent_id);
+		public void loadVariable(String id);
+	}
 
 	
 	@Override
@@ -51,20 +55,33 @@ public class VariableTreeFragment extends ListFragment {
 		super.onCreate(savedInstance);
 		dbh = new DatabaseHelper(getActivity());
 		
-	}
-	
-	@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
 		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
 		String urlBase = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
 
         baseUrl = urlBase + "/vars";
-		
-		
+        
+        if (savedInstance == null) {
+            new VarListUpdater().execute("");
+        }
+	}
+	
 
-        Cursor cursor = dbh.getVarList();
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		
+		try {
+			mCallback = (OnListSelectListener) activity;
+		} catch (ClassCastException e){
+			throw new ClassCastException(activity.toString()+" must implement onListSelect");
+		}
+	}
+	
+	@Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+		Cursor cursor = dbh.getVarList();
     	getActivity().setTitle("Variables");
 
 		String[] fromColumns = {DatabaseHelper.KEY_ROWID, DatabaseHelper.KEY_NAME,DatabaseHelper.KEY_TYPE,DatabaseHelper.KEY_VALUE};
@@ -91,7 +108,6 @@ public class VariableTreeFragment extends ListFragment {
 	        };
         
         setListAdapter(mAdapter);
-        new VarListUpdater().execute("");
  
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -119,9 +135,10 @@ public class VariableTreeFragment extends ListFragment {
 	
 	
 	private void loadNode(String id) {
-		Intent i = new Intent(getActivity(),VariableViewActivity.class);
-		i.putExtra("id", id);
-		startActivity(i);
+//		Intent i = new Intent(getActivity(),VariableViewActivity.class);
+//		i.putExtra("id", id);
+//		startActivity(i);
+		mCallback.loadVariable(id);
 	}
 
 	public void refreshListData() {

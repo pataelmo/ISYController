@@ -113,7 +113,7 @@
         android:text="@string/refreshButton"
         android:onClick="refreshButton"/>
     <Button
-        android:id="@+id/onButton"
+        android:id="@+id/setButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/setNewValueButton"

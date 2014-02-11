@@ -31,10 +31,6 @@
         android:gravity="center"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceMedium" />
-	<View
-	    android:layout_width="fill_parent"
-	    android:layout_height="0dip"
-	    android:layout_weight="1"/>
 	<LinearLayout 
 	    android:baselineAligned="false"
 	    android:layout_width="match_parent"

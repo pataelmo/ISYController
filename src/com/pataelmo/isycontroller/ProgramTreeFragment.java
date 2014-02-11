@@ -8,10 +8,10 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -30,7 +30,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class ProgramTreeFragment extends ListFragment {
-
+	OnListSelectListener mCallback;
+	
 	private SimpleCursorAdapter mAdapter;
 	private String mParentId;
 	private String baseUrl;
@@ -39,6 +40,12 @@ public class ProgramTreeFragment extends ListFragment {
 	private DatabaseHelper dbh;
 	private int mListPosition = 0;
 
+
+	public interface OnListSelectListener {
+		public void loadProgramTree(String parent_id);
+		public void loadProgram(String id);
+	}
+	
 	public ProgramTreeFragment() {
 		// TODO Auto-generated constructor stub
 		super();
@@ -49,15 +56,7 @@ public class ProgramTreeFragment extends ListFragment {
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
 		dbh = new DatabaseHelper(getActivity());
-		
-	}
-	
-	@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
-		//View view = inflater.inflate(R.layout.activity_main, container, false);
-		//final ListView listview = (ListView) getView().findViewById(R.id.listView);
-		//mList = this;
-		
+
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
 		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
@@ -70,6 +69,34 @@ public class ProgramTreeFragment extends ListFragment {
         
         
         baseUrl = urlBase + "/programs";
+        
+        if ((mParentId == null) && (savedInstance == null)) {
+        	// Reload database nodes
+        	try {
+        		new ProgramListUpdater().execute(new URL(baseUrl+"?subfolders=true"));
+        	} catch (MalformedURLException e) {
+        		Log.e("ProgramTreeFragment invalid URL: ", baseUrl);
+        	}
+        }
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		
+		try {
+			mCallback = (OnListSelectListener) activity;
+		} catch (ClassCastException e){
+			throw new ClassCastException(activity.toString()+" must implement onListSelect");
+		}
+	}
+	
+	@Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+		//View view = inflater.inflate(R.layout.activity_main, container, false);
+		//final ListView listview = (ListView) getView().findViewById(R.id.listView);
+		//mList = this;
+		
 		
        //Cursor cursor = dbh.getCursorAllData();
         Log.v("ProgramTreeFragment.onCreateView","Parent = "+mParentId);
@@ -81,11 +108,11 @@ public class ProgramTreeFragment extends ListFragment {
         if (mParentId == null) {
         	title = "Programs";
         	// Reload database nodes
-        	try {
-        		new NodeListUpdater().execute(new URL(baseUrl+"?subfolders=true"));
-        	} catch (MalformedURLException e) {
-        		Log.e("SystemViewActivity invalid URL: ", baseUrl);
-        	}
+//        	try {
+//        		new ProgramListUpdater().execute(new URL(baseUrl+"?subfolders=true"));
+//        	} catch (MalformedURLException e) {
+//        		Log.e("ProgramTreeFragment invalid URL: ", baseUrl);
+//        	}
         } else {
         	title = dbh.getProgramNameFromId(mParentId);
         }
@@ -153,16 +180,17 @@ public class ProgramTreeFragment extends ListFragment {
 	
 
 	private void relaunchSelf(String parent_id) {
-		Intent i = new Intent(getActivity(),ProgramTreeViewActivity.class);
-		i.putExtra("parent_id", parent_id);
-		startActivity(i);
-		
+//		Intent i = new Intent(getActivity(),ProgramTreeViewActivity.class);
+//		i.putExtra("parent_id", parent_id);
+//		startActivity(i);
+		mCallback.loadProgramTree(parent_id);
 	}
 	
 	private void loadNode(String id) {
-		Intent i = new Intent(getActivity(),ProgramViewActivity.class);
-		i.putExtra("id", id);
-		startActivity(i);
+//		Intent i = new Intent(getActivity(),ProgramViewActivity.class);
+//		i.putExtra("id", id);
+//		startActivity(i);
+		mCallback.loadProgram(id);
 	}
 
 	public void refreshListData() {
@@ -171,7 +199,7 @@ public class ProgramTreeFragment extends ListFragment {
 	}
 	
 
-    public class NodeListUpdater extends AsyncTask<URL, Integer, Integer> {
+    public class ProgramListUpdater extends AsyncTask<URL, Integer, Integer> {
     	private ArrayList<ContentValues> dbEntries;
 	    private ProgressDialog pDialog;
     	private InputStream mInputStream;

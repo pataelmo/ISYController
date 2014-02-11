@@ -14,7 +14,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements NodeTreeFragment.OnListSelectListener,
+ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListener {
 	
 	DatabaseHelper dbh = null;
 	SimpleCursorAdapter mAdapter;
@@ -25,6 +26,7 @@ public class MainActivity extends FragmentActivity {
 	String mParentId;
 	int mListPosition = 0;
 	String mParentType;
+	private boolean mDualPane = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,18 +40,161 @@ public class MainActivity extends FragmentActivity {
 	  	mParentId = intent.getStringExtra("parent_id");
 	  	mParentType = intent.getStringExtra("parent_type");
 		
-
-		Bundle bundle = new Bundle();
-		bundle.putString("parent_id", mParentId);
-		bundle.putString("parent_type", mParentType);
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-		NodeTreeFragment fragment = new NodeTreeFragment();
-		fragment.setArguments(bundle);
-		fragmentTransaction.add(R.id.frame, fragment);
-		fragmentTransaction.commit();
-		
+	  	if (savedInstanceState == null) {
+			Bundle bundle = new Bundle();
+			bundle.putString("parent_id", mParentId);
+			bundle.putString("parent_type", mParentType);
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+			NodeTreeFragment fragment = new NodeTreeFragment();
+			fragment.setArguments(bundle);
+			fragmentTransaction.add(R.id.frame, fragment);
+			fragmentTransaction.commit();
+	  	}
         Log.i("MainActivity","Created:"+this);
+	}
+	
+	@Override
+	public void loadNodeTree(String parent_id) {
+		// Update fragment
+		//NodeTreeFragment frag = (NodeTreeFragment) getSupportFragmentManager().findFragmentById(R.id.frame);
+		if (mDualPane) {
+			
+		} else {
+			NodeTreeFragment newNodeFrag = new NodeTreeFragment();
+			Bundle args = new Bundle();
+			args.putString("parent_id",parent_id);
+			newNodeFrag.setArguments(args);
+			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.frame, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
+		}
+	}
+
+	@Override
+	public void loadProgramTree() {
+		// Update fragment
+		if (mDualPane) {
+			
+		} else {
+			ProgramTreeFragment newNodeFrag = new ProgramTreeFragment();
+			Bundle args = new Bundle();
+			newNodeFrag.setArguments(args);
+			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.frame, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
+		}
+	}
+
+	@Override
+	public void loadProgramTree(String parent_id) {
+		// Update fragment
+		if (mDualPane) {
+			
+		} else {
+			ProgramTreeFragment newNodeFrag = new ProgramTreeFragment();
+			Bundle args = new Bundle();
+			args.putString("parent_id", parent_id);
+			newNodeFrag.setArguments(args);
+			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.frame, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
+		}
+	}
+
+	@Override
+	public void loadVariableTree() {
+		// Update fragment
+		if (mDualPane) {
+			
+		} else {
+			VariableTreeFragment newNodeFrag = new VariableTreeFragment();
+			Bundle args = new Bundle();
+			newNodeFrag.setArguments(args);
+			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.frame, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
+		}
+	}
+
+	@Override
+	public void loadVariableTree(String parent_id) {
+		// Update fragment
+		if (mDualPane) {
+			
+		} else {
+			VariableTreeFragment newNodeFrag = new VariableTreeFragment();
+			Bundle args = new Bundle();
+			args.putString("parent_id",parent_id);
+			newNodeFrag.setArguments(args);
+			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.frame, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
+		}
+	}
+	
+	@Override
+	public void loadNode(String id) {
+		// Update fragment
+		if (mDualPane) {
+			
+		} else {
+			NodeViewFragment newNodeFrag = new NodeViewFragment();
+			Bundle args = new Bundle();
+			args.putString("id",id);
+			newNodeFrag.setArguments(args);
+			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.frame, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
+		}
+	}
+
+	@Override
+	public void loadProgram(String id) {
+		// Update fragment
+		if (mDualPane) {
+			
+		} else {
+			ProgramViewFragment newNodeFrag = new ProgramViewFragment();
+			Bundle args = new Bundle();
+			args.putString("id",id);
+			newNodeFrag.setArguments(args);
+			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.frame, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
+		}
+	}
+	
+	@Override
+	public void loadVariable(String id) {
+		// Update fragment
+		if (mDualPane) {
+			
+		} else {
+			VariableViewFragment newNodeFrag = new VariableViewFragment();
+			Bundle args = new Bundle();
+			args.putString("id",id);
+			newNodeFrag.setArguments(args);
+			
+			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+			transaction.replace(R.id.frame, newNodeFrag);
+			transaction.addToBackStack(null);
+			transaction.commit();
+		}
 	}
 	
 	@Override

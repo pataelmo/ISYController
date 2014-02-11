@@ -8,10 +8,10 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -29,16 +29,22 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 public class NodeTreeFragment extends ListFragment {
-
+	OnListSelectListener mCallback;
 	private String mLoginUser;
 	private String mLoginPass;
 	private String mParentId;
 	private String baseUrl;
-	private String mParentType;
 	private DatabaseHelper dbh;
 	private SimpleCursorAdapter mAdapter;
 	private int mListPosition;
 
+	public interface OnListSelectListener {
+		public void loadNodeTree(String parent_id);
+		public void loadProgramTree();
+		public void loadVariableTree();
+		public void loadNode(String id);
+	}
+	
 	public NodeTreeFragment() {
 		// TODO Auto-generated constructor stub
 	}
@@ -49,15 +55,7 @@ public class NodeTreeFragment extends ListFragment {
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
 		dbh = new DatabaseHelper(getActivity());
-		
-	}
-	
-	@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
-		//View view = inflater.inflate(R.layout.activity_main, container, false);
-		//final ListView listview = (ListView) getView().findViewById(R.id.listView);
-		//mList = this;
-		
+
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
 		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
@@ -66,21 +64,41 @@ public class NodeTreeFragment extends ListFragment {
 
 
         mParentId = getArguments().getString("parent_id");
-        mParentType = getArguments().getString("parent_type");
+//        mParentType = getArguments().getString("parent_type");
         Log.v("NodeTreeFragment.onCreateView","Parent id = "+mParentId);
         
         baseUrl = urlBase + "/nodes/";
 		
-		
-       //Cursor cursor = dbh.getCursorAllData();
-        Cursor cursor;
-        if (mParentType != null) {
-        	if (mParentType.equals("System-Vars")) {
-        		// Load 
-        		
+        if ((mParentId == null) && (savedInstance == null)) {
+        	// Reload database nodes
+        	try {
+        		new NodeListUpdater().execute(new URL(baseUrl));
+        	} catch (MalformedURLException e) {
+        		Log.e("NodeTreeFragment: invalid URL: ", baseUrl);
         	}
         }
-        cursor = dbh.getCursorListData(mParentId);
+	}
+	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		
+		try {
+			mCallback = (OnListSelectListener) activity;
+		} catch (ClassCastException e){
+			throw new ClassCastException(activity.toString()+" must implement onListSelect");
+		}
+	}
+	
+	@Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+		//View view = inflater.inflate(R.layout.activity_main, container, false);
+		//final ListView listview = (ListView) getView().findViewById(R.id.listView);
+		//mList = this;
+		
+		
+       //Cursor cursor = dbh.getCursorAllData();
+        Cursor cursor = dbh.getCursorListData(mParentId);
 
         Log.d("List Cursor","Parent ID = "+mParentId);
         Log.d("List Cursor","Count = "+cursor.getCount());
@@ -88,11 +106,11 @@ public class NodeTreeFragment extends ListFragment {
         if (mParentId == null) {
         	title = "Root";
         	// Reload database nodes
-        	try {
-        		new NodeListUpdater().execute(new URL(baseUrl));
-        	} catch (MalformedURLException e) {
-        		Log.e("NodeTreeFragment: invalid URL: ", baseUrl);
-        	}
+//        	try {
+//        		new NodeListUpdater().execute(new URL(baseUrl));
+//        	} catch (MalformedURLException e) {
+//        		Log.e("NodeTreeFragment: invalid URL: ", baseUrl);
+//        	}
         } else {
         	title = dbh.getNameFromId(mParentId);
         }
@@ -163,29 +181,32 @@ public class NodeTreeFragment extends ListFragment {
 	
 
 	private void relaunchSelf(String parent_id) {
-		Intent i = new Intent(getActivity(),MainActivity.class);
-		i.putExtra("parent_id", parent_id);
-		i.putExtra("parent_type", mParentType);
-		startActivity(i);
-		
+//		Intent i = new Intent(getActivity(),MainActivity.class);
+//		i.putExtra("parent_id", parent_id);
+//		i.putExtra("parent_type", mParentType);
+//		startActivity(i);
+		mCallback.loadNodeTree(parent_id);
 	}
 
 	protected void launchProgramView() {
-		Intent i = new Intent(getActivity(),ProgramTreeViewActivity.class);
-		//i.putExtra("parent_id", "0001");	// Hack to hard code that we start on the program "0001" since it appears to be the real root
-		startActivity(i);
+//		Intent i = new Intent(getActivity(),ProgramTreeViewActivity.class);
+//		//i.putExtra("parent_id", "0001");	// Hack to hard code that we start on the program "0001" since it appears to be the real root
+//		startActivity(i);
+		mCallback.loadProgramTree();
 	}
 
 	protected void launchVariableView() {
-		Intent i = new Intent(getActivity(),VariableTreeViewActivity.class);
-		startActivity(i);
+//		Intent i = new Intent(getActivity(),VariableTreeViewActivity.class);
+//		startActivity(i);
+		mCallback.loadVariableTree();
 	}
 	
 	
 	private void loadNode(String id) {
-		Intent i = new Intent(getActivity(),NodeViewActivity.class);
-		i.putExtra("id", id);
-		startActivity(i);
+//		Intent i = new Intent(getActivity(),NodeViewActivity.class);
+//		i.putExtra("id", id);
+//		startActivity(i);
+		mCallback.loadNode(id);
 	}
 
 	public void refreshListData() {
