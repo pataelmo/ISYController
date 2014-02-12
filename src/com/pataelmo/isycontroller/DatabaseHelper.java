@@ -181,35 +181,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		// Drop existing data
 		//db.delete(NODES_TABLE_NAME, null, null);
 		// Add all new data
-		Iterator<ContentValues> i = valuesList.iterator();
-		ContentValues c;
-		while(i.hasNext()) {
-			c = i.next();
-			Cursor cursor = db.query(NODES_TABLE_NAME, null,KEY_ADDRESS+" = ?", new String[]{c.getAsString(KEY_ADDRESS)}, null, null, null, "1");
-			if(cursor.getCount() > 0) {
-				cursor.moveToFirst();
-				Log.v("DATABASE UPDATE","Row = "+cursor.getString(cursor.getColumnIndex(KEY_ROWID)));
-				db.update(NODES_TABLE_NAME, c, KEY_ROWID+" = ?", new String[]{cursor.getString(cursor.getColumnIndex(KEY_ROWID))});
-			} else {
-				db.insert(NODES_TABLE_NAME, null, c);
-				Log.v("DATABASE INSERT:", c.toString());
+		if (valuesList != null) {
+			Iterator<ContentValues> i = valuesList.iterator();
+			ContentValues c;
+			while(i.hasNext()) {
+				c = i.next();
+				Cursor cursor = db.query(NODES_TABLE_NAME, null,KEY_ADDRESS+" = ?", new String[]{c.getAsString(KEY_ADDRESS)}, null, null, null, "1");
+				if(cursor.getCount() > 0) {
+					cursor.moveToFirst();
+					Log.v("DATABASE UPDATE","Row = "+cursor.getString(cursor.getColumnIndex(KEY_ROWID)));
+					db.update(NODES_TABLE_NAME, c, KEY_ROWID+" = ?", new String[]{cursor.getString(cursor.getColumnIndex(KEY_ROWID))});
+				} else {
+					db.insert(NODES_TABLE_NAME, null, c);
+					Log.v("DATABASE INSERT:", c.toString());
+				}
+	
 			}
-
-		}
-		Cursor cursor = db.query(NODES_TABLE_NAME, new String[]{"COUNT(_id)"}, KEY_TYPE+" = ?", new String[]{"System"}, null, null, null);
-		cursor.moveToFirst();
-		int count = cursor.getInt(0);
-		if (count < 2) {
-			ContentValues extras = new ContentValues();
-			extras.put(KEY_NAME,"Programs");
-			extras.put(KEY_TYPE,"System");
-			extras.put(KEY_ADDRESS,"Programs");
-			db.insert(NODES_TABLE_NAME, null, extras);
-			extras.clear();
-			extras.put(KEY_NAME,"Variables");
-			extras.put(KEY_TYPE,"System");
-			extras.put(KEY_ADDRESS,"Vars");
-			db.insert(NODES_TABLE_NAME, null, extras);
+			Cursor cursor = db.query(NODES_TABLE_NAME, new String[]{"COUNT(_id)"}, KEY_TYPE+" = ?", new String[]{"System"}, null, null, null);
+			cursor.moveToFirst();
+			int count = cursor.getInt(0);
+			if (count < 2) {
+				ContentValues extras = new ContentValues();
+				extras.put(KEY_NAME,"Programs");
+				extras.put(KEY_TYPE,"System");
+				extras.put(KEY_ADDRESS,"Programs");
+				db.insert(NODES_TABLE_NAME, null, extras);
+				extras.clear();
+				extras.put(KEY_NAME,"Variables");
+				extras.put(KEY_TYPE,"System");
+				extras.put(KEY_ADDRESS,"Vars");
+				db.insert(NODES_TABLE_NAME, null, extras);
+			}
 		}
 	}
 	

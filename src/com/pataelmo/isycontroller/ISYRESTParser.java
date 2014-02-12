@@ -38,23 +38,35 @@ public class ISYRESTParser {
 	}
 	
 	public ISYRESTParser(InputStream is) {
-		mInputStream = is;
-		createDOM();
-		parse();
+		try {
+			mInputStream = is;
+			createDOM();
+			parse();
+		} catch (Exception e) {
+			Log.e("ISYRESTParser","Exception = "+e);
+		}
 	}
 	
 	public ISYRESTParser(InputStream is, ProgramData programData) {
-		mInputStream = is;
-		mProgramData = programData;
-		createDOM();
-		parse();
+		try {
+			mInputStream = is;
+			mProgramData = programData;
+			createDOM();
+			parse();
+		} catch (Exception e) {
+			Log.e("ISYRESTParser","Exception = "+e);
+		}
 	}
 
 	public ISYRESTParser(InputStream is, VariableData varData) {
-		mInputStream = is;
-		mVariableData = varData;
-		createDOM();
-		parse();
+		try {
+			mInputStream = is;
+			mVariableData = varData;
+			createDOM();
+			parse();
+		} catch (Exception e) {
+			Log.e("ISYRESTParser","Exception = "+e);
+		}
 	}
 
 	private void createDOM() {
