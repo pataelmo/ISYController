@@ -1,24 +1,8 @@
 package com.pataelmo.isycontroller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.util.ArrayList;
-
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
@@ -29,14 +13,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ProgramTreeFragment extends ListFragment {
+public class ProgramTreeFragment extends ListFragment implements ISYRESTInterface.ISYRESTCallback {
 	OnListSelectListener mCallback;
 	
 	private SimpleCursorAdapter mAdapter;
 	private String mParentId;
-	private String baseUrl;
-	private String mLoginUser;
-	private String mLoginPass;
 	private DatabaseHelper dbh;
 	private int mListPosition = 0;
 
@@ -57,26 +38,17 @@ public class ProgramTreeFragment extends ListFragment {
 		super.onCreate(savedInstance);
 		dbh = new DatabaseHelper(getActivity());
 
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
-		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
-		String urlBase = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
-
-
-		
         mParentId = getArguments().getString("parent_id");
         Log.v("ProgramTreeFragment.onCreateView","Parent id = "+mParentId);
         
-        
-        baseUrl = urlBase + "/programs";
-        
         if ((mParentId == null) && (savedInstance == null)) {
         	// Reload database nodes
-        	try {
-        		new ProgramListUpdater().execute(new URL(baseUrl+"?subfolders=true"));
-        	} catch (MalformedURLException e) {
-        		Log.e("ProgramTreeFragment invalid URL: ", baseUrl);
-        	}
+//        	try {
+//        		new ProgramListUpdater().execute(new URL(baseUrl+"?subfolders=true"));
+//        	} catch (MalformedURLException e) {
+//        		Log.e("ProgramTreeFragment invalid URL: ", baseUrl);
+//        	}
+        	new ISYRESTInterface(this,this,true).execute("/programs?subfolders=true");
         }
 	}
 
@@ -197,72 +169,79 @@ public class ProgramTreeFragment extends ListFragment {
 		mAdapter.swapCursor(dbh.getProgramsList(mParentId));
         setListAdapter(mAdapter);
 	}
+
+
+	@Override
+	public void refreshDisplay() {
+		// TODO Auto-generated method stub
+		refreshListData();
+	}
 	
 
-    public class ProgramListUpdater extends AsyncTask<URL, Integer, Integer> {
-    	private ArrayList<ContentValues> dbEntries;
-	    private ProgressDialog pDialog;
-    	private InputStream mInputStream;
-    	@Override
-    	protected void onPreExecute() {
-			super.onPreExecute();
-			// set up progress indicator
-
-	        pDialog = new ProgressDialog(getActivity());
-	        pDialog.setMessage("Updating Program List, Please wait...");
-	        pDialog.setIndeterminate(false);
-	        pDialog.setCancelable(true);
-	        
-	        pDialog.show();
-	        
-	        // Setup authenticator for login
-	        Authenticator.setDefault(new Authenticator() {
-	    	     protected PasswordAuthentication getPasswordAuthentication() {
-	    	       return new PasswordAuthentication(mLoginUser, mLoginPass.toCharArray());
-	    	     }
-	    	});
-	        dbEntries = new ArrayList<ContentValues>();
-    	}
-
-    	@Override
-    	protected void onProgressUpdate(Integer... progress) {
-			super.onProgressUpdate(progress);
-			// advance progress indicator
-    	}
-	   
-    	@Override
-    	protected void onPostExecute( Integer result ) {
-			//TODO remove progress indicator
-	        pDialog.hide();
-	        pDialog.dismiss();
-			// Updated current database values
-	        dbh.updateProgramsTable(dbEntries);
-	        // Reload cursor
-	        //mAdapter.notifyDataSetChanged();
-	        //mList.invalidateViews();
-	        refreshListData();
-    	}   ///  end ---   onPostExecute(..)
-
-		@Override
-		protected Integer doInBackground(URL... params) {
-			// TODO Auto-generated method stub
-	        ConnectivityManager connMgr = (ConnectivityManager) 
-	                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-	        if (networkInfo != null && networkInfo.isConnected())
-	        {
-	        	try {
-	        		mInputStream = params[0].openConnection().getInputStream();
-	        	} catch (IOException i) {
-	        		Log.e("URL Download failed",i.toString());
-	        	}
-
-	        	ISYRESTParser isyParser = new ISYRESTParser(mInputStream);
-	        	dbEntries = isyParser.getDatabaseValues();
-	        }
-			return 0;
-		} // End method doInBackground
-    } // End Class NodeListUpdater
+//    public class ProgramListUpdater extends AsyncTask<URL, Integer, Integer> {
+//    	private ArrayList<ContentValues> dbEntries;
+//	    private ProgressDialog pDialog;
+//    	private InputStream mInputStream;
+//    	@Override
+//    	protected void onPreExecute() {
+//			super.onPreExecute();
+//			// set up progress indicator
+//
+//	        pDialog = new ProgressDialog(getActivity());
+//	        pDialog.setMessage("Updating Program List, Please wait...");
+//	        pDialog.setIndeterminate(false);
+//	        pDialog.setCancelable(true);
+//	        
+//	        pDialog.show();
+//	        
+//	        // Setup authenticator for login
+//	        Authenticator.setDefault(new Authenticator() {
+//	    	     protected PasswordAuthentication getPasswordAuthentication() {
+//	    	       return new PasswordAuthentication(mLoginUser, mLoginPass.toCharArray());
+//	    	     }
+//	    	});
+//	        dbEntries = new ArrayList<ContentValues>();
+//    	}
+//
+//    	@Override
+//    	protected void onProgressUpdate(Integer... progress) {
+//			super.onProgressUpdate(progress);
+//			// advance progress indicator
+//    	}
+//	   
+//    	@Override
+//    	protected void onPostExecute( Integer result ) {
+//			//TODO remove progress indicator
+//	        pDialog.hide();
+//	        pDialog.dismiss();
+//			// Updated current database values
+//	        dbh.updateProgramsTable(dbEntries);
+//	        // Reload cursor
+//	        //mAdapter.notifyDataSetChanged();
+//	        //mList.invalidateViews();
+//	        refreshListData();
+//    	}   ///  end ---   onPostExecute(..)
+//
+//		@Override
+//		protected Integer doInBackground(URL... params) {
+//			// TODO Auto-generated method stub
+//	        ConnectivityManager connMgr = (ConnectivityManager) 
+//	                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+//	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+//	        if (networkInfo != null && networkInfo.isConnected())
+//	        {
+//	        	try {
+//	        		mInputStream = params[0].openConnection().getInputStream();
+//	        	} catch (IOException i) {
+//	        		Log.e("URL Download failed",i.toString());
+//	        	}
+//
+//	        	ISYRESTParser isyParser = new ISYRESTParser(mInputStream);
+//	        	dbEntries = isyParser.getDatabaseValues();
+//	        }
+//			return 0;
+//		} // End method doInBackground
+//    } // End Class NodeListUpdater
 
 
 }

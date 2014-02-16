@@ -23,6 +23,10 @@ import android.util.Log;
 
 public class ISYRESTParser {
 	
+	public static final String VAR_NAMES_TAG = "CList";
+	public static final String VARS_TAG = "vars";
+	public static final String VAR_TAG = "var";
+	public static final String RESTRESPONSE_TAG = "RestResponse";
 	private InputStream mInputStream;
 	private Document mDOM;
 	private Element mRoot;
@@ -32,6 +36,7 @@ public class ISYRESTParser {
 	private ArrayList<ContentValues> mDbEntries = null;
 	private ProgramData mProgramData;
 	private VariableData mVariableData;
+	private DatabaseHelper mDbh;
 
 	public ISYRESTParser() {
 		// Boring Constructor
@@ -44,28 +49,45 @@ public class ISYRESTParser {
 			parse();
 		} catch (Exception e) {
 			Log.e("ISYRESTParser","Exception = "+e);
+			e.printStackTrace();
 		}
 	}
 	
-	public ISYRESTParser(InputStream is, ProgramData programData) {
+	public ISYRESTParser(InputStream is, DatabaseHelper dbh) {
 		try {
+			mDbh = dbh;
+			mInputStream = is;
+			createDOM();
+			parse();
+		} catch (Exception e) {
+			Log.e("ISYRESTParser","Exception = "+e);
+			e.printStackTrace();
+		}
+	}
+	
+	public ISYRESTParser(InputStream is, DatabaseHelper dbh, ProgramData programData) {
+		try {
+			mDbh = dbh;
 			mInputStream = is;
 			mProgramData = programData;
 			createDOM();
 			parse();
 		} catch (Exception e) {
 			Log.e("ISYRESTParser","Exception = "+e);
+			e.printStackTrace();
 		}
 	}
 
-	public ISYRESTParser(InputStream is, VariableData varData) {
+	public ISYRESTParser(InputStream is, DatabaseHelper dbh, VariableData varData) {
 		try {
+			mDbh = dbh;
 			mInputStream = is;
 			mVariableData = varData;
 			createDOM();
 			parse();
 		} catch (Exception e) {
 			Log.e("ISYRESTParser","Exception = "+e);
+			e.printStackTrace();
 		}
 	}
 
@@ -92,17 +114,17 @@ public class ISYRESTParser {
 			parseNodes(mRoot);
 		} else if (mRootName.equals("nodeInfo")) {
 			parseNodeInfo(mRoot);
-		} else if (mRootName.equalsIgnoreCase("RestResponse")) {
+		} else if (mRootName.equalsIgnoreCase(RESTRESPONSE_TAG)) {
 			parseRestResponse(mRoot);
 		} else if (mRootName.equals("properties")) {
 			parseNodeProperties(mRoot);
 		} else if (mRootName.equals("programs")) {
 			parsePrograms(mRoot);
-		} else if (mRootName.equals("vars")) {
+		} else if (mRootName.equals(VARS_TAG)) {
 			parseVars(mRoot);
-		} else if (mRootName.equals("var")) {
+		} else if (mRootName.equals(VAR_TAG)) {
 			parseVar(mRoot);
-	    } else if (mRootName.equals("CList")) {
+	    } else if (mRootName.equals(VAR_NAMES_TAG)) {
 			parseVarNames(mRoot);
 		}  else {
 			return null;
@@ -184,13 +206,16 @@ public class ISYRESTParser {
 	
 	private void parseVar(Element root) {
 		if (mVariableData == null) {
+			Log.v("ISYRESTParser.parsVar","No Variable Data Was passed!");
 			mVariableData = new VariableData();
+		} else {
+			Log.v("ISYRESTParser.parsVar","Existing Var Data="+mVariableData);
 		}
 		Node variable = root;
 		NamedNodeMap attributes = variable.getAttributes();
 		String id = attributes.getNamedItem("id").getNodeValue();
 		String type = attributes.getNamedItem("type").getNodeValue();
-		Log.v("ISYRESTParser.parseVars","id="+id+",type="+type);
+		Log.v("ISYRESTParser.parseVar","id="+id+",type="+type);
 		mVariableData.mAddress = id;
 		mVariableData.mType = type;
 		NodeList properties = variable.getChildNodes();
@@ -199,10 +224,10 @@ public class ISYRESTParser {
 			String pName = property.getNodeName();
 			if(pName.equals("init")) {
 				mVariableData.mInit = Integer.parseInt(property.getFirstChild().getNodeValue());
-				Log.v("ISYRESTParser.parseVars","init="+property.getFirstChild().getNodeValue());
+				Log.v("ISYRESTParser.parseVar","init="+property.getFirstChild().getNodeValue());
 			} else if (pName.equals("val")) {
 				mVariableData.mValue = Integer.parseInt(property.getFirstChild().getNodeValue());
-				Log.v("ISYRESTParser.parseVars","value="+property.getFirstChild().getNodeValue());
+				Log.v("ISYRESTParser.parseVar","value="+property.getFirstChild().getNodeValue());
 			} else if (pName.equals("ts")) {
 				String time = property.getFirstChild().getNodeValue();
 				SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd kk:mm:ss", Locale.US);	// example value 20140205 14:41:22
@@ -210,12 +235,17 @@ public class ISYRESTParser {
 				try {
 					date = dateFormatter.parse(time);
 					mVariableData.mLastChanged = date.getTime();
-					Log.v("ISYRESTParser.parseVars","lastChanged="+date.toString());
+					Log.v("ISYRESTParser.parseVar","lastChanged="+date.toString());
 				} catch (java.text.ParseException e) {
 					Log.e("ISYRESTParser","Date Parsing Exception:"+e.toString());
 					e.printStackTrace();
 				} 
 			}
+		}
+		if (mDbh != null) {
+			mDbh.updateVariableData(mVariableData);
+		} else {
+			Log.i("ISYRESTParser","Couldn't update Variable Data b/c dbh was null");
 		}
 	}
 
@@ -319,6 +349,11 @@ public class ISYRESTParser {
 			mDbEntries.add(content);
 			Log.v("XML PARSE","New Progam Data = "+content);
 		}
+		if (mDbh != null) {
+			mDbh.updateProgramsTable(mDbEntries);
+		} else {
+			Log.i("ISYRESTParser","Couldn't update Program Data b/c dbh was null");
+		}
 	}
 
 	private void parseNodeProperties(Node root) {
@@ -349,16 +384,43 @@ public class ISYRESTParser {
 	}
 
 	private void parseNodeInfo(Element root) {
+		if (mDbEntries == null) {
+			mDbEntries = new ArrayList<ContentValues>();
+		}
 		// TODO Auto-generated method stub
 		NodeList nl = root.getElementsByTagName("node");
 		parseNode(nl.item(0));
 		nl = root.getElementsByTagName("properties");
 		parseNodeProperties(nl.item(0));
+
+		if (mDbh != null) {
+			mDbh.updateNodeTable(mDbEntries);
+		} else {
+			Log.i("ISYRESTParser","Couldn't update Node Data b/c dbh was null");
+		}
 	}
 
 	private void parseNode(Node node) {
-		// TODO Auto-generated method stub
-		
+		NodeList properties = node.getChildNodes();
+		ContentValues content = new ContentValues();
+		content.put(DatabaseHelper.KEY_TYPE, "Node");
+		for (int j=0;j<properties.getLength();j++){
+			Node property = properties.item(j);
+			String name = property.getNodeName();
+			if (name.equalsIgnoreCase("address")) {
+				content.put(DatabaseHelper.KEY_ADDRESS, property.getFirstChild().getNodeValue());
+			} else if (name.equalsIgnoreCase("name")) {
+				content.put(DatabaseHelper.KEY_NAME, property.getFirstChild().getNodeValue());
+			} else if (name.equalsIgnoreCase("parent")) {
+				content.put(DatabaseHelper.KEY_PARENT, property.getFirstChild().getNodeValue());
+			} else if (name.equalsIgnoreCase("property")) {
+				NamedNodeMap attributes = property.getAttributes();
+				content.put(DatabaseHelper.KEY_VALUE, attributes.getNamedItem("formatted").getNodeValue());
+				content.put(DatabaseHelper.KEY_RAW_VALUE, attributes.getNamedItem("value").getNodeValue());
+			}
+		}
+		// Store entry in database
+		mDbEntries.add(content);
 	}
 
 	private void parseNodes(Element root) {
@@ -394,26 +456,7 @@ public class ISYRESTParser {
 		// Parse Node Data
 		for (int i=0;i<nodes.getLength();i++) {
 			Node node = nodes.item(i);
-			NodeList properties = node.getChildNodes();
-			ContentValues content = new ContentValues();
-			content.put(DatabaseHelper.KEY_TYPE, "Node");
-			for (int j=0;j<properties.getLength();j++){
-				Node property = properties.item(j);
-				String name = property.getNodeName();
-				if (name.equalsIgnoreCase("address")) {
-					content.put(DatabaseHelper.KEY_ADDRESS, property.getFirstChild().getNodeValue());
-				} else if (name.equalsIgnoreCase("name")) {
-					content.put(DatabaseHelper.KEY_NAME, property.getFirstChild().getNodeValue());
-				} else if (name.equalsIgnoreCase("parent")) {
-					content.put(DatabaseHelper.KEY_PARENT, property.getFirstChild().getNodeValue());
-				} else if (name.equalsIgnoreCase("property")) {
-					NamedNodeMap attributes = property.getAttributes();
-					content.put(DatabaseHelper.KEY_VALUE, attributes.getNamedItem("formatted").getNodeValue());
-					content.put(DatabaseHelper.KEY_RAW_VALUE, attributes.getNamedItem("value").getNodeValue());
-				}
-			}
-			// Store entry in database
-			mDbEntries.add(content);
+			parseNode(node);
 		}
 		
 		// Parse Group Data
@@ -435,6 +478,11 @@ public class ISYRESTParser {
 			}
 			// Store entry in database
 			mDbEntries.add(content);
+		}
+		if (mDbh != null) {
+			mDbh.updateNodeTable(mDbEntries);
+		} else {
+			Log.i("ISYRESTParser","Couldn't update Nodes Data b/c dbh was null");
 		}
 	}
 

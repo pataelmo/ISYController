@@ -1,59 +1,23 @@
 package com.pataelmo.isycontroller;
 
-import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PublicKey;
-import java.security.SignatureException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.apache.http.conn.ssl.SSLSocketFactory;
-
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
 
-public class NodeTreeFragment extends ListFragment {
+public class NodeTreeFragment extends ListFragment implements ISYRESTInterface.ISYRESTCallback {
 	OnListSelectListener mCallback;
-	private String mLoginUser;
-	private String mLoginPass;
+//	private String mLoginUser;
+//	private String mLoginPass;
 	private String mParentId;
-	private String baseUrl;
+//	private String baseUrl;
 	private DatabaseHelper dbh;
 	private SimpleCursorAdapter mAdapter;
 	private int mListPosition;
@@ -69,17 +33,20 @@ public class NodeTreeFragment extends ListFragment {
 		// TODO Auto-generated constructor stub
 	}
 
-
+	@Override
+	public void refreshDisplay() {
+		refreshListData();
+	}
 	
 	@Override
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
 		dbh = new DatabaseHelper(getActivity());
 
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
-		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
-		String urlBase = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
+//		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
+//		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
+//		String urlBase = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
 
 
 
@@ -87,15 +54,11 @@ public class NodeTreeFragment extends ListFragment {
 //        mParentType = getArguments().getString("parent_type");
         Log.v("NodeTreeFragment.onCreateView","Parent id = "+mParentId);
         
-        baseUrl = urlBase + "/nodes/";
+//        baseUrl = urlBase + "/nodes/";
 		
         if ((mParentId == null) && (savedInstance == null)) {
         	// Reload database nodes
-        	try {
-        		new NodeListUpdater().execute(new URL(baseUrl));
-        	} catch (MalformedURLException e) {
-        		Log.e("NodeTreeFragment: invalid URL: ", baseUrl);
-        	}
+        	new ISYRESTInterface(this,this,true).execute("/nodes");
         }
 	}
 	
@@ -234,206 +197,206 @@ public class NodeTreeFragment extends ListFragment {
         setListAdapter(mAdapter);
 	}
 	
-
-    public class NodeListUpdater extends AsyncTask<URL, Integer, Integer> {
-    	private ArrayList<ContentValues> dbEntries;
-	    private ProgressDialog pDialog;
-    	private InputStream mInputStream;
-		protected String mKnownPublicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDh0SGoeUzGzwNMLss5tEQtqzDmqQOgAnJ59h7ifYOVPCyQ9BITje84csXHK9aKB5ZQQvF873fLMR4fHnfaVZ2WwN/1nGYXvvqCJcwoEXIh3asJmkNshf3MD+jB5jDE2TlMH44Fm67ci6eA4KPDyEe4dwxuYUbiiM2PqQKtSEYwRQIDAQAB";
-		protected String mFoundKey = null;
-		protected boolean mSSLFailure = false;
-    	@Override
-    	protected void onPreExecute() {
-			super.onPreExecute();
-			// set up progress indicator
-
-	        pDialog = new ProgressDialog(getActivity());
-	        pDialog.setMessage("Updating Node List, Please wait...");
-	        pDialog.setIndeterminate(false);
-	        pDialog.setCancelable(true);
-	        
-	        pDialog.show();
-	        
-
-			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-			mKnownPublicKey = sharedPref.getString(SettingsActivity.KEY_PREF_PUBLICKEY, "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDh0SGoeUzGzwNMLss5tEQtqzDmqQOgAnJ59h7ifYOVPCyQ9BITje84csXHK9aKB5ZQQvF873fLMR4fHnfaVZ2WwN/1nGYXvvqCJcwoEXIh3asJmkNshf3MD+jB5jDE2TlMH44Fm67ci6eA4KPDyEe4dwxuYUbiiM2PqQKtSEYwRQIDAQAB");
-	        
-	        // Setup authenticator for login
-	        Authenticator.setDefault(new Authenticator() {
-	    	     protected PasswordAuthentication getPasswordAuthentication() {
-	    	       return new PasswordAuthentication(mLoginUser, mLoginPass.toCharArray());
-	    	     }
-	    	});
-	        //dbEntries = new ArrayList<ContentValues>();
-	        
-    	}
-
-    	@Override
-    	protected void onProgressUpdate(Integer... progress) {
-			super.onProgressUpdate(progress);
-			// advance progress indicator
-    	}
-	   
-    	@Override
-    	protected void onPostExecute( Integer result ) {
-			//TODO remove progress indicator
-	        pDialog.hide();
-	        pDialog.dismiss();
-			// Updated current database values
-	        if (mSSLFailure) {
-	        	// 1. Instantiate an AlertDialog.Builder with its constructor
-	        	AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-	        	// 2. Chain together various setter methods to set the dialog characteristics
-	        	builder.setTitle("Update SSL Stored Key?");
-	        	builder.setMessage("If this is the first time you're connecting to your ISY and it doesn't have a signed certificate installed and you're on a trusted network, then clicking 'Update' will store this certificate for future safe access.\n\n If you have already done this, or are on an unsecured network you should cancel as this could be a Man In the Middle Attack!");
-	        	builder.setPositiveButton("Update",
-	        			new DialogInterface.OnClickListener() {
-	    					
-	    					@Override
-	    					public void onClick(DialogInterface dialog, int whichButton) {
-	    						// Update preference
-	    						SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-	    						sharedPref.edit().putString(SettingsActivity.KEY_PREF_PUBLICKEY, mFoundKey).commit();
-	    					}
-	    				});
-	        	builder.setNegativeButton("Cancel",
-	        			new DialogInterface.OnClickListener() {
-	    					@Override
-	    					public void onClick(DialogInterface dialog, int whichButton) {
-	    						// Do nothing
-	    					}
-	    				});
-	        	// 3. Get the AlertDialog from create()
-	        	final AlertDialog dialog = builder.create();
-	        	dialog.show();
-//	 	       	Toast.makeText(getActivity(), "SSL Failure, now we will request key storage", Toast.LENGTH_LONG).show();
-	        } else if (dbEntries == null) {
-	        	// Toast that we couldn't connect
-	 	       	Toast.makeText(getActivity(), "Couldn't connect to Server, Check URL", Toast.LENGTH_LONG).show();
-	        } else {
-	        	dbh.updateNodeTable(dbEntries);
-		        // Reload cursor
-		        //mAdapter.notifyDataSetChanged();
-		        //mList.invalidateViews();
-		        refreshListData();
-	        }
-    	}   ///  end ---   onPostExecute(..)
-
-    	private void trustKnownHosts() {
-
-    	    X509TrustManager easyTrustManager = new X509TrustManager() {
-
-
-				public void checkClientTrusted(
-    	                X509Certificate[] chain,
-    	                String authType) throws CertificateException {
-    	        	Log.i("ClientTrustCert","Chain="+chain+"\nAuthType="+authType);
-    	            // Oh, I am easy!
-    	        }
-
-    	        public void checkServerTrusted (
-    	                X509Certificate[] chain,
-    	                String authType) throws CertificateException {
-    	        	Log.i("ServerTrustCert","Chain="+chain+"\nAuthType="+authType);
-    	        	mFoundKey = Base64.encodeToString(chain[0].getPublicKey().getEncoded(), Base64.DEFAULT);
-    	        	if ((mKnownPublicKey != null) && (chain[0] != null)) {
-	        			X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.decode(mKnownPublicKey, Base64.DEFAULT));
-    	        		try {
-							PublicKey key = KeyFactory.getInstance("RSA","BC").generatePublic(x509KeySpec);
-							chain[0].verify(key);
-						} catch (InvalidKeySpecException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-							mSSLFailure = true;
-							throw new CertificateException("Bad Keyspec");
-						} catch (NoSuchAlgorithmException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-							mSSLFailure = true;
-							throw new CertificateException("Bad Algorithm");
-						} catch (NoSuchProviderException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-							mSSLFailure = true;
-							throw new CertificateException("Bad Provider");
-						} catch (InvalidKeyException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							mSSLFailure = true;
-							throw new CertificateException("Bad Key");
-						} catch (SignatureException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							mSSLFailure = true;
-							throw new CertificateException("Bad Signature");
-						}
-    	        	}
-    	        }
-
-    	        public X509Certificate[] getAcceptedIssuers() {
-    	            return null;
-    	        }
-
-    	    };
-
-    	    // Create a trust manager that does not validate certificate chains
-    	    TrustManager[] trustAllCerts = new TrustManager[] {easyTrustManager};
-
-    	    // Install the all-trusting trust manager
-    	    try {
-    	        SSLContext sc = SSLContext.getInstance("TLS");
-
-    	        sc.init(null, trustAllCerts, new java.security.SecureRandom());
-
-    	        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-    	    } catch (Exception e) {
-    	            e.printStackTrace();
-    	    }
-    	}
-    	
-		@Override
-		protected Integer doInBackground(URL... params) {
-			// TODO Auto-generated method stub
-	        ConnectivityManager connMgr = (ConnectivityManager) 
-	                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-	        if (networkInfo != null && networkInfo.isConnected())
-	        {
-	        	try {
-	        		if (params[0].getProtocol().toLowerCase().equals("https")) {
-	        			
-	        			try {
-	        				mInputStream = params[0].openConnection().getInputStream();
-	        			} catch (Exception e) {
-	        				Log.e("NodeTreeFragment","Failure, exception ="+e);
-	        				trustKnownHosts();
-	        				HttpsURLConnection urlHttpsConnection = (HttpsURLConnection) params[0].openConnection();
-		        			urlHttpsConnection.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-		        			mInputStream = urlHttpsConnection.getInputStream();
-	        			}
-//		        			
-//	        			trustAllHosts();
-//	        			HttpsURLConnection urlHttpsConnection = (HttpsURLConnection) params[0].openConnection();
-//	        			urlHttpsConnection.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+//
+//    public class NodeListUpdater extends AsyncTask<URL, Integer, Integer> {
+//    	private ArrayList<ContentValues> dbEntries;
+//	    private ProgressDialog pDialog;
+//    	private InputStream mInputStream;
+//		protected String mKnownPublicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDh0SGoeUzGzwNMLss5tEQtqzDmqQOgAnJ59h7ifYOVPCyQ9BITje84csXHK9aKB5ZQQvF873fLMR4fHnfaVZ2WwN/1nGYXvvqCJcwoEXIh3asJmkNshf3MD+jB5jDE2TlMH44Fm67ci6eA4KPDyEe4dwxuYUbiiM2PqQKtSEYwRQIDAQAB";
+//		protected String mFoundKey = null;
+//		protected boolean mSSLFailure = false;
+//    	@Override
+//    	protected void onPreExecute() {
+//			super.onPreExecute();
+//			// set up progress indicator
+//
+//	        pDialog = new ProgressDialog(getActivity());
+//	        pDialog.setMessage("Updating Node List, Please wait...");
+//	        pDialog.setIndeterminate(false);
+//	        pDialog.setCancelable(true);
+//	        
+//	        pDialog.show();
+//	        
+//
+//			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//			mKnownPublicKey = sharedPref.getString(SettingsActivity.KEY_PREF_PUBLICKEY, "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDh0SGoeUzGzwNMLss5tEQtqzDmqQOgAnJ59h7ifYOVPCyQ9BITje84csXHK9aKB5ZQQvF873fLMR4fHnfaVZ2WwN/1nGYXvvqCJcwoEXIh3asJmkNshf3MD+jB5jDE2TlMH44Fm67ci6eA4KPDyEe4dwxuYUbiiM2PqQKtSEYwRQIDAQAB");
+//	        
+//	        // Setup authenticator for login
+//	        Authenticator.setDefault(new Authenticator() {
+//	    	     protected PasswordAuthentication getPasswordAuthentication() {
+//	    	       return new PasswordAuthentication(mLoginUser, mLoginPass.toCharArray());
+//	    	     }
+//	    	});
+//	        //dbEntries = new ArrayList<ContentValues>();
+//	        
+//    	}
+//
+//    	@Override
+//    	protected void onProgressUpdate(Integer... progress) {
+//			super.onProgressUpdate(progress);
+//			// advance progress indicator
+//    	}
+//	   
+//    	@Override
+//    	protected void onPostExecute( Integer result ) {
+//			//TODO remove progress indicator
+//	        pDialog.hide();
+//	        pDialog.dismiss();
+//			// Updated current database values
+//	        if (mSSLFailure) {
+//	        	// 1. Instantiate an AlertDialog.Builder with its constructor
+//	        	AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//
+//	        	// 2. Chain together various setter methods to set the dialog characteristics
+//	        	builder.setTitle("Update SSL Stored Key?");
+//	        	builder.setMessage("If this is the first time you're connecting to your ISY and it doesn't have a signed certificate installed and you're on a trusted network, then clicking 'Update' will store this certificate for future safe access.\n\n If you have already done this, or are on an unsecured network you should cancel as this could be a Man In the Middle Attack!");
+//	        	builder.setPositiveButton("Update",
+//	        			new DialogInterface.OnClickListener() {
+//	    					
+//	    					@Override
+//	    					public void onClick(DialogInterface dialog, int whichButton) {
+//	    						// Update preference
+//	    						SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//	    						sharedPref.edit().putString(SettingsActivity.KEY_PREF_PUBLICKEY, mFoundKey).commit();
+//	    					}
+//	    				});
+//	        	builder.setNegativeButton("Cancel",
+//	        			new DialogInterface.OnClickListener() {
+//	    					@Override
+//	    					public void onClick(DialogInterface dialog, int whichButton) {
+//	    						// Do nothing
+//	    					}
+//	    				});
+//	        	// 3. Get the AlertDialog from create()
+//	        	final AlertDialog dialog = builder.create();
+//	        	dialog.show();
+////	 	       	Toast.makeText(getActivity(), "SSL Failure, now we will request key storage", Toast.LENGTH_LONG).show();
+//	        } else if (dbEntries == null) {
+//	        	// Toast that we couldn't connect
+//	 	       	Toast.makeText(getActivity(), "Couldn't connect to Server, Check URL", Toast.LENGTH_LONG).show();
+//	        } else {
+//	        	dbh.updateNodeTable(dbEntries);
+//		        // Reload cursor
+//		        //mAdapter.notifyDataSetChanged();
+//		        //mList.invalidateViews();
+//		        refreshListData();
+//	        }
+//    	}   ///  end ---   onPostExecute(..)
+//
+//    	private void trustKnownHosts() {
+//
+//    	    X509TrustManager easyTrustManager = new X509TrustManager() {
+//
+//
+//				public void checkClientTrusted(
+//    	                X509Certificate[] chain,
+//    	                String authType) throws CertificateException {
+//    	        	Log.i("ClientTrustCert","Chain="+chain+"\nAuthType="+authType);
+//    	            // Oh, I am easy!
+//    	        }
+//
+//    	        public void checkServerTrusted (
+//    	                X509Certificate[] chain,
+//    	                String authType) throws CertificateException {
+//    	        	Log.i("ServerTrustCert","Chain="+chain+"\nAuthType="+authType);
+//    	        	mFoundKey = Base64.encodeToString(chain[0].getPublicKey().getEncoded(), Base64.DEFAULT);
+//    	        	if ((mKnownPublicKey != null) && (chain[0] != null)) {
+//	        			X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.decode(mKnownPublicKey, Base64.DEFAULT));
+//    	        		try {
+//							PublicKey key = KeyFactory.getInstance("RSA","BC").generatePublic(x509KeySpec);
+//							chain[0].verify(key);
+//						} catch (InvalidKeySpecException e1) {
+//							// TODO Auto-generated catch block
+//							e1.printStackTrace();
+//							mSSLFailure = true;
+//							throw new CertificateException("Bad Keyspec");
+//						} catch (NoSuchAlgorithmException e1) {
+//							// TODO Auto-generated catch block
+//							e1.printStackTrace();
+//							mSSLFailure = true;
+//							throw new CertificateException("Bad Algorithm");
+//						} catch (NoSuchProviderException e1) {
+//							// TODO Auto-generated catch block
+//							e1.printStackTrace();
+//							mSSLFailure = true;
+//							throw new CertificateException("Bad Provider");
+//						} catch (InvalidKeyException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//							mSSLFailure = true;
+//							throw new CertificateException("Bad Key");
+//						} catch (SignatureException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//							mSSLFailure = true;
+//							throw new CertificateException("Bad Signature");
+//						}
+//    	        	}
+//    	        }
+//
+//    	        public X509Certificate[] getAcceptedIssuers() {
+//    	            return null;
+//    	        }
+//
+//    	    };
+//
+//    	    // Create a trust manager that does not validate certificate chains
+//    	    TrustManager[] trustAllCerts = new TrustManager[] {easyTrustManager};
+//
+//    	    // Install the all-trusting trust manager
+//    	    try {
+//    	        SSLContext sc = SSLContext.getInstance("TLS");
+//
+//    	        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+//
+//    	        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+//
+//    	    } catch (Exception e) {
+//    	            e.printStackTrace();
+//    	    }
+//    	}
+//    	
+//		@Override
+//		protected Integer doInBackground(URL... params) {
+//			// TODO Auto-generated method stub
+//	        ConnectivityManager connMgr = (ConnectivityManager) 
+//	                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+//	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+//	        if (networkInfo != null && networkInfo.isConnected())
+//	        {
+//	        	try {
+//	        		if (params[0].getProtocol().toLowerCase().equals("https")) {
 //	        			
-//	        			mInputStream = urlHttpsConnection.getInputStream();
-	        		} else {
-	        			mInputStream = params[0].openConnection().getInputStream();
-	        		}
-	        	} catch (Exception i) {
-	        		Log.e("URL Download failed",i.toString());
-	        	}
-	        	
-	        	if (mInputStream != null) {
-		        	ISYRESTParser isyParser = new ISYRESTParser(mInputStream);
-		        	dbEntries = isyParser.getDatabaseValues();
-	        	}
-	        }
-			return 0;
-		} // End method doInBackground
-    } // End Class NodeListUpdater
-
+//	        			try {
+//	        				mInputStream = params[0].openConnection().getInputStream();
+//	        			} catch (Exception e) {
+//	        				Log.e("NodeTreeFragment","Failure, exception ="+e);
+//	        				trustKnownHosts();
+//	        				HttpsURLConnection urlHttpsConnection = (HttpsURLConnection) params[0].openConnection();
+//		        			urlHttpsConnection.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+//		        			mInputStream = urlHttpsConnection.getInputStream();
+//	        			}
+////		        			
+////	        			trustAllHosts();
+////	        			HttpsURLConnection urlHttpsConnection = (HttpsURLConnection) params[0].openConnection();
+////	        			urlHttpsConnection.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+////	        			
+////	        			mInputStream = urlHttpsConnection.getInputStream();
+//	        		} else {
+//	        			mInputStream = params[0].openConnection().getInputStream();
+//	        		}
+//	        	} catch (Exception i) {
+//	        		Log.e("URL Download failed",i.toString());
+//	        	}
+//	        	
+//	        	if (mInputStream != null) {
+//		        	ISYRESTParser isyParser = new ISYRESTParser(mInputStream);
+//		        	dbEntries = isyParser.getDatabaseValues();
+//	        	}
+//	        }
+//			return 0;
+//		} // End method doInBackground
+//    } // End Class NodeListUpdater
+//
 
 }

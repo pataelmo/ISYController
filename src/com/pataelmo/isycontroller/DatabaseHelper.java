@@ -366,6 +366,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return result;
 	}
 
+	public NodeData getNodeData(String id) {
+		SQLiteDatabase db = getDatabase();
+		Cursor c = db.query(NODES_TABLE_NAME, null,"_id = "+id,null,null,null,null,null);
+		c.moveToFirst();
+		NodeData result = new NodeData(
+				c.getString(c.getColumnIndex(KEY_ROWID)),
+				c.getString(c.getColumnIndex(KEY_NAME)),
+				c.getString(c.getColumnIndex(KEY_TYPE)),
+				c.getString(c.getColumnIndex(KEY_ADDRESS)),
+				c.getString(c.getColumnIndex(KEY_VALUE)),
+				c.getString(c.getColumnIndex(KEY_RAW_VALUE)),
+				c.getString(c.getColumnIndex(KEY_PARENT)));
+		c.close();
+		return result;
+	}
 
 	public ProgramData getProgramData(String id) {
 		SQLiteDatabase db = getDatabase();
@@ -517,4 +532,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			Log.v("DATABASE INSERT:", c.toString());
 		}
 	}
+
+
 }

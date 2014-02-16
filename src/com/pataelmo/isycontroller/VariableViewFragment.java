@@ -1,23 +1,10 @@
 package com.pataelmo.isycontroller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Date;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.InputFilter;
 import android.text.method.DigitsKeyListener;
@@ -30,16 +17,15 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-public class VariableViewFragment extends Fragment implements OnClickListener {
+public class VariableViewFragment extends Fragment implements OnClickListener,ISYRESTInterface.ISYRESTCallback {
 
 	private DatabaseHelper dbh;
-	private String mLoginUser;
-	private String mLoginPass;
+//	private String mLoginUser;
+//	private String mLoginPass;
 	private String mId;
 	private VariableData mVarData;
-	private String baseUrl;
+//	private String baseUrl;
 	private TextView mNameText;
 	private TextView mAddressText;
 	private TextView mValueText;
@@ -64,10 +50,10 @@ public class VariableViewFragment extends Fragment implements OnClickListener {
 		//final ListView listview = (ListView) getView().findViewById(R.id.listView);
 		//mList = this;
 		
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
-		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
-		String urlBase = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
+//		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
+//		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
+//		String urlBase = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
 
 
 
@@ -76,7 +62,7 @@ public class VariableViewFragment extends Fragment implements OnClickListener {
 
         mVarData = dbh.getVarData(mId);
 
-    	baseUrl = urlBase + "/vars/";
+//    	baseUrl = urlBase + "/vars/";
         
         View view = inflater.inflate(R.layout.activity_variable_view, container, false);
 
@@ -134,7 +120,8 @@ public class VariableViewFragment extends Fragment implements OnClickListener {
 			break;
 		
 		case R.id.refreshButton:
-	    	new VariableCommander().execute("");
+	    	//new VariableCommander().execute("");
+			new ISYRESTInterface(this,this,mVarData,false).execute("/vars/get/"+mVarData.mType+"/"+mVarData.mAddress);
 			break;
 			
 		}
@@ -167,7 +154,8 @@ public class VariableViewFragment extends Fragment implements OnClickListener {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						String newValue = input.getText().toString();
 						// Launch set command
-				    	new VariableCommander().execute(newValue,"");
+//				    	new VariableCommander().execute(newValue,"");
+						setNewValue(newValue);
 					}
 				});
     	builder.setNegativeButton("Cancel",
@@ -189,129 +177,143 @@ public class VariableViewFragment extends Fragment implements OnClickListener {
     	});
     	dialog.show();
     }
+
+
+	protected void setNewValue(String newValue) {
+		Log.v("VariableViewFragment","Setting new value of:"+newValue);
+		new ISYRESTInterface(this,this,mVarData,false).execute("/vars/set/"+mVarData.mType+"/"+mVarData.mAddress+"/"+newValue,"/vars/get/"+mVarData.mType+"/"+mVarData.mAddress);
+	}
+
+
+	@Override
+	public void refreshDisplay() {
+		// TODO Auto-generated method stub
+        mVarData = dbh.getVarData(mId);
+		refreshDataValues();
+	}
 	
-    public class VariableCommander extends AsyncTask<String, Integer, Integer> {
-    	private boolean mCommandSuccess;
-    	private String mCommand;
-	    //private ProgressDialog pDialog;
-    	private InputStream mInputStream;
-    	//private int mCount;
-    	//private String mResults;
-    	@Override
-    	protected void onPreExecute() {
-			super.onPreExecute();
-			// set up progress indicator
-			
-//	        pDialog = new ProgressDialog(NodeViewActivity.this);
-//	        pDialog.setMessage("Issuing command, Please wait...");
-//	        pDialog.setIndeterminate(false);
-//	        pDialog.setCancelable(true);
+//    public class VariableCommander extends AsyncTask<String, Integer, Integer> {
+//    	private boolean mCommandSuccess;
+//    	private String mCommand;
+//	    //private ProgressDialog pDialog;
+//    	private InputStream mInputStream;
+//    	//private int mCount;
+//    	//private String mResults;
+//    	@Override
+//    	protected void onPreExecute() {
+//			super.onPreExecute();
+//			// set up progress indicator
+//			
+////	        pDialog = new ProgressDialog(NodeViewActivity.this);
+////	        pDialog.setMessage("Issuing command, Please wait...");
+////	        pDialog.setIndeterminate(false);
+////	        pDialog.setCancelable(true);
+////	        
+////	        pDialog.show();
 //	        
-//	        pDialog.show();
-	        
-	        // Setup authenticator for login
-	        Authenticator.setDefault(new Authenticator() {
-	    	     protected PasswordAuthentication getPasswordAuthentication() {
-	    	       return new PasswordAuthentication(mLoginUser, mLoginPass.toCharArray());
-	    	     }
-	    	});
-	        
-    	}
-
-    	@Override
-    	protected void onProgressUpdate(Integer... progress) {
-			super.onProgressUpdate(progress);
-			// advance progress indicator
-			 String results = "";
- 	        if (mCommand.equals("")) {
- 	        	refreshDataValues();
- 	        	dbh.updateVariableData(mVarData);
- 	        } else if (!mCommandSuccess) {
- 	        	results = "Failed to figure out cmd="+mCommand;
-// 	        	if (mCommand.equals("DON")) {
-// 	        		results =  + " On failed...";
-// 	        	} else if (mCommand.equals("DOF")) {
-// 	        		results = mType + " Off failed...";
-// 	        	}
-	 	       	Toast.makeText(getActivity(), results, Toast.LENGTH_LONG).show();
- 	        }
-    	}
-	   
-    	@Override
-    	protected void onPostExecute( Integer result ) {
-			//TODO remove progress indicator
-//	        pDialog.hide();
-//	        pDialog.dismiss();
-			// Update display values
-    	}   ///  end ---   onPostExecute(..)
-
-		@Override
-		protected Integer doInBackground(String... params) {
-			// TODO Auto-generated method stub
-	        ConnectivityManager connMgr = (ConnectivityManager) 
-	                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-	        if (networkInfo != null && networkInfo.isConnected())
-	        {
-	        	int count = params.length;
-//	        	mCount = count;
-	        	for (int i = 0; i < count; i++) {
-		        	// DO URL GET
-		        	try {
-		        		String cmd = params[i];
-		        		mCommand = cmd;
-			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
-		        		
-			        	String urlCommand;
-			        	if (cmd.equals("")) {
-			        		urlCommand = baseUrl+"get/"+mVarData.mType+"/"+mVarData.mAddress;
-			        	} else {
-			        		urlCommand = baseUrl+"set/"+mVarData.mType+"/"+mVarData.mAddress+"/"+cmd;
-			        	}
-		        		URL url = new URL(urlCommand);
-		        		URI uri = null;
-		        		try {
-		        			uri = new URI(url.getProtocol(),url.getUserInfo(),url.getHost(),url.getPort(),url.getPath(),url.getQuery(),url.getRef());
-		        		} catch (URISyntaxException e) {
-		        			Log.e("URI Parsing Error",e.toString());
-		        		}
-		        		//String safeURL = new Uri.Builder().path(baseUrl+cmd).build().toString();
-		        		url = uri.toURL();
-		        		mInputStream = url.openConnection().getInputStream();
-		        	} catch (IOException ie) {
-		        		Log.e("URL Download failed",ie.toString());
-		        	}
-		        	// PARSE URL RESPONSE
-		        	try {
-		        		ISYRESTParser parser = new ISYRESTParser(mInputStream,mVarData);
-		        		if (parser.getRootName().equals("RestResponse")) {
-		        			mCommandSuccess = parser.getSuccess();
-		        		} else {
-		        			mVarData = parser.getVariableData(mVarData.mName);
-		        		}
-		    			
-		    			
-		    		} catch (Exception e) {
-		    			Log.e("Parsing Node List Failed",e.toString());
-		    		}
-		        	
-		        	// Update Display with errors or new values
-		        	publishProgress(i);
-		        	Log.i("ASYNC TASK","Completed "+i+" out of "+count+"commands");
-		        	try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-		 	        if (isCancelled()) {
-		 	        	break;
-		 	        }
-	        	}
-	        }
-
-			return 0;
-		} // End method doInBackground
-    } // End Class VariableCommander
+//	        // Setup authenticator for login
+//	        Authenticator.setDefault(new Authenticator() {
+//	    	     protected PasswordAuthentication getPasswordAuthentication() {
+//	    	       return new PasswordAuthentication(mLoginUser, mLoginPass.toCharArray());
+//	    	     }
+//	    	});
+//	        
+//    	}
+//
+//    	@Override
+//    	protected void onProgressUpdate(Integer... progress) {
+//			super.onProgressUpdate(progress);
+//			// advance progress indicator
+//			 String results = "";
+// 	        if (mCommand.equals("")) {
+// 	        	refreshDataValues();
+// 	        	dbh.updateVariableData(mVarData);
+// 	        } else if (!mCommandSuccess) {
+// 	        	results = "Failed to figure out cmd="+mCommand;
+//// 	        	if (mCommand.equals("DON")) {
+//// 	        		results =  + " On failed...";
+//// 	        	} else if (mCommand.equals("DOF")) {
+//// 	        		results = mType + " Off failed...";
+//// 	        	}
+//	 	       	Toast.makeText(getActivity(), results, Toast.LENGTH_LONG).show();
+// 	        }
+//    	}
+//	   
+//    	@Override
+//    	protected void onPostExecute( Integer result ) {
+//			//TODO remove progress indicator
+////	        pDialog.hide();
+////	        pDialog.dismiss();
+//			// Update display values
+//    	}   ///  end ---   onPostExecute(..)
+//
+//		@Override
+//		protected Integer doInBackground(String... params) {
+//			// TODO Auto-generated method stub
+//	        ConnectivityManager connMgr = (ConnectivityManager) 
+//	                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+//	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+//	        if (networkInfo != null && networkInfo.isConnected())
+//	        {
+//	        	int count = params.length;
+////	        	mCount = count;
+//	        	for (int i = 0; i < count; i++) {
+//		        	// DO URL GET
+//		        	try {
+//		        		String cmd = params[i];
+//		        		mCommand = cmd;
+//			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
+//		        		
+//			        	String urlCommand;
+//			        	if (cmd.equals("")) {
+//			        		urlCommand = baseUrl+"get/"+mVarData.mType+"/"+mVarData.mAddress;
+//			        	} else {
+//			        		urlCommand = baseUrl+"set/"+mVarData.mType+"/"+mVarData.mAddress+"/"+cmd;
+//			        	}
+//		        		URL url = new URL(urlCommand);
+//		        		URI uri = null;
+//		        		try {
+//		        			uri = new URI(url.getProtocol(),url.getUserInfo(),url.getHost(),url.getPort(),url.getPath(),url.getQuery(),url.getRef());
+//		        		} catch (URISyntaxException e) {
+//		        			Log.e("URI Parsing Error",e.toString());
+//		        		}
+//		        		//String safeURL = new Uri.Builder().path(baseUrl+cmd).build().toString();
+//		        		url = uri.toURL();
+//		        		mInputStream = url.openConnection().getInputStream();
+//		        	} catch (IOException ie) {
+//		        		Log.e("URL Download failed",ie.toString());
+//		        	}
+//		        	// PARSE URL RESPONSE
+//		        	try {
+//		        		ISYRESTParser parser = new ISYRESTParser(mInputStream,mVarData);
+//		        		if (parser.getRootName().equals("RestResponse")) {
+//		        			mCommandSuccess = parser.getSuccess();
+//		        		} else {
+//		        			mVarData = parser.getVariableData(mVarData.mName);
+//		        		}
+//		    			
+//		    			
+//		    		} catch (Exception e) {
+//		    			Log.e("Parsing Node List Failed",e.toString());
+//		    		}
+//		        	
+//		        	// Update Display with errors or new values
+//		        	publishProgress(i);
+//		        	Log.i("ASYNC TASK","Completed "+i+" out of "+count+"commands");
+//		        	try {
+//						Thread.sleep(50);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//		 	        if (isCancelled()) {
+//		 	        	break;
+//		 	        }
+//	        	}
+//	        }
+//
+//			return 0;
+//		} // End method doInBackground
+//    } // End Class VariableCommander
 
 }

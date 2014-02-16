@@ -3,22 +3,9 @@
  */
 package com.pataelmo.isycontroller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Date;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,16 +14,15 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
-public class ProgramViewFragment extends Fragment implements OnClickListener {
+public class ProgramViewFragment extends Fragment implements OnClickListener,ISYRESTInterface.ISYRESTCallback {
 
 	
 	private DatabaseHelper dbh;
-	private String mLoginUser;
-	private String mLoginPass;
-	private Object baseUrl;
+//	private String mLoginUser;
+//	private String mLoginPass;
+//	private Object baseUrl;
 	private String mId;
 	private ProgramData mProgramData;
 	private TextView mNameText;
@@ -64,10 +50,10 @@ public class ProgramViewFragment extends Fragment implements OnClickListener {
 		//final ListView listview = (ListView) getView().findViewById(R.id.listView);
 		//mList = this;
 		
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
-		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
-		String urlBase = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
+//		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
+//		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
+//		String urlBase = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
 
 
 
@@ -76,7 +62,7 @@ public class ProgramViewFragment extends Fragment implements OnClickListener {
 
         mProgramData = dbh.getProgramData(mId);
 
-    	baseUrl = urlBase + "/programs/" + mProgramData.mAddress + "/" ;
+//    	baseUrl = urlBase + "/programs/" + mProgramData.mAddress + "/" ;
         
         getActivity().setTitle(mProgramData.mName);
         View view = inflater.inflate(R.layout.activity_program_view, container, false);
@@ -111,6 +97,7 @@ public class ProgramViewFragment extends Fragment implements OnClickListener {
 
 	public void refreshDataValues() {
 
+        mProgramData = dbh.getProgramData(mId);
 	    mNameText.setText(mProgramData.mName);
 	    mAddressText.setText(mProgramData.mAddress);
 	    mStatusText.setText(mProgramData.mStatus);
@@ -145,161 +132,177 @@ public class ProgramViewFragment extends Fragment implements OnClickListener {
 	
 	@Override
 	public void onClick(View v) {
+		String base = "/programs/" + mProgramData.mAddress + "/";
 		switch (v.getId()) {
 		case R.id.refreshButton:
-	    	new ProgramCommander().execute("");
+//	    	new ProgramCommander().execute("");
+	    	new ISYRESTInterface(this,this,false).execute(base);
 			break;
 		case R.id.runButton:
-			new ProgramCommander().execute("run","");
+//			new ProgramCommander().execute("run","");
+	    	new ISYRESTInterface(this,this,false).execute(base+"run",base);
 			break;
 			
 		case R.id.stopButton:
-			new ProgramCommander().execute("stop","");
+//			new ProgramCommander().execute("stop","");
+	    	new ISYRESTInterface(this,this,false).execute(base+"stop",base);
 			break;
 
 		case R.id.runThenButton:
-	    	new ProgramCommander().execute("runThen","");
+//	    	new ProgramCommander().execute("runThen","");
+	    	new ISYRESTInterface(this,this,false).execute(base+"runThen",base);
 			break;
 
 		case R.id.runElseButton:
-	    	new ProgramCommander().execute("runElse","");
+//	    	new ProgramCommander().execute("runElse","");
+	    	new ISYRESTInterface(this,this,false).execute(base+"runElse",base);
 			break;
 
 		case R.id.enableButton:
-			new ProgramCommander().execute("enable","");
+//			new ProgramCommander().execute("enable","");
+	    	new ISYRESTInterface(this,this,false).execute(base+"enable",base);
 			break;
 			
 		case R.id.disableButton:
-	    	new ProgramCommander().execute("disable","");
+//	    	new ProgramCommander().execute("disable","");
+	    	new ISYRESTInterface(this,this,false).execute(base+"disable",base);
 			break;
 
 		case R.id.enableRunAtStartButton:
-	    	new ProgramCommander().execute("enableRunAtStartup","");
+//	    	new ProgramCommander().execute("enableRunAtStartup","");
+	    	new ISYRESTInterface(this,this,false).execute(base+"enableRunAtStartup",base);
 			break;
 
 		case R.id.disableRunAtStartButton:
-			new ProgramCommander().execute("disableRunAtStartup","");
+//			new ProgramCommander().execute("disableRunAtStartup","");
+	    	new ISYRESTInterface(this,this,false).execute(base+"disableRunAtStartup",base);
 			break;
 			
 		}
 	}
 
-    public class ProgramCommander extends AsyncTask<String, Integer, Integer> {
-    	private boolean mCommandSuccess;
-    	private String mCommand;
-	    //private ProgressDialog pDialog;
-    	private InputStream mInputStream;
-    	//private int mCount;
-    	//private String mResults;
-    	@Override
-    	protected void onPreExecute() {
-			super.onPreExecute();
-			// set up progress indicator
-			
-//	        pDialog = new ProgressDialog(NodeViewActivity.this);
-//	        pDialog.setMessage("Issuing command, Please wait...");
-//	        pDialog.setIndeterminate(false);
-//	        pDialog.setCancelable(true);
+
+	@Override
+	public void refreshDisplay() {
+		refreshDataValues();
+	}
+
+//    public class ProgramCommander extends AsyncTask<String, Integer, Integer> {
+//    	private boolean mCommandSuccess;
+//    	private String mCommand;
+//	    //private ProgressDialog pDialog;
+//    	private InputStream mInputStream;
+//    	//private int mCount;
+//    	//private String mResults;
+//    	@Override
+//    	protected void onPreExecute() {
+//			super.onPreExecute();
+//			// set up progress indicator
+//			
+////	        pDialog = new ProgressDialog(NodeViewActivity.this);
+////	        pDialog.setMessage("Issuing command, Please wait...");
+////	        pDialog.setIndeterminate(false);
+////	        pDialog.setCancelable(true);
+////	        
+////	        pDialog.show();
 //	        
-//	        pDialog.show();
-	        
-	        // Setup authenticator for login
-	        Authenticator.setDefault(new Authenticator() {
-	    	     protected PasswordAuthentication getPasswordAuthentication() {
-	    	       return new PasswordAuthentication(mLoginUser, mLoginPass.toCharArray());
-	    	     }
-	    	});
-	        
-    	}
-
-    	@Override
-    	protected void onProgressUpdate(Integer... progress) {
-			super.onProgressUpdate(progress);
-			// advance progress indicator
-			 String results = "";
- 	        if (mCommand.equals("")) {
- 	        	refreshDataValues();
- 	        	dbh.updateProgramData(mProgramData);
- 	        } else if (!mCommandSuccess) {
- 	        	results = "Failed to figure out cmd="+mCommand;
-// 	        	if (mCommand.equals("DON")) {
-// 	        		results =  + " On failed...";
-// 	        	} else if (mCommand.equals("DOF")) {
-// 	        		results = mType + " Off failed...";
-// 	        	}
-	 	       	Toast.makeText(getActivity(), results, Toast.LENGTH_LONG).show();
- 	        }
-    	}
-	   
-    	@Override
-    	protected void onPostExecute( Integer result ) {
-			//TODO remove progress indicator
-//	        pDialog.hide();
-//	        pDialog.dismiss();
-			// Update display values
-    	}   ///  end ---   onPostExecute(..)
-
-		@Override
-		protected Integer doInBackground(String... params) {
-			// TODO Auto-generated method stub
-	        ConnectivityManager connMgr = (ConnectivityManager) 
-	                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-	        if (networkInfo != null && networkInfo.isConnected())
-	        {
-	        	int count = params.length;
-//	        	mCount = count;
-	        	for (int i = 0; i < count; i++) {
-		        	// DO URL GET
-		        	try {
-		        		String cmd = params[i];
-		        		mCommand = cmd;
-			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
-		        		
-		        		URL url = new URL(baseUrl+cmd);
-		        		URI uri = null;
-		        		try {
-		        			uri = new URI(url.getProtocol(),url.getUserInfo(),url.getHost(),url.getPort(),url.getPath(),url.getQuery(),url.getRef());
-		        		} catch (URISyntaxException e) {
-		        			Log.e("URI Parsing Error",e.toString());
-		        		}
-		        		//String safeURL = new Uri.Builder().path(baseUrl+cmd).build().toString();
-		        		url = uri.toURL();
-		        		mInputStream = url.openConnection().getInputStream();
-		        	} catch (IOException ie) {
-		        		Log.e("URL Download failed",ie.toString());
-		        	}
-		        	// PARSE URL RESPONSE
-		        	try {
-		        		ISYRESTParser parser = new ISYRESTParser(mInputStream,mProgramData);
-		        		if (parser.getRootName().equals("RestResponse")) {
-		        			mCommandSuccess = parser.getSuccess();
-		        		} else {
-		        			mProgramData = parser.getProgramData();
-		        		}
-		    			
-		    			
-		    		} catch (Exception e) {
-		    			Log.e("Parsing Node List Failed",e.toString());
-		    		}
-		        	
-		        	// Update Display with errors or new values
-		        	publishProgress(i);
-		        	Log.i("ASYNC TASK","Completed "+i+" out of "+count+"commands");
-		        	try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-		 	        if (isCancelled()) {
-		 	        	break;
-		 	        }
-	        	}
-	        }
-
-			return 0;
-		} // End method doInBackground
-    } // End Class ProgramCommander
+//	        // Setup authenticator for login
+//	        Authenticator.setDefault(new Authenticator() {
+//	    	     protected PasswordAuthentication getPasswordAuthentication() {
+//	    	       return new PasswordAuthentication(mLoginUser, mLoginPass.toCharArray());
+//	    	     }
+//	    	});
+//	        
+//    	}
+//
+//    	@Override
+//    	protected void onProgressUpdate(Integer... progress) {
+//			super.onProgressUpdate(progress);
+//			// advance progress indicator
+//			 String results = "";
+// 	        if (mCommand.equals("")) {
+// 	        	refreshDataValues();
+// 	        	dbh.updateProgramData(mProgramData);
+// 	        } else if (!mCommandSuccess) {
+// 	        	results = "Failed to figure out cmd="+mCommand;
+//// 	        	if (mCommand.equals("DON")) {
+//// 	        		results =  + " On failed...";
+//// 	        	} else if (mCommand.equals("DOF")) {
+//// 	        		results = mType + " Off failed...";
+//// 	        	}
+//	 	       	Toast.makeText(getActivity(), results, Toast.LENGTH_LONG).show();
+// 	        }
+//    	}
+//	   
+//    	@Override
+//    	protected void onPostExecute( Integer result ) {
+//			//TODO remove progress indicator
+////	        pDialog.hide();
+////	        pDialog.dismiss();
+//			// Update display values
+//    	}   ///  end ---   onPostExecute(..)
+//
+//		@Override
+//		protected Integer doInBackground(String... params) {
+//			// TODO Auto-generated method stub
+//	        ConnectivityManager connMgr = (ConnectivityManager) 
+//	                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+//	        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+//	        if (networkInfo != null && networkInfo.isConnected())
+//	        {
+//	        	int count = params.length;
+////	        	mCount = count;
+//	        	for (int i = 0; i < count; i++) {
+//		        	// DO URL GET
+//		        	try {
+//		        		String cmd = params[i];
+//		        		mCommand = cmd;
+//			        	Log.i("ASYNC TASK","Command "+i+": "+mCommand);
+//		        		
+//		        		URL url = new URL(baseUrl+cmd);
+//		        		URI uri = null;
+//		        		try {
+//		        			uri = new URI(url.getProtocol(),url.getUserInfo(),url.getHost(),url.getPort(),url.getPath(),url.getQuery(),url.getRef());
+//		        		} catch (URISyntaxException e) {
+//		        			Log.e("URI Parsing Error",e.toString());
+//		        		}
+//		        		//String safeURL = new Uri.Builder().path(baseUrl+cmd).build().toString();
+//		        		url = uri.toURL();
+//		        		mInputStream = url.openConnection().getInputStream();
+//		        	} catch (IOException ie) {
+//		        		Log.e("URL Download failed",ie.toString());
+//		        	}
+//		        	// PARSE URL RESPONSE
+//		        	try {
+//		        		ISYRESTParser parser = new ISYRESTParser(mInputStream,mDbh,mProgramData);
+//		        		if (parser.getRootName().equals("RestResponse")) {
+//		        			mCommandSuccess = parser.getSuccess();
+//		        		} else {
+//		        			mProgramData = parser.getProgramData();
+//		        		}
+//		    			
+//		    			
+//		    		} catch (Exception e) {
+//		    			Log.e("Parsing Node List Failed",e.toString());
+//		    		}
+//		        	
+//		        	// Update Display with errors or new values
+//		        	publishProgress(i);
+//		        	Log.i("ASYNC TASK","Completed "+i+" out of "+count+"commands");
+//		        	try {
+//						Thread.sleep(50);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//		 	        if (isCancelled()) {
+//		 	        	break;
+//		 	        }
+//	        	}
+//	        }
+//
+//			return 0;
+//		} // End method doInBackground
+//    } // End Class ProgramCommander
 
 }

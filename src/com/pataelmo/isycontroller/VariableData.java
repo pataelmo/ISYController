@@ -39,5 +39,18 @@ public class VariableData {
 	public String getInitValueStr() {
 		return Integer.toString(mInit);
 	}
+	
+	@Override 
+	public String toString() {
+		String output = "";
+		output += "id="+mId+"\n";
+		output += "name="+mName+"\n";
+		output += "address="+mAddress+"\n";
+		output += "type="+mType+"\n";
+		output += "init="+mInit+"\n";
+		output += "value="+mValue+"\n";
+		output += "lastChanged="+mLastChanged.toString()+"\n";
+		return output;
+	}
 
 }
