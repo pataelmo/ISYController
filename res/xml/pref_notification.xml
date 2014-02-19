@@ -13,5 +13,11 @@
         android:title="@string/pref_server_name" 
         android:summary="@string/pref_server_name_summary"
         android:hint="@string/pref_server_name_hint"/>
+    <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="prefUseCustomSSLKey"
+            android:summary="@string/pref_use_custom_ssl_summary"
+            android:title="@string/pref_use_custom_ssl" >
+        </CheckBoxPreference>
 
 </PreferenceScreen>

@@ -46,4 +46,6 @@
 	<string name="initValue">Init Value:</string>
 	<string name="lastChangedLabel">Last Changed:</string>
 	<string name="setNewValueButton">Set New Value</string>
+	<string name="pref_use_custom_ssl">Allow Unsigned SSL Certificate</string>
+	<string name="pref_use_custom_ssl_summary">This allows connecting directly to the ISY with https</string>
 </resources>

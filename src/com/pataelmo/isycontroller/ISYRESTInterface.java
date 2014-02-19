@@ -24,10 +24,11 @@ import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -64,8 +65,10 @@ public class ISYRESTInterface extends AsyncTask<String, String, String> {
 	private VariableData mVariableData = null;
 	private HashMap<String, String> mVarNameMap;
 	private boolean mCommandFailed = false;
+	private boolean mConnectionFailed = false;
 	private boolean mShowProgress = false;
 	private ProgressDialog pDialog;
+	private boolean mAllowCustomSSL = false;
 	
 	public interface ISYRESTCallback {
 		public void refreshDisplay();
@@ -76,7 +79,7 @@ public class ISYRESTInterface extends AsyncTask<String, String, String> {
 		mShowProgress = showProgress;
 		mContext = fragment.getActivity();
 //		mFragment = fragment;
-		mDbh = new DatabaseHelper(mContext);
+		setup();
 	}
 
 	ISYRESTInterface(Fragment fragment, ISYRESTCallback callback,VariableData varData, boolean showProgress) {
@@ -85,14 +88,33 @@ public class ISYRESTInterface extends AsyncTask<String, String, String> {
 		mContext = fragment.getActivity();
 		mVariableData  = varData;
 //		mFragment = fragment;
-		mDbh = new DatabaseHelper(mContext);
+		setup();
 	}
 	
 
 	ISYRESTInterface(Context context) {
 		mCallback = (ISYRESTCallback) context;
 		mContext = context;
+		setup();
+	}
+	
+	void setup () {
 		mDbh = new DatabaseHelper(mContext);
+		
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+		mKnownPublicKey = sharedPref.getString(SettingsActivity.KEY_PREF_PUBLICKEY, "");
+		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
+		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
+		mUrlPref = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
+		mAllowCustomSSL  = sharedPref.getBoolean(SettingsActivity.KEY_PREF_USE_CUSTOM_SSL, false);
+        
+		// Update the Default SSL Socket Factory based on mAllowCustomSSL
+		SSLSocketFactory sf = getSSLSocketFactory();
+		if (sf != null) {
+			HttpsURLConnection.setDefaultSSLSocketFactory(sf);
+		} else {
+			Log.v("ISYRESTInterface","Failed to set SSL socket factory. Got a null value.");
+		}
 	}
 	
 	@Override
@@ -107,12 +129,6 @@ public class ISYRESTInterface extends AsyncTask<String, String, String> {
 	        
 	        pDialog.show();
 		}
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
-		mKnownPublicKey = sharedPref.getString(SettingsActivity.KEY_PREF_PUBLICKEY, "");
-		mLoginUser = sharedPref.getString(SettingsActivity.KEY_PREF_USERNAME, "");
-		mLoginPass = sharedPref.getString(SettingsActivity.KEY_PREF_PASSWORD, "");
-		mUrlPref = sharedPref.getString(SettingsActivity.KEY_PREF_SERVER_URL, "");
-        
         // Setup authenticator for login
         Authenticator.setDefault(new Authenticator() {
     	     protected PasswordAuthentication getPasswordAuthentication() {
@@ -126,22 +142,6 @@ public class ISYRESTInterface extends AsyncTask<String, String, String> {
 	@Override
 	protected void onProgressUpdate(String... progress) {
 		super.onProgressUpdate(progress);
-		// Update Db
-//		if (progress.equals("")) {
-//			// Failed
-// 	       	Toast.makeText(mContext, "Couldn't connect to Server, Check URL", Toast.LENGTH_LONG).show();
-//		} else if (progress.equals("")) {
-//			
-//		}
-//		if (dbEntries == null) {
-//        	// Toast that we couldn't connect
-//        } else {
-//        	mDbh.updateNodeTable(dbEntries);
-//	        // Reload cursor
-//	        //mAdapter.notifyDataSetChanged();
-//	        //mList.invalidateViews();
-//	        mCallback.refreshDisplay();
-//        }
 	}
    
 	@Override
@@ -180,6 +180,9 @@ public class ISYRESTInterface extends AsyncTask<String, String, String> {
         if (mCommandFailed ) {
  	       	Toast.makeText(mContext, "ISY Command Failed...", Toast.LENGTH_LONG).show();
         }
+        if (mConnectionFailed) {
+ 	       	Toast.makeText(mContext, "REST Connection Failed...", Toast.LENGTH_LONG).show();
+        }
         mCallback.refreshDisplay();
         if (mShowProgress) {
 	        pDialog.hide();
@@ -215,26 +218,26 @@ public class ISYRESTInterface extends AsyncTask<String, String, String> {
 	        		//String safeURL = new Uri.Builder().path(baseUrl+cmd).build().toString();
 	        		url = uri.toURL();
 	        		if (url.getProtocol().toLowerCase(Locale.US).equals("https")) {
-	        			try {
-	        				mInputStream = url.openConnection().getInputStream();
+        				try {
+    	        			if (mAllowCustomSSL) {
+    	        				HttpsURLConnection urlHttpsConnection = (HttpsURLConnection) url.openConnection();
+    		        			urlHttpsConnection.setHostnameVerifier(new AllowAllHostnameVerifier());
+    		        			mInputStream = urlHttpsConnection.getInputStream();
+    	        			} else {
+    	        				mInputStream = url.openConnection().getInputStream();
+    	        			}
 	        			} catch (Exception e) {
 	        				Log.e("ISYRESTInterface","Failure, exception ="+e);
-	        				trustKnownHosts();
-	        				HttpsURLConnection urlHttpsConnection = (HttpsURLConnection) url.openConnection();
-		        			urlHttpsConnection.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-		        			mInputStream = urlHttpsConnection.getInputStream();
+	        				mConnectionFailed = true;
+	        				return "";
+	        				//trustKnownHosts();
 	        			}
-//		        			
-//	        			trustAllHosts();
-//	        			HttpsURLConnection urlHttpsConnection = (HttpsURLConnection) params[0].openConnection();
-//	        			urlHttpsConnection.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-//	        			
-//	        			mInputStream = urlHttpsConnection.getInputStream();
 	        		} else {
 	        			mInputStream = url.openConnection().getInputStream();
 	        		}
 	        	} catch (IOException ie) {
 	        		Log.e("URL Download failed",ie.toString());
+	        		mConnectionFailed = true;
 	        		return "";
 	        	}
 	        	// PARSE URL RESPONSE
@@ -247,36 +250,42 @@ public class ISYRESTInterface extends AsyncTask<String, String, String> {
 			        	isyParser = new ISYRESTParser(mInputStream,mDbh);
 	        		}
 		        	mRootName = isyParser.getRootName();
-		        	if (mRootName.equals(ISYRESTParser.VAR_NAMES_TAG)) {
-		        		mVarNameMap=isyParser.getVarNameMap();
-		        	} else if (mRootName.equals(ISYRESTParser.VARS_TAG)) {
-		        		mDbEntries = isyParser.getDatabaseValues();
-		        		if (mVarNameMap != null) {
-			        		Iterator<ContentValues> iterator = mDbEntries.iterator();
-			        		ContentValues c;
-			        		while(iterator.hasNext()) {
-			        			c = iterator.next();
-			        			String id = c.getAsString(DatabaseHelper.KEY_ADDRESS);
-			        			String name = mVarNameMap.get(id);
-			        			c.put(DatabaseHelper.KEY_NAME, name);
+		        	if (mRootName != null) {
+			        	if (mRootName.equals(ISYRESTParser.VAR_NAMES_TAG)) {
+			        		mVarNameMap=isyParser.getVarNameMap();
+			        	} else if (mRootName.equals(ISYRESTParser.VARS_TAG)) {
+			        		mDbEntries = isyParser.getDatabaseValues();
+			        		if (mVarNameMap != null) {
+				        		Iterator<ContentValues> iterator = mDbEntries.iterator();
+				        		ContentValues c;
+				        		while(iterator.hasNext()) {
+				        			c = iterator.next();
+				        			String id = c.getAsString(DatabaseHelper.KEY_ADDRESS);
+				        			String name = mVarNameMap.get(id);
+				        			c.put(DatabaseHelper.KEY_NAME, name);
+				        		}
 			        		}
-		        		}
-		        		mDbh.updateVarsTable(mDbEntries);
-		        	}
-		        	mCommandSuccess = isyParser.getSuccess();
-		        	if (mRootName.equals(ISYRESTParser.RESTRESPONSE_TAG)) {
-		        		if (!mCommandSuccess) {
-		        			mCommandFailed = true;
-		        		}
+			        		mDbh.updateVarsTable(mDbEntries);
+			        	}
+			        	mCommandSuccess = isyParser.getSuccess();
+			        	if (mRootName.equals(ISYRESTParser.RESTRESPONSE_TAG)) {
+			        		if (!mCommandSuccess) {
+			        			mCommandFailed = true;
+			        		}
+			        	}
 		        	}
 		        	//dbEntries = isyParser.getDatabaseValues();
+	        	} else {
+	        		// Null input stream means we failed, another catch to report errors
+	        		mConnectionFailed = true;
+	        		return "";
 	        	}
 	        	
 	        	// Update Display with errors or new values
 //	        	publishProgress(mRootName);
 	        	Log.i("ASYNC TASK","Completed "+(i+1)+" out of "+count+"commands");
 	        	try {
-					Thread.sleep(200);
+					Thread.sleep(250);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -290,77 +299,92 @@ public class ISYRESTInterface extends AsyncTask<String, String, String> {
 	} // End method doInBackground
 	
 
-	private void trustKnownHosts() {
+	private SSLSocketFactory getSSLSocketFactory() {
+	    SSLSocketFactory sf = null;
+		if (mAllowCustomSSL) {
+		    X509TrustManager easyTrustManager = new X509TrustManager() {
+	
+	
+				public void checkClientTrusted(
+		                X509Certificate[] chain,
+		                String authType) throws CertificateException {
+		        	Log.i("ClientTrustCert","Chain="+chain+"\nAuthType="+authType);
+		            // Oh, I am easy!
+		        }
+	
+		        public void checkServerTrusted (
+		                X509Certificate[] chain,
+		                String authType) throws CertificateException {
+		        	Log.i("ServerTrustCert","Chain="+chain+"\nAuthType="+authType);
+		        	mFoundKey = Base64.encodeToString(chain[0].getPublicKey().getEncoded(), Base64.DEFAULT);
+		        	if ((mKnownPublicKey != null) && (chain[0] != null)) {
+	        			X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.decode(mKnownPublicKey, Base64.DEFAULT));
+		        		try {
+							PublicKey key = KeyFactory.getInstance("RSA","BC").generatePublic(x509KeySpec);
+							chain[0].verify(key);
+						} catch (InvalidKeySpecException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+							mSSLFailure = true;
+							throw new CertificateException("Bad Keyspec");
+						} catch (NoSuchAlgorithmException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+							mSSLFailure = true;
+							throw new CertificateException("Bad Algorithm");
+						} catch (NoSuchProviderException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+							mSSLFailure = true;
+							throw new CertificateException("Bad Provider");
+						} catch (InvalidKeyException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							mSSLFailure = true;
+							throw new CertificateException("Bad Key");
+						} catch (SignatureException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							mSSLFailure = true;
+							throw new CertificateException("Bad Signature");
+						}
+		        	}
+		        }
+	
+		        public X509Certificate[] getAcceptedIssuers() {
+		            return null;
+		        }
+	
+		    };
+	
+		    // Create a trust manager that does not validate certificate chains
+		    TrustManager[] trustAllCerts = new TrustManager[] {easyTrustManager};
 
-	    X509TrustManager easyTrustManager = new X509TrustManager() {
-
-
-			public void checkClientTrusted(
-	                X509Certificate[] chain,
-	                String authType) throws CertificateException {
-	        	Log.i("ClientTrustCert","Chain="+chain+"\nAuthType="+authType);
-	            // Oh, I am easy!
-	        }
-
-	        public void checkServerTrusted (
-	                X509Certificate[] chain,
-	                String authType) throws CertificateException {
-	        	Log.i("ServerTrustCert","Chain="+chain+"\nAuthType="+authType);
-	        	mFoundKey = Base64.encodeToString(chain[0].getPublicKey().getEncoded(), Base64.DEFAULT);
-	        	if ((mKnownPublicKey != null) && (chain[0] != null)) {
-        			X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.decode(mKnownPublicKey, Base64.DEFAULT));
-	        		try {
-						PublicKey key = KeyFactory.getInstance("RSA","BC").generatePublic(x509KeySpec);
-						chain[0].verify(key);
-					} catch (InvalidKeySpecException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-						mSSLFailure = true;
-						throw new CertificateException("Bad Keyspec");
-					} catch (NoSuchAlgorithmException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-						mSSLFailure = true;
-						throw new CertificateException("Bad Algorithm");
-					} catch (NoSuchProviderException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-						mSSLFailure = true;
-						throw new CertificateException("Bad Provider");
-					} catch (InvalidKeyException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						mSSLFailure = true;
-						throw new CertificateException("Bad Key");
-					} catch (SignatureException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						mSSLFailure = true;
-						throw new CertificateException("Bad Signature");
-					}
-	        	}
-	        }
-
-	        public X509Certificate[] getAcceptedIssuers() {
-	            return null;
-	        }
-
-	    };
-
-	    // Create a trust manager that does not validate certificate chains
-	    TrustManager[] trustAllCerts = new TrustManager[] {easyTrustManager};
-
-	    // Install the all-trusting trust manager
-	    try {
-	        SSLContext sc = SSLContext.getInstance("TLS");
-
-	        sc.init(null, trustAllCerts, new java.security.SecureRandom());
-
-	        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-	    } catch (Exception e) {
-	            e.printStackTrace();
-	    }
+		    // Install the all-trusting trust manager
+		    try {
+		        SSLContext sc = SSLContext.getInstance("TLS");
+	
+		        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+		        
+	//	        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+	//	        HttpsURLConnection.setDefaultSSLSocketFactory(SSLContext.getInstance("TLS").getSocketFactory());
+		        sf = sc.getSocketFactory();
+		    } catch (Exception e) {
+		    	Log.e("ISYRESTInterface","SSL Socket Factory Failed with Custom SSL Allowed");
+		    	e.printStackTrace();
+		    }
+		} else {
+			try {
+				SSLContext sc = SSLContext.getInstance("TLS");
+				sc.init(null,null,null);
+				sf = sc.getSocketFactory();
+			} catch (Exception e) {
+		    	Log.e("ISYRESTInterface","SSL Socket Factory Failed with Custom SSL Disabled");
+				e.printStackTrace();
+			}
+		}
+	    return sf;
+	    
 	} // End trustKnownHosts
 	
 }

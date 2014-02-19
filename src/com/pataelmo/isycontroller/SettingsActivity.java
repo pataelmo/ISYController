@@ -45,6 +45,7 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String KEY_PREF_SERVER_URL = "prefServerURL";
 	public static final String KEY_PREF_DUMPDB = "prefResetDatabase";
 	public static final String KEY_PREF_PUBLICKEY = "prefPublicKey";
+	public static final String KEY_PREF_USE_CUSTOM_SSL = "prefUseCustomSSLKey";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

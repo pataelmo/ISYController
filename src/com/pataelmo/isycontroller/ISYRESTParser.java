@@ -94,6 +94,8 @@ public class ISYRESTParser {
 	private void createDOM() {
 		try {
 			mDOM = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mInputStream);
+			mRoot = mDOM.getDocumentElement();
+			mRootName = mRoot.getNodeName();
 		} catch (IOException e) {
 			Log.e("ISYRESTParser","IO Error:"+e.toString());
 		} catch (SAXException e) {
@@ -101,8 +103,6 @@ public class ISYRESTParser {
 		} catch (ParserConfigurationException e) {
 			Log.e("ISYRESTParser","Parser Error:"+e.toString());
 		}
-		mRoot = mDOM.getDocumentElement();
-		mRootName = mRoot.getNodeName();
 	}
 	
 	public String getRootName() {
@@ -110,24 +110,26 @@ public class ISYRESTParser {
 	}
 
 	public String parse() {
-		if (mRootName.equals("nodes")) {
-			parseNodes(mRoot);
-		} else if (mRootName.equals("nodeInfo")) {
-			parseNodeInfo(mRoot);
-		} else if (mRootName.equalsIgnoreCase(RESTRESPONSE_TAG)) {
-			parseRestResponse(mRoot);
-		} else if (mRootName.equals("properties")) {
-			parseNodeProperties(mRoot);
-		} else if (mRootName.equals("programs")) {
-			parsePrograms(mRoot);
-		} else if (mRootName.equals(VARS_TAG)) {
-			parseVars(mRoot);
-		} else if (mRootName.equals(VAR_TAG)) {
-			parseVar(mRoot);
-	    } else if (mRootName.equals(VAR_NAMES_TAG)) {
-			parseVarNames(mRoot);
-		}  else {
-			return null;
+		if (mRootName != null) {
+			if (mRootName.equals("nodes")) {
+				parseNodes(mRoot);
+			} else if (mRootName.equals("nodeInfo")) {
+				parseNodeInfo(mRoot);
+			} else if (mRootName.equalsIgnoreCase(RESTRESPONSE_TAG)) {
+				parseRestResponse(mRoot);
+			} else if (mRootName.equals("properties")) {
+				parseNodeProperties(mRoot);
+			} else if (mRootName.equals("programs")) {
+				parsePrograms(mRoot);
+			} else if (mRootName.equals(VARS_TAG)) {
+				parseVars(mRoot);
+			} else if (mRootName.equals(VAR_TAG)) {
+				parseVar(mRoot);
+		    } else if (mRootName.equals(VAR_NAMES_TAG)) {
+				parseVarNames(mRoot);
+			}  else {
+				return null;
+			}
 		}
 		return mRootName;
 	}
