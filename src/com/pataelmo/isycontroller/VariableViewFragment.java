@@ -2,6 +2,7 @@ package com.pataelmo.isycontroller;
 
 import java.util.Date;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public class VariableViewFragment extends Fragment implements OnClickListener,IS
 	private TextView mValueText;
 	private TextView mInitValueText;
 	private TextView mLastChangedText;
+	private MainActivity mActivity;
 
 
 	public VariableViewFragment() {
@@ -42,6 +44,12 @@ public class VariableViewFragment extends Fragment implements OnClickListener,IS
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
 		dbh = new DatabaseHelper(getActivity());
+	}
+	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		mActivity = (MainActivity) activity;
 	}
 	
 	@Override
@@ -66,7 +74,8 @@ public class VariableViewFragment extends Fragment implements OnClickListener,IS
         
         View view = inflater.inflate(R.layout.activity_variable_view, container, false);
 
-        getActivity().setTitle(mVarData.mName);
+//        getActivity().setTitle(mVarData.mName);
+        mActivity.updateTitle(mVarData.mName, true);
         
 	    mNameText = (TextView) view.findViewById(R.id.nameText);
 	    mAddressText = (TextView) view.findViewById(R.id.addressText);

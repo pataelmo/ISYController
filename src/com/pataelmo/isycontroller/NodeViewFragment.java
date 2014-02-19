@@ -1,5 +1,6 @@
 package com.pataelmo.isycontroller;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -20,12 +21,18 @@ public class NodeViewFragment extends Fragment implements OnClickListener,ISYRES
 	private TextView mRawValueText;
 	private NodeData mNodeData;
 	private String mUrlBase;
-
+	private MainActivity mActivity;
+	
 	public NodeViewFragment() {
 		// TODO Auto-generated constructor stub
 	}
 
-	
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		mActivity = (MainActivity) activity;
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
@@ -41,7 +48,7 @@ public class NodeViewFragment extends Fragment implements OnClickListener,ISYRES
         mNodeData = dbh.getNodeData(mId);
         mUrlBase = "/nodes/" + mNodeData.mAddress + "/";
         
-        getActivity().setTitle(mNodeData.mName);
+        mActivity.updateTitle(mNodeData.mName, true);
         View view = inflater.inflate(R.layout.activity_node_view, container, false);
         
         Button queryButton = (Button) view.findViewById(R.id.queryButton);

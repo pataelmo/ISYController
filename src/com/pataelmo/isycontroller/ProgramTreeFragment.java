@@ -21,6 +21,8 @@ public class ProgramTreeFragment extends ListFragment implements ISYRESTInterfac
 	private DatabaseHelper dbh;
 	private int mListPosition = 0;
 
+	private MainActivity mActivity;
+
 
 	public interface OnListSelectListener {
 		public void loadProgramTree(String parent_id);
@@ -55,7 +57,8 @@ public class ProgramTreeFragment extends ListFragment implements ISYRESTInterfac
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		
+
+		mActivity = (MainActivity) activity;
 		try {
 			mCallback = (OnListSelectListener) activity;
 		} catch (ClassCastException e){
@@ -89,7 +92,9 @@ public class ProgramTreeFragment extends ListFragment implements ISYRESTInterfac
         	title = dbh.getProgramNameFromId(mParentId);
         }
 //    	setActionBarTitle(title);
-    	getActivity().setTitle(title);
+//    	getActivity().setTitle(title);
+        //mCallback.setTitle(title, false);
+        mActivity.updateTitle(title, false);
     	// For the cursor adapter, specify which columns go into which views
 		String[] fromColumns = {DatabaseHelper.KEY_ISFOLDER, DatabaseHelper.KEY_NAME,DatabaseHelper.KEY_STATUS,DatabaseHelper.KEY_RUNNING};
 		int [] toViews = {R.id.icon,R.id.name,R.id.type,R.id.value}; // The TextView in simple_list_item_1

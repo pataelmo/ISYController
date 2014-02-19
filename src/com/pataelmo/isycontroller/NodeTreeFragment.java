@@ -21,6 +21,7 @@ public class NodeTreeFragment extends ListFragment implements ISYRESTInterface.I
 	private DatabaseHelper dbh;
 	private SimpleCursorAdapter mAdapter;
 	private int mListPosition;
+	private MainActivity mActivity;
 
 	public interface OnListSelectListener {
 		public void loadNodeTree(String parent_id);
@@ -65,7 +66,7 @@ public class NodeTreeFragment extends ListFragment implements ISYRESTInterface.I
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		
+		mActivity = (MainActivity) activity;
 		try {
 			mCallback = (OnListSelectListener) activity;
 		} catch (ClassCastException e){
@@ -97,8 +98,9 @@ public class NodeTreeFragment extends ListFragment implements ISYRESTInterface.I
         } else {
         	title = dbh.getNameFromId(mParentId);
         }
-    	getActivity().setTitle(title);
-    	
+    	//getActivity().setTitle(title);
+        mActivity.updateTitle(title, false);
+        
     	// For the cursor adapter, specify which columns go into which views
         String[] fromColumns = {DatabaseHelper.KEY_TYPE, DatabaseHelper.KEY_NAME,DatabaseHelper.KEY_TYPE,DatabaseHelper.KEY_VALUE};
         int[] toViews = {R.id.icon,R.id.name,R.id.type,R.id.value}; // The TextView in simple_list_item_1

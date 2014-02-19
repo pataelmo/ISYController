@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.Menu;
@@ -75,6 +76,16 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 	  	}
         Log.i("MainActivity","Created:"+this);
 	  	
+	}
+	
+	public void updateTitle(String title, boolean isANode) {
+		if (mDualPane) {
+			if (!isANode) {
+				setTitle(title);
+			}
+		} else {
+			setTitle(title);
+		}
 	}
 	
 	@Override
@@ -350,18 +361,23 @@ ProgramTreeFragment.OnListSelectListener,VariableTreeFragment.OnListSelectListen
 			//
 			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
 			//
-			//NavUtils.navigateUpFromSameTask(this);
+			FragmentManager fm= getSupportFragmentManager();
+			if(fm.getBackStackEntryCount()>0) {
+				fm.popBackStack();
+			} else {
+				NavUtils.navigateUpFromSameTask(this);
+			}
 //			
 //			NavUtils.
 //			Intent i = getParentActivityIntent();
 //			String id = i.getStringExtra("parent_id");
 //			Log.v("ACTIVITY","Nav Up with Intent parent_id="+id);
-			finish();
+			//finish();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	@TargetApi(11)
 	public void setActionBarTitle(String main, String sub) {
 		getActionBar().setTitle(main);

@@ -5,6 +5,7 @@ package com.pataelmo.isycontroller;
 
 import java.util.Date;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -33,6 +34,7 @@ public class ProgramViewFragment extends Fragment implements OnClickListener,ISY
 	private TextView mRunningText;
 	private TextView mLastRunTimeText;
 	private TextView mLastEndTimeText;
+	private MainActivity mActivity;
 
 	public ProgramViewFragment() {
 	}
@@ -42,6 +44,13 @@ public class ProgramViewFragment extends Fragment implements OnClickListener,ISY
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
 		dbh = new DatabaseHelper(getActivity());
+	}
+	
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		mActivity = (MainActivity) activity;
 	}
 	
 	@Override
@@ -64,7 +73,9 @@ public class ProgramViewFragment extends Fragment implements OnClickListener,ISY
 
 //    	baseUrl = urlBase + "/programs/" + mProgramData.mAddress + "/" ;
         
-        getActivity().setTitle(mProgramData.mName);
+//        getActivity().setTitle(mProgramData.mName);
+
+        mActivity.updateTitle(mProgramData.mName, true);
         View view = inflater.inflate(R.layout.activity_program_view, container, false);
 
 	    mNameText = (TextView) view.findViewById(R.id.nameText);
