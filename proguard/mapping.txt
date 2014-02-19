@@ -1564,7 +1564,8 @@ android.support.v4.widget.ViewDragHelper$Callback -> android.support.v4.widget.a
     boolean tryCaptureView(android.view.View,int) -> a
     int clampViewPositionHorizontal(android.view.View,int,int) -> a
     int clampViewPositionVertical(android.view.View,int,int) -> b
-com.pataelmo.isycontroller.DatabaseHelper -> com.pataelmo.isycontroller.a:
+com.pataelmo.isycontroller.BuildConfig -> com.pataelmo.isycontroller.BuildConfig:
+com.pataelmo.isycontroller.DatabaseHelper -> com.pataelmo.isycontroller.DatabaseHelper:
     android.database.sqlite.SQLiteDatabase mDb -> a
     void onCreate(android.database.sqlite.SQLiteDatabase) -> onCreate
     void onUpgrade(android.database.sqlite.SQLiteDatabase,int,int) -> onUpgrade
@@ -1585,7 +1586,7 @@ com.pataelmo.isycontroller.DatabaseHelper -> com.pataelmo.isycontroller.a:
     boolean isProgramIdFolder(java.lang.String) -> j
     void updateProgramsTable(java.util.ArrayList) -> b
     void updateVarsTable(java.util.ArrayList) -> c
-com.pataelmo.isycontroller.ISYRESTInterface -> com.pataelmo.isycontroller.b:
+com.pataelmo.isycontroller.ISYRESTInterface -> com.pataelmo.isycontroller.ISYRESTInterface:
     java.util.ArrayList mDbEntries -> d
     java.io.InputStream mInputStream -> e
     java.lang.String mKnownPublicKey -> a
@@ -1619,23 +1620,23 @@ com.pataelmo.isycontroller.ISYRESTInterface -> com.pataelmo.isycontroller.b:
     java.lang.String access$3(com.pataelmo.isycontroller.ISYRESTInterface) -> a
     java.lang.String access$4(com.pataelmo.isycontroller.ISYRESTInterface) -> b
     android.content.Context access$5(com.pataelmo.isycontroller.ISYRESTInterface) -> c
-com.pataelmo.isycontroller.ISYRESTInterface$1 -> com.pataelmo.isycontroller.c:
+com.pataelmo.isycontroller.ISYRESTInterface$1 -> com.pataelmo.isycontroller.ISYRESTInterface$1:
     com.pataelmo.isycontroller.ISYRESTInterface this$0 -> a
     java.net.PasswordAuthentication getPasswordAuthentication() -> getPasswordAuthentication
-com.pataelmo.isycontroller.ISYRESTInterface$2 -> com.pataelmo.isycontroller.d:
+com.pataelmo.isycontroller.ISYRESTInterface$2 -> com.pataelmo.isycontroller.ISYRESTInterface$2:
     com.pataelmo.isycontroller.ISYRESTInterface this$0 -> a
     void onClick(android.content.DialogInterface,int) -> onClick
-com.pataelmo.isycontroller.ISYRESTInterface$3 -> com.pataelmo.isycontroller.e:
+com.pataelmo.isycontroller.ISYRESTInterface$3 -> com.pataelmo.isycontroller.ISYRESTInterface$3:
     com.pataelmo.isycontroller.ISYRESTInterface this$0 -> a
     void onClick(android.content.DialogInterface,int) -> onClick
-com.pataelmo.isycontroller.ISYRESTInterface$4 -> com.pataelmo.isycontroller.f:
+com.pataelmo.isycontroller.ISYRESTInterface$4 -> com.pataelmo.isycontroller.ISYRESTInterface$4:
     com.pataelmo.isycontroller.ISYRESTInterface this$0 -> a
     void checkClientTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkClientTrusted
     void checkServerTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkServerTrusted
     java.security.cert.X509Certificate[] getAcceptedIssuers() -> getAcceptedIssuers
-com.pataelmo.isycontroller.ISYRESTInterface$ISYRESTCallback -> com.pataelmo.isycontroller.g:
+com.pataelmo.isycontroller.ISYRESTInterface$ISYRESTCallback -> com.pataelmo.isycontroller.ISYRESTInterface$ISYRESTCallback:
     void refreshDisplay() -> a_
-com.pataelmo.isycontroller.ISYRESTParser -> com.pataelmo.isycontroller.h:
+com.pataelmo.isycontroller.ISYRESTParser -> com.pataelmo.isycontroller.ISYRESTParser:
     java.io.InputStream mInputStream -> a
     org.w3c.dom.Document mDOM -> b
     org.w3c.dom.Element mRoot -> c
@@ -1684,7 +1685,7 @@ com.pataelmo.isycontroller.MainActivity -> com.pataelmo.isycontroller.MainActivi
     void setupActionBar() -> h
     boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
     boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
-com.pataelmo.isycontroller.NodeData -> com.pataelmo.isycontroller.i:
+com.pataelmo.isycontroller.NodeData -> com.pataelmo.isycontroller.NodeData:
     java.lang.String mId -> a
     java.lang.String mName -> b
     java.lang.String mType -> c
@@ -1692,7 +1693,7 @@ com.pataelmo.isycontroller.NodeData -> com.pataelmo.isycontroller.i:
     java.lang.String mValue -> e
     java.lang.String mRawValue -> f
     java.lang.String mParent -> g
-com.pataelmo.isycontroller.NodeTreeFragment -> com.pataelmo.isycontroller.j:
+com.pataelmo.isycontroller.NodeTreeFragment -> com.pataelmo.isycontroller.NodeTreeFragment:
     com.pataelmo.isycontroller.NodeTreeFragment$OnListSelectListener mCallback -> X
     java.lang.String mParentId -> Y
     com.pataelmo.isycontroller.DatabaseHelper dbh -> Z
@@ -1711,15 +1712,15 @@ com.pataelmo.isycontroller.NodeTreeFragment -> com.pataelmo.isycontroller.j:
     void launchVariableView() -> A
     void loadNode(java.lang.String) -> b
     void refreshListData() -> B
-com.pataelmo.isycontroller.NodeTreeFragment$1 -> com.pataelmo.isycontroller.k:
+com.pataelmo.isycontroller.NodeTreeFragment$1 -> com.pataelmo.isycontroller.NodeTreeFragment$1:
     com.pataelmo.isycontroller.NodeTreeFragment this$0 -> m
     void setViewImage(android.widget.ImageView,java.lang.String) -> a
-com.pataelmo.isycontroller.NodeTreeFragment$OnListSelectListener -> com.pataelmo.isycontroller.l:
+com.pataelmo.isycontroller.NodeTreeFragment$OnListSelectListener -> com.pataelmo.isycontroller.NodeTreeFragment$OnListSelectListener:
     void loadNodeTree(java.lang.String) -> b
     void loadProgramTree() -> f
     void loadVariableTree() -> g
     void loadNode(java.lang.String) -> d
-com.pataelmo.isycontroller.NodeViewFragment -> com.pataelmo.isycontroller.m:
+com.pataelmo.isycontroller.NodeViewFragment -> com.pataelmo.isycontroller.NodeViewFragment:
     com.pataelmo.isycontroller.DatabaseHelper dbh -> P
     java.lang.String mId -> Q
     android.widget.TextView mNameText -> R
@@ -1741,7 +1742,7 @@ com.pataelmo.isycontroller.NodeViewFragment -> com.pataelmo.isycontroller.m:
     void cmdNodeOff(android.view.View) -> cmdNodeOff
     void updateDisplay() -> y
     void refreshDisplay() -> a_
-com.pataelmo.isycontroller.ProgramData -> com.pataelmo.isycontroller.n:
+com.pataelmo.isycontroller.ProgramData -> com.pataelmo.isycontroller.ProgramData:
     int mId -> a
     java.lang.String mName -> b
     java.lang.String mAddress -> c
@@ -1753,7 +1754,7 @@ com.pataelmo.isycontroller.ProgramData -> com.pataelmo.isycontroller.n:
     java.lang.String mRunning -> i
     java.lang.Long mLastRunTime -> j
     java.lang.Long mLastEndTime -> k
-com.pataelmo.isycontroller.ProgramTreeFragment -> com.pataelmo.isycontroller.o:
+com.pataelmo.isycontroller.ProgramTreeFragment -> com.pataelmo.isycontroller.ProgramTreeFragment:
     com.pataelmo.isycontroller.ProgramTreeFragment$OnListSelectListener mCallback -> X
     android.support.v4.widget.SimpleCursorAdapter mAdapter -> Y
     java.lang.String mParentId -> Z
@@ -1770,14 +1771,14 @@ com.pataelmo.isycontroller.ProgramTreeFragment -> com.pataelmo.isycontroller.o:
     void loadNode(java.lang.String) -> b
     void refreshListData() -> z
     void refreshDisplay() -> a_
-com.pataelmo.isycontroller.ProgramTreeFragment$1 -> com.pataelmo.isycontroller.p:
+com.pataelmo.isycontroller.ProgramTreeFragment$1 -> com.pataelmo.isycontroller.ProgramTreeFragment$1:
     com.pataelmo.isycontroller.ProgramTreeFragment this$0 -> m
     void setViewImage(android.widget.ImageView,java.lang.String) -> a
     void setViewText(android.widget.TextView,java.lang.String) -> a
-com.pataelmo.isycontroller.ProgramTreeFragment$OnListSelectListener -> com.pataelmo.isycontroller.q:
+com.pataelmo.isycontroller.ProgramTreeFragment$OnListSelectListener -> com.pataelmo.isycontroller.ProgramTreeFragment$OnListSelectListener:
     void loadProgramTree(java.lang.String) -> c
     void loadProgram(java.lang.String) -> e
-com.pataelmo.isycontroller.ProgramViewFragment -> com.pataelmo.isycontroller.r:
+com.pataelmo.isycontroller.ProgramViewFragment -> com.pataelmo.isycontroller.ProgramViewFragment:
     com.pataelmo.isycontroller.DatabaseHelper dbh -> P
     java.lang.String mId -> Q
     com.pataelmo.isycontroller.ProgramData mProgramData -> R
@@ -1799,6 +1800,157 @@ com.pataelmo.isycontroller.ProgramViewFragment -> com.pataelmo.isycontroller.r:
     void onPause() -> i
     void onClick(android.view.View) -> onClick
     void refreshDisplay() -> a_
+com.pataelmo.isycontroller.R -> com.pataelmo.isycontroller.R:
+com.pataelmo.isycontroller.R$array -> com.pataelmo.isycontroller.R$array:
+    int pref_example_list_titles -> pref_example_list_titles
+    int pref_example_list_values -> pref_example_list_values
+    int pref_sync_frequency_titles -> pref_sync_frequency_titles
+    int pref_sync_frequency_values -> pref_sync_frequency_values
+com.pataelmo.isycontroller.R$attr -> com.pataelmo.isycontroller.R$attr:
+com.pataelmo.isycontroller.R$dimen -> com.pataelmo.isycontroller.R$dimen:
+    int activity_horizontal_margin -> activity_horizontal_margin
+    int activity_vertical_margin -> activity_vertical_margin
+com.pataelmo.isycontroller.R$drawable -> com.pataelmo.isycontroller.R$drawable:
+    int bulb -> bulb
+    int folder -> folder
+    int ic_launcher -> ic_launcher
+    int icon -> icon
+    int scene -> scene
+com.pataelmo.isycontroller.R$id -> com.pataelmo.isycontroller.R$id:
+    int action_settings -> action_settings
+    int addressText -> addressText
+    int columnLayout -> columnLayout
+    int configureButton -> configureButton
+    int connectButton -> connectButton
+    int currentRawStateLabel -> currentRawStateLabel
+    int currentStateLabel -> currentStateLabel
+    int currentValueLabel -> currentValueLabel
+    int disableButton -> disableButton
+    int disableRunAtStartButton -> disableRunAtStartButton
+    int enabedLabel -> enabedLabel
+    int enableButton -> enableButton
+    int enableRunAtStartButton -> enableRunAtStartButton
+    int enabledText -> enabledText
+    int frame -> frame
+    int icon -> icon
+    int initValueLabel -> initValueLabel
+    int initValueText -> initValueText
+    int lastChangedLabel -> lastChangedLabel
+    int lastChangedText -> lastChangedText
+    int lastEndTimeLabel -> lastEndTimeLabel
+    int lastEndTimeText -> lastEndTimeText
+    int lastRunTimeLabel -> lastRunTimeLabel
+    int lastRunTimeText -> lastRunTimeText
+    int listView -> listView
+    int name -> name
+    int nameText -> nameText
+    int nodeArea -> nodeArea
+    int offButton -> offButton
+    int onButton -> onButton
+    int primaryColumn -> primaryColumn
+    int queryButton -> queryButton
+    int quitButton -> quitButton
+    int rawValueText -> rawValueText
+    int refreshButton -> refreshButton
+    int runAtStartupLabel -> runAtStartupLabel
+    int runAtStartupText -> runAtStartupText
+    int runButton -> runButton
+    int runElseButton -> runElseButton
+    int runThenButton -> runThenButton
+    int runningLabel -> runningLabel
+    int runningText -> runningText
+    int setButton -> setButton
+    int statusLabel -> statusLabel
+    int statusText -> statusText
+    int stopButton -> stopButton
+    int titleText -> titleText
+    int type -> type
+    int value -> value
+    int valueText -> valueText
+com.pataelmo.isycontroller.R$layout -> com.pataelmo.isycontroller.R$layout:
+    int activity_main -> activity_main
+    int activity_main_shell -> activity_main_shell
+    int activity_node_view -> activity_node_view
+    int activity_program_view -> activity_program_view
+    int activity_start_page -> activity_start_page
+    int activity_variable_view -> activity_variable_view
+    int listview_row -> listview_row
+com.pataelmo.isycontroller.R$menu -> com.pataelmo.isycontroller.R$menu:
+    int main -> main
+    int start_page -> start_page
+com.pataelmo.isycontroller.R$string -> com.pataelmo.isycontroller.R$string:
+    int action_settings -> action_settings
+    int app_name -> app_name
+    int configureButton -> configureButton
+    int connectButton -> connectButton
+    int currentValue -> currentValue
+    int disableButton -> disableButton
+    int disableRunAtStartButton -> disableRunAtStartButton
+    int enableButton -> enableButton
+    int enableRunAtStartButton -> enableRunAtStartButton
+    int enabledLabel -> enabledLabel
+    int hello_world -> hello_world
+    int iconDescription -> iconDescription
+    int initValue -> initValue
+    int lastChangedLabel -> lastChangedLabel
+    int lastFinishTimeLabel -> lastFinishTimeLabel
+    int lastRunTimeLabel -> lastRunTimeLabel
+    int offButton -> offButton
+    int onButton -> onButton
+    int pref_default_display_name -> pref_default_display_name
+    int pref_description_social_recommendations -> pref_description_social_recommendations
+    int pref_header_data_sync -> pref_header_data_sync
+    int pref_header_general -> pref_header_general
+    int pref_header_notifications -> pref_header_notifications
+    int pref_login -> pref_login
+    int pref_password -> pref_password
+    int pref_password_summary -> pref_password_summary
+    int pref_reset_db -> pref_reset_db
+    int pref_reset_db_summary -> pref_reset_db_summary
+    int pref_ringtone_silent -> pref_ringtone_silent
+    int pref_server -> pref_server
+    int pref_server_name -> pref_server_name
+    int pref_server_name_hint -> pref_server_name_hint
+    int pref_server_name_summary -> pref_server_name_summary
+    int pref_title_add_friends_to_messages -> pref_title_add_friends_to_messages
+    int pref_title_display_name -> pref_title_display_name
+    int pref_title_display_pass -> pref_title_display_pass
+    int pref_title_new_message_notifications -> pref_title_new_message_notifications
+    int pref_title_ringtone -> pref_title_ringtone
+    int pref_title_social_recommendations -> pref_title_social_recommendations
+    int pref_title_sync_frequency -> pref_title_sync_frequency
+    int pref_title_system_sync_settings -> pref_title_system_sync_settings
+    int pref_title_vibrate -> pref_title_vibrate
+    int pref_use_custom_ssl -> pref_use_custom_ssl
+    int pref_use_custom_ssl_summary -> pref_use_custom_ssl_summary
+    int pref_use_https -> pref_use_https
+    int pref_use_https_summary -> pref_use_https_summary
+    int pref_user_name -> pref_user_name
+    int pref_user_name_summary -> pref_user_name_summary
+    int queryButton -> queryButton
+    int quitButton -> quitButton
+    int refreshButton -> refreshButton
+    int runAtStartupLabel -> runAtStartupLabel
+    int runButton -> runButton
+    int runElseButton -> runElseButton
+    int runThenButton -> runThenButton
+    int runningLabel -> runningLabel
+    int setNewValueButton -> setNewValueButton
+    int statusLabel -> statusLabel
+    int stopButton -> stopButton
+    int titleString -> titleString
+    int title_activity_config -> title_activity_config
+    int title_activity_main -> title_activity_main
+    int title_activity_settings -> title_activity_settings
+com.pataelmo.isycontroller.R$style -> com.pataelmo.isycontroller.R$style:
+    int AppBaseTheme -> AppBaseTheme
+    int AppTheme -> AppTheme
+com.pataelmo.isycontroller.R$xml -> com.pataelmo.isycontroller.R$xml:
+    int pref_data_sync -> pref_data_sync
+    int pref_general -> pref_general
+    int pref_headers -> pref_headers
+    int pref_notification -> pref_notification
+    int preferences -> preferences
 com.pataelmo.isycontroller.SettingsActivity -> com.pataelmo.isycontroller.SettingsActivity:
     android.preference.Preference$OnPreferenceChangeListener sBindPreferenceSummaryToValueListener -> a
     void onCreate(android.os.Bundle) -> onCreate
@@ -1810,16 +1962,23 @@ com.pataelmo.isycontroller.SettingsActivity -> com.pataelmo.isycontroller.Settin
     boolean isXLargeTablet(android.content.Context) -> a
     boolean isSimplePreferences(android.content.Context) -> b
     void onBuildHeaders(java.util.List) -> onBuildHeaders
-    void bindPreferenceSummaryToValue(android.preference.Preference) -> a
-com.pataelmo.isycontroller.SettingsActivity$1 -> com.pataelmo.isycontroller.s:
+    void bindPreferenceSummaryToValue(android.preference.Preference) -> b
+    void access$0(android.preference.Preference) -> a
+com.pataelmo.isycontroller.SettingsActivity$1 -> com.pataelmo.isycontroller.SettingsActivity$1:
     boolean onPreferenceChange(android.preference.Preference,java.lang.Object) -> onPreferenceChange
+com.pataelmo.isycontroller.SettingsActivity$DataSyncPreferenceFragment -> com.pataelmo.isycontroller.SettingsActivity$DataSyncPreferenceFragment:
+    void onCreate(android.os.Bundle) -> onCreate
+com.pataelmo.isycontroller.SettingsActivity$GeneralPreferenceFragment -> com.pataelmo.isycontroller.SettingsActivity$GeneralPreferenceFragment:
+    void onCreate(android.os.Bundle) -> onCreate
+com.pataelmo.isycontroller.SettingsActivity$NotificationPreferenceFragment -> com.pataelmo.isycontroller.SettingsActivity$NotificationPreferenceFragment:
+    void onCreate(android.os.Bundle) -> onCreate
 com.pataelmo.isycontroller.StartPageActivity -> com.pataelmo.isycontroller.StartPageActivity:
     void onCreate(android.os.Bundle) -> onCreate
     boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
     void connectToISY(android.view.View) -> connectToISY
     void configureISY(android.view.View) -> configureISY
     void quit(android.view.View) -> quit
-com.pataelmo.isycontroller.VariableData -> com.pataelmo.isycontroller.t:
+com.pataelmo.isycontroller.VariableData -> com.pataelmo.isycontroller.VariableData:
     int mId -> a
     java.lang.String mName -> b
     java.lang.String mAddress -> c
@@ -1830,7 +1989,7 @@ com.pataelmo.isycontroller.VariableData -> com.pataelmo.isycontroller.t:
     java.lang.String getValueStr() -> a
     java.lang.String getInitValueStr() -> b
     java.lang.String toString() -> toString
-com.pataelmo.isycontroller.VariableTreeFragment -> com.pataelmo.isycontroller.u:
+com.pataelmo.isycontroller.VariableTreeFragment -> com.pataelmo.isycontroller.VariableTreeFragment:
     com.pataelmo.isycontroller.VariableTreeFragment$OnListSelectListener mCallback -> X
     com.pataelmo.isycontroller.DatabaseHelper dbh -> Y
     android.support.v4.widget.SimpleCursorAdapter mAdapter -> Z
@@ -1845,13 +2004,13 @@ com.pataelmo.isycontroller.VariableTreeFragment -> com.pataelmo.isycontroller.u:
     void loadNode(java.lang.String) -> a
     void refreshListData() -> z
     void refreshDisplay() -> a_
-com.pataelmo.isycontroller.VariableTreeFragment$1 -> com.pataelmo.isycontroller.v:
+com.pataelmo.isycontroller.VariableTreeFragment$1 -> com.pataelmo.isycontroller.VariableTreeFragment$1:
     com.pataelmo.isycontroller.VariableTreeFragment this$0 -> m
     void setViewImage(android.widget.ImageView,java.lang.String) -> a
     void setViewText(android.widget.TextView,java.lang.String) -> a
-com.pataelmo.isycontroller.VariableTreeFragment$OnListSelectListener -> com.pataelmo.isycontroller.w:
+com.pataelmo.isycontroller.VariableTreeFragment$OnListSelectListener -> com.pataelmo.isycontroller.VariableTreeFragment$OnListSelectListener:
     void loadVariable(java.lang.String) -> f
-com.pataelmo.isycontroller.VariableViewFragment -> com.pataelmo.isycontroller.x:
+com.pataelmo.isycontroller.VariableViewFragment -> com.pataelmo.isycontroller.VariableViewFragment:
     com.pataelmo.isycontroller.DatabaseHelper dbh -> P
     java.lang.String mId -> Q
     com.pataelmo.isycontroller.VariableData mVarData -> R
@@ -1872,14 +2031,14 @@ com.pataelmo.isycontroller.VariableViewFragment -> com.pataelmo.isycontroller.x:
     void setButton(android.view.View) -> setButton
     void setNewValue(java.lang.String) -> a
     void refreshDisplay() -> a_
-com.pataelmo.isycontroller.VariableViewFragment$1 -> com.pataelmo.isycontroller.y:
+com.pataelmo.isycontroller.VariableViewFragment$1 -> com.pataelmo.isycontroller.VariableViewFragment$1:
     com.pataelmo.isycontroller.VariableViewFragment this$0 -> a
     android.widget.EditText val$input -> b
     void onClick(android.content.DialogInterface,int) -> onClick
-com.pataelmo.isycontroller.VariableViewFragment$2 -> com.pataelmo.isycontroller.z:
+com.pataelmo.isycontroller.VariableViewFragment$2 -> com.pataelmo.isycontroller.VariableViewFragment$2:
     com.pataelmo.isycontroller.VariableViewFragment this$0 -> a
     void onClick(android.content.DialogInterface,int) -> onClick
-com.pataelmo.isycontroller.VariableViewFragment$3 -> com.pataelmo.isycontroller.aa:
+com.pataelmo.isycontroller.VariableViewFragment$3 -> com.pataelmo.isycontroller.VariableViewFragment$3:
     com.pataelmo.isycontroller.VariableViewFragment this$0 -> a
     android.app.AlertDialog val$dialog -> b
     void onFocusChange(android.view.View,boolean) -> onFocusChange

@@ -19,6 +19,7 @@
 #   public *;
 #}
 -keep class * extends android.app.Activity
+-keep class com.pataelmo.isycontroller.*
 -assumenosideeffects class android.util.Log {
     public static *** d(...);
     public static *** v(...);

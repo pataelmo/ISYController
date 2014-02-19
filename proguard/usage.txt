@@ -1087,7 +1087,8 @@ android.support.v4.widget.ViewDragHelper:
 android.support.v4.widget.ViewDragHelper$2
 android.support.v4.widget.ViewDragHelper$Callback:
     148:148:public ViewDragHelper$Callback()
-com.pataelmo.isycontroller.BuildConfig
+com.pataelmo.isycontroller.BuildConfig:
+    public static final boolean DEBUG
 com.pataelmo.isycontroller.DatabaseHelper:
     private static final int DATABASE_VERSION
     private static final java.lang.String DATABASE_NAME
@@ -1157,17 +1158,6 @@ com.pataelmo.isycontroller.MainActivity:
     199:221:public void loadVariableTree(java.lang.String)
     340:343:private void setActionBarTitle(java.lang.String)
     383:385:public void setActionBarTitle(java.lang.String,java.lang.String)
-com.pataelmo.isycontroller.R
-com.pataelmo.isycontroller.R$array
-com.pataelmo.isycontroller.R$attr
-com.pataelmo.isycontroller.R$dimen
-com.pataelmo.isycontroller.R$drawable
-com.pataelmo.isycontroller.R$id
-com.pataelmo.isycontroller.R$layout
-com.pataelmo.isycontroller.R$menu
-com.pataelmo.isycontroller.R$string
-com.pataelmo.isycontroller.R$style
-com.pataelmo.isycontroller.R$xml
 com.pataelmo.isycontroller.SettingsActivity:
     private static final boolean ALWAYS_SIMPLE_PREFS
     public static final java.lang.String KEY_PREF_USERNAME
@@ -1176,10 +1166,6 @@ com.pataelmo.isycontroller.SettingsActivity:
     public static final java.lang.String KEY_PREF_DUMPDB
     public static final java.lang.String KEY_PREF_PUBLICKEY
     public static final java.lang.String KEY_PREF_USE_CUSTOM_SSL
-    229:229:static synthetic void access$0(android.preference.Preference)
-com.pataelmo.isycontroller.SettingsActivity$DataSyncPreferenceFragment
-com.pataelmo.isycontroller.SettingsActivity$GeneralPreferenceFragment
-com.pataelmo.isycontroller.SettingsActivity$NotificationPreferenceFragment
 com.pataelmo.isycontroller.VariableTreeFragment:
     130:132:public void loadDbValues(java.util.ArrayList)
 com.pataelmo.isycontroller.VariableTreeFragment$OnListSelectListener:
