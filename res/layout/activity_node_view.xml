@@ -41,7 +41,7 @@
 	    android:layout_weight="1"/>
 	<RelativeLayout 
 	    android:layout_width="match_parent"
-	    android:layout_height="0dip"
+	    android:layout_height="wrap_content"
 	    android:layout_weight="2"
 	    >
 
@@ -88,19 +88,6 @@
 	        android:textStyle="bold" />
 
 	</RelativeLayout>
-	<View
-	    android:layout_width="fill_parent"
-	    android:layout_height="0dip"
-	    android:layout_weight="1"/>
-	<TextView
-        android:id="@+id/statusText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:gravity="center"
-        android:textStyle=""
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
 	<View
 	    android:layout_width="fill_parent"
 	    android:layout_height="0dip"
